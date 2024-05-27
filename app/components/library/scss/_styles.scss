@@ -1,0 +1,22 @@
+.logo {
+  svg {
+    max-width: 100px;
+  }
+}
+
+.nav-items-group {
+  height: calc(100% - 24px);
+}
+
+.userProfileTabs{
+  nav{
+    @apply bg-transparent border-0;
+    a{
+      @apply text-sm px-4 pb-4 hover:border-b-primary-600 bg-transparent;
+      svg{
+        max-width: 16px;
+        max-height: 16px;
+      }
+    }
+  }
+}

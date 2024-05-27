@@ -1,0 +1,41 @@
+{
+  "results": [
+    {
+      "id": 1,
+      "division_name": "Barishal",
+      "district_name": "Barguna",
+      "reg_count": "500"
+    },
+    {
+      "id": 2,
+      "division_name": "Dhaka",
+      "district_name": "Dhaka",
+      "reg_count": "5,000"
+    },
+    {
+      "id": 3,
+      "division_name": "Dhaka",
+      "district_name": "Gazipur",
+      "reg_count": "5,300"
+    },
+
+    {
+      "id": 4,
+      "division_name": "Dhaka",
+      "district_name": "Gazipur",
+      "reg_count": "5,300"
+    },
+    {
+      "id": 5,
+      "division_name": "Dhaka",
+      "district_name": "Gazipur",
+      "reg_count": "5,300"
+    },
+    {
+      "id": 6,
+      "division_name": "Dhaka",
+      "district_name": "Gazipur",
+      "reg_count": "5,300"
+    }
+  ]
+}

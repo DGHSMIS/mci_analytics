@@ -1,0 +1,63 @@
+{
+  "root": true,
+  "env": {
+    "browser": true,
+    "es6": true,
+    "node": true
+  },
+  "parser": "@typescript-eslint/parser",
+  "parserOptions": {
+    "project": "./tsconfig.json", // tells parser relative path of tsconfig.json
+    "ecmaFeatures": {
+      "jsx": true
+    },
+    "ecmaVersion": 12,
+    "sourceType": "module"
+  },
+  "plugins": [
+    "@typescript-eslint",
+    "@tanstack/query"
+    // "@next/eslint-plugin-next"
+  ],
+  "extends": [
+    "next", // https://github.com/vercel/next.js/blob/canary/packages/eslint-config-next/package.json
+    // "plugin:@next/next/recommended",
+    "plugin:@tanstack/eslint-plugin-query/recommended",
+    "next/core-web-vitals",
+    "eslint:recommended",
+    "plugin:@typescript-eslint/recommended",
+    "prettier",
+    "plugin:@typescript-eslint/recommended-requiring-type-checking" // contains rules that specifically require type information
+  ],
+  "rules": {
+    "@typescript-eslint/no-console": "off",
+    "@typescript-eslint/no-unsafe-assignment": "off",
+    "@typescript-eslint/no-inferrable-types": "off",
+    "@typescript-eslint/no-explicit-any": "off",
+    "@typescript-eslint/no-unsafe-member-access": "off",
+    "@typescript-eslint/no-unsafe-argument": "off",
+    "@typescript-eslint/no-misused-promises": "off",
+    "@typescript-eslint/no-var-requires": "off",
+    "@typescript-eslint/no-unused-vars": "warn",
+    "@typescript-eslint/restrict-template-expressions": "off",
+    "@typescript-eslint/no-floating-promises": "warn",
+    "@typescript-eslint/no-unsafe-return": "warn",
+    "@typescript-eslint/no-unsafe-call": "warn",
+    "@typescript-eslint/restrict-plus-operands": "warn",
+    "@typescript-eslint/ban-types": "warn",
+    "@typescript-eslint/require-await": "warn",
+    "@typescript-eslint/no-unnecessary-type-assertion": "warn",
+    "@typescript-eslint/ban-ts-comment": "warn",
+    "@typescript-eslint/no-empty-function": "warn",
+    "@typescript-eslint/await-thenable": "warn",
+    "no-empty": "warn",
+    "no-var": "warn",
+    "prefer-const": "warn",
+    "no-prototype-builtins": "warn",
+    "no-useless-escape": "warn",
+    "react-hooks/rules-of-hooks": "off",
+    // React Query Specific ESLint
+    "@tanstack/query/exhaustive-deps": "error",
+    "@tanstack/query/stable-query-client": "error"
+  }
+}

@@ -1,0 +1,40 @@
+/**
+// -- Date Time Picker SCSS --
+**/
+.react-datetime-picker__wrapper {
+  // height: 2.5714rem;
+  @apply rounded-md bg-white font-medium text-slate-400;
+  --tw-bg-opacity: 1;
+  // min-width: 14rem;
+  border: 1px solid #cbd5e1 !important;
+  height: 24px !important;
+  .react-datetime-picker__inputGroup__input {
+    // height: auto;
+    padding-block: 0;
+    padding-left: 8px;
+    @apply text-slate-600;
+    height: 24px !important;
+    width: 60px !important;
+  }
+  select,
+  input {
+    @apply text-slate-600 focus:outline-none focus:ring-0 focus:ring-primary-500;
+    font-size: small;
+    height: 24px !important;
+    width: 60px !important;
+  }
+  input {
+    height: 24px !important;
+    max-width: 50px !important;
+  }
+  svg {
+    @apply stroke-slate-400;
+  }
+}
+
+.react-calendar {
+  font-family: inherit;
+  .react-calendar__month-view__days__day--weekend {
+    @apply text-rose-500;
+  }
+}

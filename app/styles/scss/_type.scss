@@ -1,0 +1,107 @@
+$d1-size: 5.5rem;
+$h1-size: 4.5rem;
+$h2-size: 3rem;
+$h3-size: 2.25rem;
+$h4-size: 1.5rem;
+$h5-size: 1.375rem;
+$lead-size: 1.15rem;
+
+html {
+  font-size: 100%;
+}
+body {
+  font-size: 1rem;
+}
+.display-1 {
+  @apply font-extralight tracking-tight text-slate-800 dark:text-slate-400;
+  font-size: $d1-size;
+  @media screen and (max-width: 1024px) {
+    font-size: calc($d1-size / 1.5);
+  }
+}
+
+.display-2 {
+  @apply text-8xl font-extralight tracking-tight text-slate-800 dark:text-slate-400;
+}
+
+.display-3 {
+  @apply text-7xl font-extralight tracking-tight text-slate-800 dark:text-slate-400;
+}
+
+h1 {
+  @apply font-bold leading-none tracking-tight text-slate-800 dark:text-slate-400;
+  font-size: $h1-size;
+  @media screen and (max-width: 1024px) {
+    font-size: calc($h1-size / 1.5);
+  }
+}
+
+h2 {
+  @apply font-semibold tracking-tight text-slate-800 dark:text-slate-400;
+  font-size: $h2-size;
+  @media screen and (max-width: 1024px) {
+    font-size: calc($h2-size / 1.5);
+  }
+}
+
+h3 {
+  // font-size: calc(22 / 16 * 1rem);
+  @apply font-semibold tracking-tight text-slate-800 dark:text-slate-400;
+  font-size: $h3-size;
+  @media screen and (max-width: 1024px) {
+    font-size: calc($h3-size / 1.5);
+  }
+}
+
+h4 {
+  // font-size: calc(18 / 16 * 1rem);
+  @apply font-semibold text-slate-800 dark:text-slate-400;
+  font-size: $h4-size;
+  @media screen and (max-width: 1024px) {
+    font-size: calc($h4-size / 1.15);
+  }
+}
+
+h5 {
+  @apply text-2xl font-semibold tracking-tight text-slate-800 dark:text-slate-400;
+  font-size: $h5-size;
+  @media screen and (max-width: 1024px) {
+    font-size: calc($h5-size / 1.25);
+  }
+}
+
+h6 {
+  @apply text-base font-semibold text-slate-800 dark:text-slate-400;
+  font-size: 1rem;
+}
+
+.caption {
+  @apply text-sm font-medium uppercase tracking-wider dark:text-slate-300;
+}
+
+p,
+li {
+  @apply text-slate-600/90 dark:text-slate-300;
+}
+
+a {
+  @apply transition hover:text-primary;
+}
+
+.lead {
+  @apply dark:text-slate-300;
+  font-size: $lead-size;
+  line-height: 1.5;
+  @media screen and (max-width: 1024px) {
+    font-size: calc($lead-size / 1.15);
+  }
+}
+
+.small {
+  font-size: 0.875rem;
+}
+
+.footer-link {
+  font-size: 0.875rem;
+  // @apply text-slate-600;
+}

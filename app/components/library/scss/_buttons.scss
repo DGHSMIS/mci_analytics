@@ -1,0 +1,143 @@
+$btn-focus-scale: 0.95;
+
+@keyframes button-pop {
+  0% {
+    transform: scale($btn-focus-scale);
+  }
+  40% {
+    transform: scale(1.03);
+  }
+  to {
+    transform: scale(1);
+  }
+}
+
+@keyframes button-text-pop {
+  0% {
+    transform: scale(1.03);
+  }
+  40% {
+    transform: scale($btn-focus-scale);
+  }
+  to {
+    transform: scale(1);
+  }
+}
+
+.btn {
+  @apply font-medium;
+  // font-size: 0.875rem;
+  // font-size: 1rem;
+  animation: button-pop 0.25s ease-out;
+  transition: all 0.2s cubic-bezier(0.35, 0, 0.15, 1);
+  &:active:hover,
+  &:active:focus,
+  &:active {
+    animation: none;
+    transform: scale($btn-focus-scale);
+    // .btn-text {
+    //   animation: button-text-pop 0.25s ease-out;
+    //   transition: all 0.2s cubic-bezier(0.35, 0, 0.15, 1);
+    // }
+  }
+}
+
+.btn-icon {
+  position: relative;
+  &::before {
+    transition: 150ms all ease;
+    position: absolute;
+    content: "";
+    background-color: hsl(210, 40%, 90%);
+    display: block;
+    height: 20px;
+    width: 20px;
+    transform: scale(0);
+    border-radius: 100%;
+    opacity: 0;
+    /*
+    ! z index has been removed because it overlaps other component
+    */
+    // z-index: 2;
+  }
+  &:hover::before {
+    transform: scale(1.75);
+    // transform-origin: center center;
+    opacity: 0.7;
+  }
+  svg {
+    position: relative;
+    /*
+    ! z index has been removed because it overlaps other component
+    */
+    // z-index: 10;
+  }
+}
+
+// -
+// - Fill BUTTONS //
+// -
+.btn-primary {
+  @apply btn bg-primary-500 text-white hover:bg-primary-600 active:bg-primary-700;
+}
+.btn-secondary {
+  @apply btn bg-secondary-500 text-white hover:bg-secondary-600 active:bg-secondary-700;
+}
+.btn-success {
+  @apply btn bg-teal-500 text-white hover:bg-teal-600 active:bg-teal-700;
+}
+.btn-info {
+  @apply btn bg-sky-500 text-white hover:bg-sky-600 active:bg-sky-700;
+}
+.btn-warning {
+  @apply btn bg-amber-500 text-white hover:bg-amber-600 active:bg-amber-700;
+}
+.btn-danger {
+  @apply btn bg-rose-500 text-white hover:bg-rose-600 active:bg-rose-700;
+}
+.btn-neutral {
+  @apply btn bg-slate-100 text-slate-500 hover:bg-slate-200 hover:text-slate-500 active:bg-slate-700 active:text-white;
+}
+
+// -
+// - Outline BUTTONS //
+// -
+.btn-primary-outline {
+  @apply btn border border-primary-500 bg-transparent  text-primary-500 hover:bg-primary-500 hover:text-slate-50 active:bg-primary-700 active:text-slate-50;
+}
+
+.btn-secondary-outline {
+  @apply btn border border-secondary-500 bg-transparent text-secondary-500 hover:bg-secondary-500 hover:text-slate-100 active:bg-secondary-700 active:text-slate-50;
+}
+
+.btn-success-outline {
+  @apply btn border border-teal-500 bg-transparent text-teal-500 hover:bg-teal-500 hover:text-slate-100 active:bg-teal-700 active:text-slate-50;
+}
+
+.btn-info-outline {
+  @apply btn border border-sky-500 bg-transparent text-sky-500 hover:bg-sky-500 hover:text-slate-100 active:bg-sky-700 active:text-slate-50;
+}
+
+.btn-warning-outline {
+  @apply btn border border-amber-500 bg-transparent text-amber-500 hover:bg-amber-500 hover:text-slate-100 active:bg-amber-700 active:text-slate-50;
+}
+
+.btn-danger-outline {
+  @apply btn border border-rose-500 bg-transparent text-rose-500 hover:bg-rose-500 hover:text-slate-100 active:bg-rose-700 active:text-slate-50;
+}
+
+.btn-neutral-outline {
+  @apply btn border border-slate-200 bg-transparent text-slate-500 hover:border-slate-200 hover:bg-slate-200 hover:text-slate-500 active:border-slate-700 active:bg-slate-700 active:text-white;
+}
+
+.btn-link {
+  @apply text-primary-500 hover:text-primary-600 hover:shadow-none;
+}
+
+.btn-disabled {
+  @apply cursor-not-allowed border-primary-500/50 bg-primary-500/50 text-white;
+}
+
+.btn-disabled-outline {
+  @apply cursor-not-allowed border border-gray-200 bg-transparent text-gray-200;
+}

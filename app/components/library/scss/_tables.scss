@@ -1,0 +1,86 @@
+@mixin slate($color: #f1f5f9) {
+  //same as gray100 or bg-slate-100
+  background-color: $color !important;
+}
+@mixin primary($color: #94ffad) {
+  //same as primary200 or bg-primary-200
+  background-color: $color !important;
+}
+.MuiSwitch-root {
+  position: absolute;
+  left: 3px;
+  top: 2px;
+  width: 30px;
+  height: 30px;
+  .MuiSwitch-track {
+    opacity: 1 !important;
+    @include slate;
+  }
+  .Mui-checked + .MuiSwitch-track {
+    & {
+      @include primary;
+    }
+  }
+}
+
+// Table header/iconRow/dropzone and footer bgc
+.MuiToolbar-root.MuiToolbar-gutters {
+  @include slate;
+}
+
+// Table header bgc
+th.MuiTableCell-root.MuiTableCell-head.MuiTableCell-stickyHeader {
+  @include slate;
+}
+
+// Table header label bgc
+.Mui-TableHeadCell-Content-Labels {
+  .Mui-TableHeadCell-Content-Wrapper.MuiBox-root {
+    background-color: transparent;
+  }
+}
+
+// Table header fonts
+.Mui-TableHeadCell-Content-Wrapper.MuiBox-root {
+  text-transform: initial;
+  letter-spacing: 0;
+  font-size: 0.875rem;
+  font-weight: 500;
+  line-height: 1.4;
+  background-color: #f8fafc;
+}
+// Chevron icon container width
+.Mui-active.css-f3gus1-MuiButtonBase-root-MuiTableSortLabel-root {
+  width: fit-content;
+}
+
+// Row hover FX
+.MuiTableRow-root.MuiTableRow-hover {
+  transition: 0ms all 0s;
+  &:hover {
+    @include slate;
+  }
+}
+
+// Show/Hide columns tab & hover
+.MuiButtonBase-root.MuiButton-root {
+  background-color: transparent;
+  &:hover {
+    @include slate;
+  }
+}
+
+// Show/Hide columns switch hover
+.MuiButtonBase-root.MuiMenuItem-root {
+  &:hover {
+    @include slate;
+  }
+}
+
+// Icon hover
+.MuiButtonBase-root.MuiIconButton-root {
+  color: #94a3b8; //slate-400
+  &:hover {
+    @include slate(#e2e8f0); //slate-200
+  }
+}

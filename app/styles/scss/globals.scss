@@ -1,0 +1,201 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@import "/app/components/library/scss/library-index";
+@import "/app/styles/scss/base";
+@import "/app/styles/scss/type";
+/**
+  * React Skeleton Library CSS Added Here
+ */
+@import "react-loading-skeleton/dist/skeleton.css";
+
+* {
+  -webkit-font-smoothing: antialiased;
+}
+
+.card {
+  @apply overflow-hidden rounded-md bg-white p-24;
+  box-shadow: 0 4px 20px -10px rgba(0, 0, 0, 0.15);
+}
+
+.app-wrapper {
+  // @apply bg-gradient-to-b from-white from-50% to-slate-100 pt-56 md:pt-92;
+  @apply pt-56 md:pt-72;
+  // background-color: rgba(240, 248, 255, 1);
+  background-color: rgba(233, 238, 242, 0.25);
+  min-height: calc(100vh - 89px); //100vh minus footer height
+  // padding-inline: 4vw;
+}
+
+section {
+  @apply py-32 xl:py-104;
+}
+
+.container {
+  // @apply px-20 sm:px-4;
+  // @apply px-20 lg:px-32;
+  padding-inline: 4vw;
+}
+
+//+ Customs *********************
+.navbar {
+  @media screen and (min-width: $md) {
+    backdrop-filter: blur(0.5rem);
+    background-color: hsla(0, 0%, 100%, 0.9);
+  }
+  .nav-link-dropdown {
+    &:hover {
+      ~ svg {
+        @apply stroke-primary;
+      }
+    }
+  }
+}
+//! Menu Button
+.menu-btn {
+  &:hover {
+    svg {
+      @apply stroke-primary;
+    }
+  }
+}
+
+//! Landing Hero
+.hero-container {
+  background-image: url("/img/login.jpg");
+  background-repeat: no-repeat;
+  background-size: cover;
+  background-position: 0 0;
+  height: calc(100vh - 92px - 89px);
+
+  .gradient {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+      90deg,
+      rgba(239, 244, 237, 0.8) 45%,
+      rgba(255, 254, 254, 0) 75%,
+      rgba(255, 255, 255, 0) 100%
+    );
+    @media screen and (max-width: $sm) {
+      background: linear-gradient(
+        90deg,
+        rgba(239, 244, 237, 0.8) 65%,
+        rgba(255, 254, 254, 0) 80%,
+        rgba(255, 255, 255, 0) 100%
+      );
+    }
+  }
+}
+
+//! About Hero
+//.about-hero {
+//  background-image: url("/img/hero-img.jpg");
+//  background-repeat: no-repeat;
+//  background-size: cover;
+//  background-position: 0 50%;
+//  min-height: 25rem;
+//}
+
+//! How it works
+.how-it-works {
+  @apply grid-flow-row-dense;
+  .grid {
+    .grid:nth-child(even) {
+      direction: rtl;
+      .rightInfo {
+        @apply items-end text-left;
+        p {
+          direction: ltr;
+        }
+      }
+    }
+  }
+}
+
+//! Login page
+.login-layout {
+  background-image: url("/img/login.jpg");
+  background-color: rgba(3, 97, 71, 1);
+  background-repeat: no-repeat;
+  background-size: cover;
+  background-position: 0 0;
+  background-blend-mode: exclusion;
+  height: calc(100vh - 92px - 90px);
+}
+
+.client-container {
+  @apply mt-32 grid grid-cols-2 gap-20 md:grid-cols-4;
+}
+.client-card {
+  @apply flex min-h-[6rem] items-center justify-center rounded-md bg-white from-slate-100 transition hover:border hover:border-slate-200 lg:min-h-[8rem];
+}
+.client-card-text {
+  @apply text-center text-base font-medium text-slate-700 lg:text-lg;
+}
+
+.client-img {
+  opacity: 0.65;
+  @apply transition;
+  &:hover {
+    opacity: 0.9;
+    @apply saturate-100;
+  }
+}
+
+.react-datetime-picker__wrapper {
+  display: flex;
+  flex-grow: 1;
+  flex-shrink: 0;
+  // border: unset !important;
+  // @apply rounded border;
+  // border-color: rgb(148 163 184 / var(--tw-border-opacity)) !important;
+  // border-style: solid !important;
+  height: 36px !important;
+  align-items: center;
+  .react-datetime-picker__inputGroup__input {
+    font-size: 1rem;
+  }
+}
+
+.mission-vision {
+  @apply grid-cols-2 gap-40 space-y-40 md:grid md:space-y-0;
+}
+
+//! Custom Modal UI
+//.modal-blank {
+//  @apply bg-gradient-to-b from-slate-100 via-slate-300 to-slate-100;
+//}
+// On Hovering over nivo charts
+[role="analyticsChart"] {
+  cursor: pointer;
+}
+
+@media screen and (max-width: 768px) {
+  .vertical-timeline {
+    &::before {
+      display: none !important;
+    }
+  }
+  .vertical-timeline-element-icon,
+  .vertical-timeline-element-content-arrow {
+    display: none !important;
+  }
+  .vertical-timeline-element-content {
+    margin-left: 0 !important;
+  }
+}
+
+//.fhirItems {
+//  .MuiPaper-elevation1{
+//    box-shadow: none !important;
+//  }
+//  .MuiTableRow-head{
+//    @apply bg-navBg rounded;
+//    th{
+//      @apply uppercase text-sm text-slate-500 font-semibold;
+//    }
+//
+//  }
+//}
