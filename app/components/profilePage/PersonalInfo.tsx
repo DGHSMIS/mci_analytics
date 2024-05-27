@@ -1,7 +1,6 @@
 // "use client";
 import Icon from "@library/Icon";
 import {
-  convertDateToReadableFormat,
   selectBloodGroupFromCode,
   selectDisabilityFromCode,
   selectEducationLevelFromCode,
@@ -41,7 +40,7 @@ const PersonalInfo = memo(function PersonalInfo({
     <div className="rounded-lg rounded-t-none bg-white p-32 grid shadow-lg">
       <div className="grid grid-cols-2 gap-40 lg:grid-cols-4">
 
-        {dod !== undefined &&
+        {/* {dod !== undefined &&
           <div className="grid-item">
             <div className="flex gap-x-12">
               <Icon className="mt-3 stroke-primary" iconName="calendar" />
@@ -51,7 +50,7 @@ const PersonalInfo = memo(function PersonalInfo({
               </div>
             </div>
           </div>
-          }
+          } */}
 
         <div className="grid-item">
           <div className="flex gap-x-12">
