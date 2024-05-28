@@ -117,8 +117,8 @@ async function convertDataToPatientESFormat(doc: CDPatientInterface) {
 
     if (esDoc.updated_by.admin) {
       if (DebugElasticProvider) {
-      console.log("<<Updated By Admin is present>>");
-      console.log(esDoc.updated_by.admin.name);
+        console.log("<<Updated By Admin is present>>");
+        console.log(esDoc.updated_by.admin.name);
       }
       hasUpdatedByFacilityAdminInfo = true;
     }
@@ -219,6 +219,68 @@ async function convertDataToPatientESFormat(doc: CDPatientInterface) {
   }
 }
 
+
+/**
+ * This function takes in one patient data and
+ * indexes it to a new patient in Elasticsearch
+ * ! Not used and hence commented (to be removed)
+ * @param patient
+ */
+export async function insertOrUpdateSinglePatientToESIndex(healthId: String) {
+  try {
+    const results: CDPatientInterface[] = [];
+    const queryString = `SELECT * from mci.patient WHERE health_id='${healthId}' LIMIT 1;`;
+    console.log("Query String");
+    console.log(queryString);
+    
+    const patientSearch: any = await cassandraClient.execute(queryString);
+
+    const rows: CDPatientInterface[] = patientSearch.rows;
+    console.log("Rows");
+    console.log(rows);
+    if(rows.length == 0){
+      console.log("No data found for the healthId");
+      return Promise.resolve(false);
+    }
+    
+    results.push(...rows);
+    console.log("Results");
+    console.log(results);
+    
+    const batch = results.slice(0, 1);
+    const formattedDocsPromises = batch.map(patient => convertDataToPatientESFormat(patient));
+    let formattedDocs = await Promise.all(formattedDocsPromises);
+    // Filter out empty array responses from formattedDocs
+    formattedDocs = formattedDocs.filter(doc => doc.length > 0);
+    // Step 2: Flatten the array
+    const flattenedDocs = formattedDocs.reduce((acc, val) => acc.concat(val), []);
+    console.log("Flattened Docs");
+    console.log(flattenedDocs);
+    
+    //Add Single Row to the existing Index
+    if (flattenedDocs.length > 0) {
+      await esBaseClient.bulk({ index: patientESIndex, body: flattenedDocs });
+      if (DebugElasticProvider) console.log(`Indexed ${flattenedDocs.length} documents in current batch`);
+    } else {
+      if (DebugElasticProvider) {
+        console.log("No data to index");
+      }
+    }
+
+    if (DebugElasticProvider) {
+      console.log("New Item added to the Index");
+    }
+    // await esBaseClient.close();
+    return Promise.resolve(true);
+  } catch (error) {
+    console.error("Error in add patient data to the index", error);
+    // await esBaseClient.close();
+    return Promise.resolve(false);
+  }
+}
+
+
+
 /**
  * Fetch ALL data from Cassandra database and Index it in Elasticsearch
  */
@@ -230,7 +292,7 @@ export async function indexAllPatientESData() {
     listOfErrorPatients = [];
     const results: CDPatientInterface[] = [];
     let i: number = 0;
-  
+
     // Define a function to process each page of results
     const getAllPatientData = async (pageState: any, query: string = "SELECT * FROM patient") => {
       if (DebugElasticProvider) console.log("Retrieving page with pageIndex", i);
@@ -240,7 +302,7 @@ export async function indexAllPatientESData() {
         [],
         queryOptions,
       );
-  
+
       const rows: CDPatientInterface[] = result.rows;
       // Process each row here...
       if (DebugElasticProvider) console.log("Pushing page to allRows");
@@ -248,17 +310,17 @@ export async function indexAllPatientESData() {
       // console.log(rows);
       results.push(...rows);
       i++;
-  
+
       // Check if there are more pages
       if (result.pageState) {
         if (DebugElasticProvider) console.log("More pages to come" + result.pageState);
         await getAllPatientData(result.pageState);
       }
     };
-  
+
     // Call the getAllPaginatedData function to start retrieving pages
     await getAllPatientData(null);
-  
+
     // Index the data in batches
     for (let i = 0; i < results.length; i += batchSize) {
       const batch = results.slice(i, i + batchSize);
@@ -267,10 +329,10 @@ export async function indexAllPatientESData() {
       let formattedDocs = await Promise.all(formattedDocsPromises);
       // Filter out empty array responses from formattedDocs
       formattedDocs = formattedDocs.filter(doc => doc.length > 0);
-  
+
       // Step 2: Flatten the array
       const flattenedDocs = formattedDocs.reduce((acc, val) => acc.concat(val), []);
-  
+
       // Step 3: Send the data to ES Index, ensuring there's something to index
       if (flattenedDocs.length > 0) {
         if (DebugElasticProvider) { indexCount += flattenedDocs.length; }
@@ -288,13 +350,14 @@ export async function indexAllPatientESData() {
       console.log("Total Alo Registration Count");
       console.log(aloRegCount);
     }
-  
+    // await esBaseClient.close();
     return true;
   } catch (error) {
     console.error("Error in indexing all patient data", error);
+    // await esBaseClient.close();
     return false;
   }
-  
+
 }
 
 /**

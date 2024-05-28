@@ -1,8 +1,6 @@
 import { Client, ClientOptions } from "@elastic/elasticsearch";
 import { RequestBody } from "@elastic/elasticsearch/lib/Transport";
-import { sleep } from "@utils/utilityFunctions";
 import { ELASTICSEARCH_HOST, ELASTIC_PASSWORD, ELASTIC_USER, maxCompressedResponseSize, requestTimeoutInMS } from "@providers/elasticsearch/constants";
-import { indexAllPatientESData } from "./patientIndex/ESPatientIndex";
 
 
 interface ESRequestOptions {

@@ -16,12 +16,64 @@ const batchSize = ELASTIC_BATCH_SIZE;
 
 
 /**
+ * This function takes in one patient data and
+ * indexes it to a new patient in Elasticsearch
+ * ! Not used and hence commented (to be removed)
+ * @param patient
+ */
+export async function insertOrUpdateSinglePatientToHealthRecordESIndex(healthId: String) {
+  try {
+    const results: CDPatientInterface[] = [];
+    const queryString = `SELECT * from mci.patient WHERE health_id='${healthId}' LIMIT 1;`;
+    console.log("Query String");
+    console.log(queryString);
+    
+    const patientSearch: any = await cassandraClient.execute(queryString);
+
+    const rows: CDPatientInterface[] = patientSearch.rows;
+    console.log("Rows");
+    console.log(rows);
+   
+    
+    results.push(...rows);
+    console.log("Results");
+    console.log(results);
+    if(results.length == 0){
+      console.log("No data found for the healthId");
+      return Promise.resolve(false);
+    }
+    const formattedDocsPromises = await convertCassandraPatientToESHealthRecordSummaryIndexObject(results[0]);
+    
+    console.log("formattedDocsPromises Docs");
+    console.log(formattedDocsPromises);
+    
+    //Add Single Row to the existing Index
+    if (formattedDocsPromises) {
+      await esBaseClient.bulk({ index: healthRecordESIndexName, body: [{ index: { _index: healthRecordESIndexName, _id: healthId } }, formattedDocsPromises] });
+      if (DebugElasticProvider) console.log(`Indexed ${formattedDocsPromises.health_id} document to the ${healthRecordESIndexName} index`);
+    } else {
+      if (DebugElasticProvider) {
+        console.log("No data to index");
+      }
+    }
+
+    if (DebugElasticProvider) {
+      console.log("New Item added to the Index " + healthRecordESIndexName);
+    }
+    // await esBaseClient.close();
+    return Promise.resolve(true);
+  } catch (error) {
+    console.error("Error in add Patient data to the index", error);
+    // await esBaseClient.close();
+    return Promise.resolve(false);
+  }
+}
+/**
  * Maps Cassandra Patient data to Elasticsearch Patient data index format
  * @param doc 
  * @returns 
  */
 async function convertDataToHealthRecordSummaryESFormat(doc: CDPatientInterface) {
-
   if (!doc.health_id) {
     if (DebugElasticProvider) {
       console.log("ERROR HEALTH ID NOT FOUND");
@@ -40,7 +92,7 @@ async function convertDataToHealthRecordSummaryESFormat(doc: CDPatientInterface)
 
     const created_byTemp = temporarilyHotFixJSONObject(doc.created_by, doc.health_id, "created_by");
     const created_by = JSON.parse(created_byTemp ?? {});
-    let created_facility_id = created_by.facility ? Number(created_by.facility.id) : null;
+    const created_facility_id = created_by.facility ? Number(created_by.facility.id) : null;
 
     if (DebugElasticProvider) {
       console.log("created_facility_id is");
@@ -145,7 +197,7 @@ export async function indexAllHealthRecordsESData() {
   }
 }
 
-export const convertCassandraPatientToESHealthRecordSummaryIndexObject = (doc: CDPatientInterface): ESHealthRecordSummaryInterface => {
+export const convertCassandraPatientToESHealthRecordSummaryIndexObject = (doc: CDPatientInterface) => {
   return {
     health_id: doc.health_id,
     active: doc.active,

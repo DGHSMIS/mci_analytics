@@ -19,7 +19,6 @@ export interface RegistrationStatsProps {
   eMISFacilityCount: number;
   message?: string;
 }
-
 /**
  * Reindex All Data from Cassandra to Elasticsearch
  * @param req
