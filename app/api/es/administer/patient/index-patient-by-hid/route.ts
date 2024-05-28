@@ -1,7 +1,7 @@
 import { insertOrUpdateSinglePatientToHealthRecordESIndex } from "@api/providers/elasticsearch/healthRecordSummaryIndex/ESHealthRecordSummaryIndex";
 import { insertOrUpdateSinglePatientToESIndex, patientESIndex } from "@providers/elasticsearch/patientIndex/ESPatientIndex";
+import { checkIfAuthenticated } from "@utils/lib/auth";
 import { sendErrorMsg, sendSuccess } from "@utils/responseHandler";
-import { validateKnowHostToAccessRoute } from "@utils/utilityFunctions";
 import { NextRequest } from "next/server";
 import "server-only";
 
@@ -27,10 +27,16 @@ export const dynamicParams = true;
 export async function GET(req: NextRequest) {
     console.log(`Add new patient to Index ${patientESIndex} index`);
     //This route is only accessible from the known hosts
-    if (!validateKnowHostToAccessRoute(req)) {
-        return sendErrorMsg('Forbidden: Request is not from the host serve', 403);
+    console.log("Get Latest Data");
+    //Check Authorization & respond error if not verified
+    const isValidUserRequest = await checkIfAuthenticated(req);
+  
+    console.log("isValidUserRequest");
+    console.log(isValidUserRequest);
+    if (isValidUserRequest !== null) {
+      return isValidUserRequest;
     }
-    console.log('Request is from the known host');
+    console.log('Request is from Validated User');
 
     try {
         const params: any = req.nextUrl.searchParams;

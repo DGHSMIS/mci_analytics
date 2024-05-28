@@ -21,7 +21,7 @@ export async function GET(req: NextRequest) {
   //get Request from NextRequest
   console.log("Get Aggregated Name");
   //Check Authorization & respond error if not verified
-  // const isNotVerifiedResponse = await checkRequestHeaders(req);
+  // const isNotVerifiedResponse = await checkIfMCIAdminOrApprover(req);
   // console.log(isNotVerifiedResponse);
   // if (isNotVerifiedResponse) {
   //   return isNotVerifiedResponse;

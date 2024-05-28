@@ -1,3 +1,4 @@
+import { ESPatientInterface } from "@api/providers/elasticsearch/patientIndex/interfaces/ESPatientInterface";
 import { AddressProps } from "@components/profilePage/AddressBlock/AddressBlock";
 import {
   bloodGroupCodes,
@@ -13,11 +14,9 @@ import {
   upazilaCodes
 } from "@utils/constants";
 import { ESDateRangeSingleItemQueryInterface } from "@utils/interfaces/ESModelInterfaces";
-import { ESPatientInterface } from "@api/providers/elasticsearch/patientIndex/interfaces/ESPatientInterface";
 import { addDays, subDays, subMinutes, subMonths } from "date-fns";
-import { v1 as uuidv1 } from "uuid";
 import { NextRequest } from "next/server";
-import { sendErrorMsg } from '@utils/responseHandler';
+import { v1 as uuidv1 } from "uuid";
 
 /**
  * Convert Gender Code to Readable Format
@@ -479,18 +478,21 @@ export const getResponseHeaders = (
   }
   return responseHeaders;
 }
-  
-export const validateKnowHostToAccessRoute = (req: NextRequest) => {
 
+
+export const validateKnowHostToAccessRoute = (req: NextRequest) => {
   // Retrieve the IP address from the request
-  const requestIP = req.headers.get('host') ?? "";
+  const requestIP = (req.headers.get('x-forwarded-for') || req.headers.get('x-real-ip') || req.headers.get('host')) ?? "";
+  console.log(requestIP);
 
   console.log(`requestIP: ${requestIP}`);
+  console.log(`x-forwarded-for: ${req.headers.get('x-forwarded-for')}`);
+  console.log(`x-real-ip: ${req.headers.get('x-real-ip')}`);
   console.log(`host: ${req.headers.get('host')}`);
-  console.log(KNOWN_SAFE_HOST_IP_LIST.includes(requestIP.trim()));
+
   // Check if the request is from the host server
-  if (KNOWN_SAFE_HOST_IP_LIST.includes(requestIP)) {
-    return true;
+  if (!KNOWN_SAFE_HOST_IP_LIST.includes(requestIP)) {
+    return false;
   }
-  return false;
+  return true;
 }

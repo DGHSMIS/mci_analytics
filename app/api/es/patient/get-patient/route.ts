@@ -1,8 +1,8 @@
 // Next.js API route support: https://nextjs.org/docs/api-routes/introduction
-import { retrieveMinioImageAsBase64 } from "@providers/minio/MinioBase";
 import { esBaseClient } from "@providers/elasticsearch/ESBase";
 import { patientESIndex } from "@providers/elasticsearch/patientIndex/ESPatientIndex";
-import { checkRequestHeaders } from "@utils/lib/auth";
+import { retrieveMinioImageAsBase64 } from "@providers/minio/MinioBase";
+import { checkIfMCIAdminOrApprover } from "@utils/lib/auth";
 import { NextRequest, NextResponse } from "next/server";
 import { ESPatientInterface } from '../../../providers/elasticsearch/patientIndex/interfaces/ESPatientInterface';
 
@@ -25,7 +25,7 @@ export async function GET(req: NextRequest) {
   console.log("Get Latest Data for the patient is ");
   console.log(req.headers);
   //Check Authorization & respond error if not verified
-  const isNotVerifiedResponse = await checkRequestHeaders(req);
+  const isNotVerifiedResponse = await checkIfMCIAdminOrApprover(req);
   console.log(isNotVerifiedResponse);
   if (isNotVerifiedResponse !== null) {
     return isNotVerifiedResponse;

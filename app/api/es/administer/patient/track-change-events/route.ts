@@ -1,7 +1,7 @@
-import "server-only";
 import { cassandraClient } from "@providers/cassandra/cassandra";
 import { NextRequest, NextResponse } from "next/server";
-import { checkRequestHeaders } from "utils/lib/auth";
+import "server-only";
+import { checkIfMCIAdminOrApprover } from "utils/lib/auth";
 import { dateToUuidv1, xMinutesAgo } from "utils/utilityFunctions";
 
 export const dynamic = "force-dynamic";
@@ -18,7 +18,7 @@ const uuidv1 = require("uuid").v1;
  */
 export async function GET(req: NextRequest) {
   //Check Authorization & respond error if not verified
-  const isNotVerifiedResponse = await checkRequestHeaders(req);
+  const isNotVerifiedResponse = await checkIfMCIAdminOrApprover(req);
   if (isNotVerifiedResponse) {
     return isNotVerifiedResponse;
   }

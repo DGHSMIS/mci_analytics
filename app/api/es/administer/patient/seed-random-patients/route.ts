@@ -1,14 +1,14 @@
 import { CASSANDRA_PAGE_SIZE } from "@api/providers/cassandra/constants";
 import {
-  cassandraClient,
-  removeRowsFromDB
+    cassandraClient,
+    removeRowsFromDB
 } from "@providers/cassandra/cassandra";
 import {
-  getRandomDistrictFromDivisionCode,
-  getRandomlySelectedDivisionCode,
-  getRandomUpazilaFromDivisionDistrictCode,
-  patientSeederInsertQuery,
-  seederParams
+    getRandomDistrictFromDivisionCode,
+    getRandomlySelectedDivisionCode,
+    getRandomUpazilaFromDivisionDistrictCode,
+    patientSeederInsertQuery,
+    seederParams
 } from "@providers/cassandra/PatientSeederQueries";
 import divisionList from "@utils/constants/DivisionCodes.json";
 import { CDPatientInterface } from "@utils/interfaces/CDPatientInterface";
@@ -29,7 +29,7 @@ export const dynamicParams = true;
  */
 export async function POST(req: NextRequest) {
   //Check Authorization & respond error if not verified
-  // const isNotVerifiedResponse = await checkRequestHeaders(req);
+  // const isNotVerifiedResponse = await checkIfMCIAdminOrApprover(req);
   // if (isNotVerifiedResponse) {
   //   return isNotVerifiedResponse;
   // }

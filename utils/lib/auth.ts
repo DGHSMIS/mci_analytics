@@ -1,9 +1,9 @@
 import { loginAuthenticationHeaders } from "@utils/constants";
+import AuthResponseInterface from "@utils/interfaces/Authentication/AuthResponseInterface";
 import CredentialsProvider from "next-auth/providers/credentials";
 import { NextResponse } from "next/server";
-import { getAuthBaseUrl, getUrlFromName } from "./apiList";
 import process from "process";
-import AuthResponseInterface from "@utils/interfaces/Authentication/AuthResponseInterface";
+import { getAuthBaseUrl, getUrlFromName } from "./apiList";
 // Ref - https://next-auth.js.org/configuration/options
 export const authOptions: any = {
   session: {
@@ -175,7 +175,7 @@ export async function verifyToken(token: string) {
   }
   return null;
 }
-export async function checkRequestHeaders(
+export async function checkIfMCIAdminOrApprover(
   req: Request
 ): Promise<NextResponse | null> {
   //Get Authorization Headers
@@ -195,7 +195,6 @@ export async function checkRequestHeaders(
   } else{
     console.log("Does user have groups?");
     console.log(isUserVerfied);
-    
   
     if(isUserVerfied.group_names_formatted != null){
       let isMCIAdmin = false;
@@ -217,6 +216,74 @@ export async function checkRequestHeaders(
       }
       else{
         console.log("Returning Unauthorized 2");
+        return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
+      }
+    }
+  }
+  console.log("Returning Unauthorized 3");
+  return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
+}
+
+/**
+ * HRIS Authentication
+ * @param req 
+ * @returns 
+ */
+export async function checkIfAuthenticated(
+  req: Request
+): Promise<NextResponse | null> {
+  //Get Authorization Headers
+  const accessToken = req.headers.get("X-Auth-Token");
+  const clientId = req.headers.get("client-id");
+  const email = req.headers.get("email");
+  console.log("Checking Authorization headers");
+  console.log(accessToken);
+  
+  if (!accessToken || !email || !clientId) {
+    console.log("Invalid Headers");
+    return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
+  }
+
+  //Verifying the validity of the token
+  const isUserVerfied:AuthResponseInterface|null = await verifyToken(accessToken);
+  //If token is not valid, return 401
+  if(isUserVerfied == null){
+    console.log("Auth Token is null");
+    return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
+  } else{
+    console.log("Does user have groups?");
+    console.log(isUserVerfied);
+    //validate email
+    if(isUserVerfied?.email == null){
+      return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
+    } else if(isUserVerfied?.email != email){
+      return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
+    }
+    //Validate Client ID
+    if(isUserVerfied.id == null){
+      return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
+    } else if(isUserVerfied.id != parseInt(clientId)){
+      return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
+    }
+
+    if(isUserVerfied.group_names_formatted != null){
+      let isMCIAdmin = false;
+      let isMCIUser = false;
+      isUserVerfied.group_names_formatted.forEach((group) => {
+        console.log("The group item is");
+        console.log(group);
+        if(group == "mci-admin"){
+          isMCIAdmin = true
+        }
+        if(group == "mci-user"){
+          isMCIUser = true
+        }
+      });
+      if(isMCIAdmin && isMCIUser){ 
+        console.log("Returning Null");
+        return null;
+      } else{
+        console.log("User does not have sufficient permissions");
         return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
       }
     }

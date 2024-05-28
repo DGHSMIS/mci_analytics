@@ -1,5 +1,5 @@
 import { patientESIndex } from "@providers/elasticsearch/patientIndex/ESPatientIndex";
-import { checkRequestHeaders } from "@utils/lib/auth";
+import { checkIfMCIAdminOrApprover } from "@utils/lib/auth";
 import { NextRequest, NextResponse } from "next/server";
 import { esBaseClient } from "../../../providers/elasticsearch/ESBase";
 
@@ -21,7 +21,7 @@ export async function GET(req: NextRequest) {
   //get Request from NextRequest
   console.log("Get Latest Data");
   //Check Authorization & respond error if not verified
-  const isValidUserRequest = await checkRequestHeaders(req);
+  const isValidUserRequest = await checkIfMCIAdminOrApprover(req);
 
   console.log("isValidUserRequest");
   console.log(isValidUserRequest);
