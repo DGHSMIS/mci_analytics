@@ -115,6 +115,8 @@ export const ESPatientMapping = {
     hid_card_status: { type: "keyword" },
     holding_number: { type: "keyword" },
     household_code: { type: "keyword" },
+    index_time: { type: "date" },
+    index_updated_time: { type: "date" },
     marital_relations: { type: "keyword" },
     marital_status: { type: "keyword" },
     marriage_id: { type: "keyword" },

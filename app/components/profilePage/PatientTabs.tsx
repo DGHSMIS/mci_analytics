@@ -1,14 +1,14 @@
 "use client";
 
+import { ESPatientInterface } from "@api/providers/elasticsearch/patientIndex/interfaces/ESPatientInterface";
+import { MCISpinner } from "@components/MCISpinner";
+import SkeletonAddressBlock from "@components/profilePage/AddressBlock/SkeletonAddressBlock";
 import { SkeletonPersonalInfo } from "@components/profilePage/PersonalInfo";
 import { SkeletonTab, TabItemProps } from "@library/Tabs";
-import { ESPatientInterface } from "@api/providers/elasticsearch/patientIndex/interfaces/ESPatientInterface";
-import dynamic from "next/dynamic";
-import React, { memo, useState } from "react";
-import { MCISpinner } from "@components/MCISpinner";
 import { EncounterListItem } from "@utils/interfaces/Encounter/Encounter";
 import { getUserAddressesFromInstance } from "@utils/utilityFunctions";
-import SkeletonAddressBlock from "@components/profilePage/AddressBlock/SkeletonAddressBlock";
+import dynamic from "next/dynamic";
+import React, { memo, useState } from "react";
 
 const Tabs = dynamic(() => import("@library/Tabs"), {
   ssr: true,
@@ -79,8 +79,8 @@ const PatientTabs: React.FC<PatientDetailsProps> = ({
 
   const addressItems = getUserAddressesFromInstance(patientInfo);
 
-  console.log("<<<patientInfo>>>");
-  console.log(patientInfo);
+  // console.log("<<<patientInfo>>>");
+  // console.log(patientInfo);
 
   // const resource = JSON.parse(fhirResource);
   return (

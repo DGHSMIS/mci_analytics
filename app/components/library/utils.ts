@@ -110,7 +110,7 @@ export const getAPIResponse = async (
     apiHeader["next"] = { revalidate: revalidationTime }; //Cache the data that is fetched for 1 second
   }
 
-  console.log(apiHeader);
+  // console.log(apiHeader);
   const results = await fetch(`${basePath + apiPath}`, apiHeader);
   return results.json();
 };
@@ -183,11 +183,11 @@ export const formatDateTime = (
   datetimeString: string, //ISO date string
   formatString: string | undefined = undefined,
 ) => {
-  console.log("Parsing Time");
-  console.log(datetimeString);
+  // console.log("Parsing Time");
+  // console.log(datetimeString);
   const dateObj = parseISO(datetimeString);
-  console.log("The Date Object>>");
-  console.log(dateObj);
+  // console.log("The Date Object>>");
+  // console.log(dateObj);
   const formattedDate = format(
     dateObj,
     formatString==undefined ? "h:mm a, do MMM, yy":formatString,
@@ -281,4 +281,9 @@ export const parseDateStringToDateObject = (dateString: string) => {
 export const getRevalidationTime = () => {
   // return 0;
   return parseInt(process.env.NEXT_PUBLIC_API_REVALIDATE_TIME ?? '100');
+};
+
+// Create an array of string[] from a comma separated string
+export const commaSeperatedStringToArray = (str: string) => {
+  return str.split(",");
 };

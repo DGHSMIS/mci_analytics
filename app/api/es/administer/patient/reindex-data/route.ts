@@ -1,3 +1,4 @@
+import { formatDateTime } from '@library/utils';
 import { dropAndGenerateIndex } from "@providers/elasticsearch/ESBase";
 import { indexAllPatientESData, patientESIndex } from "@providers/elasticsearch/patientIndex/ESPatientIndex";
 import { ESPatientIndexBody } from "@providers/elasticsearch/patientIndex/ESPatientMapping";
@@ -38,13 +39,13 @@ export async function POST(req: NextRequest) {
     if (dropAndRegeneratePatientIndex) {
       const isIndexAllPatients = await indexAllPatientESData();
       if (isIndexAllPatients) {
-        return sendSuccess({ message: `${patientESIndex} index has been reindexed successfully` }, 200);
+        return sendSuccess({ message: `${patientESIndex} index has been reindexed successfully at ${formatDateTime(new Date().toISOString())}` }, 200);
       }
     }
-    return sendErrorMsg(`Reindexing of ${patientESIndex} index failed`);
+    return sendErrorMsg(`Reindexing of ${patientESIndex} index failed at ${formatDateTime(new Date().toISOString())}`);
   } catch (error) {
     console.log(error);
-    return sendErrorMsg(`Reindexing of ${patientESIndex} index failed, ${(error as any).message}`);
+    return sendErrorMsg(`Reindexing of ${patientESIndex} index failed at ${formatDateTime(new Date().toISOString())}, ${(error as any).message}`);
   }
 }
 

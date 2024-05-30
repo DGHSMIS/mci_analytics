@@ -83,7 +83,7 @@ const Navbar = memo(function Navbar({
   currentLocation = "Dhaka",
 }: NavbarProps) {
   const { data: session } = useSession();
-  console.log({ data: session });
+  // console.log({ data: session });
   //+ Modal Stuff
   const [showSearchModal, setShowSearchModal] = useState(false);
   const [showLocationModal, setShowLocationModal] = useState(false);

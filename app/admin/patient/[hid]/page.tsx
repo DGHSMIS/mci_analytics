@@ -1,12 +1,9 @@
 import LoggedInStoreInitializer from "@store/LoggedInStoreInitializer";
-import { initialStoreStates } from "@store/store";
-import StoreInitializer from "@store/StoreInitializer";
 import { initialLoggedInStoreStates } from "@store/useLoggedInStore";
 import { Metadata } from "next";
 import { getServerSession } from "next-auth";
 import { signOut } from "next-auth/react";
 import dynamic from "next/dynamic";
-import React from "react";
 import { authOptions } from "utils/lib/auth";
 
 const pageTitle = "Patient Info | MCI";
@@ -33,15 +30,15 @@ interface PatientDetailsProps {
 async function page(params: PatientDetailsProps) {
   //Accessing token from Server Side
   const session: any = await getServerSession(authOptions);
-  console.log("Session in Detail Page!!");
-  console.log(session);
+  // console.log("Session in Detail Page!!");
+  // console.log(session);
   //get query params
   if (session) {
-    console.log(session.accessToken);
+    // console.log(session.accessToken);
   } else {
     await signOut();
   }
-  console.log(params.params.hid);
+  // console.log(params.params.hid);
 
   const initalizedStoreStates = {
     ...initialLoggedInStoreStates,

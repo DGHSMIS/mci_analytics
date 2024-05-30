@@ -1,6 +1,7 @@
-import { CDPatientInterface } from "@utils/interfaces/CDPatientInterface";
-import { auth, Client, ClientOptions, policies, types } from "cassandra-driver";
 import { CASSANDRA_CONNECT_TIMEOUT, CASSANDRA_CONSISTENCY, CASSANDRA_DATACENTER, CASSANDRA_DEFAULT_KEYSPACE, CASSANDRA_IP, CASSANDRA_KEEP_ALIVE, CASSANDRA_PAGE_SIZE, CASSANDRA_PAGINATION_SIZE, CASSANDRA_PASSWORD, CASSANDRA_PORT, CASSANDRA_READ_TIMEOUT, CASSANDRA_TCP_NODELAY, CASSANDRA_USER } from "@api/providers/cassandra/constants";
+import { commaSeperatedStringToArray } from "@library/utils";
+import { CDPatientInterface } from "@utils/interfaces/CDPatientInterface";
+import { auth, Client, ClientOptions, policies } from "cassandra-driver";
 
 
 
@@ -9,7 +10,7 @@ import { CASSANDRA_CONNECT_TIMEOUT, CASSANDRA_CONSISTENCY, CASSANDRA_DATACENTER,
  */
 
 const cassandraOptions: ClientOptions = {
-  contactPoints: [CASSANDRA_IP],
+  contactPoints: commaSeperatedStringToArray(CASSANDRA_IP),
   protocolOptions: {
     port:CASSANDRA_PORT,
     maxSchemaAgreementWaitSeconds: CASSANDRA_READ_TIMEOUT,

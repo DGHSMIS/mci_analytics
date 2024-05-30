@@ -1,16 +1,14 @@
 "use client";
-import React, { memo } from "react";
-import dynamic from "next/dynamic";
+import { ESPatientInterface } from "@api/providers/elasticsearch/patientIndex/interfaces/ESPatientInterface";
+import { getAPIResponse, getRevalidationTime } from "@library/utils";
 import { useLoggedInStore } from "@store/useLoggedInStore";
 import { useSuspenseQuery } from "@tanstack/react-query";
-import { getAPIResponse, getRevalidationTime } from "@library/utils";
-import { getBaseUrl, getUrlFromName } from "@utils/lib/apiList";
-import { ESPatientInterface } from "@api/providers/elasticsearch/patientIndex/interfaces/ESPatientInterface";
 import { EncounterListItem } from "@utils/interfaces/Encounter/Encounter";
-import EncounterModal from "./EncounterSegment/EncounterModal";
-import { signOut } from "next-auth/react";
+import { getBaseUrl, getUrlFromName } from "@utils/lib/apiList";
 import { delay } from "lodash";
-import { retrieveMinioImageAsBase64 } from "@providers/minio/MinioBase";
+import { signOut } from "next-auth/react";
+import dynamic from "next/dynamic";
+import EncounterModal from "./EncounterSegment/EncounterModal";
 
 /**
  * Dynamic Imports Patient ID Blocks
@@ -33,7 +31,7 @@ const PatientTabs = dynamic(
 );
 
 function usePatientDataSuspenseQuery(props: { access_token: string, patientHid: string }) {
-  console.log("User's access_token " + props.access_token);
+  // console.log("User's access_token " + props.access_token);
   /* @ts-ignore */
   const query = useSuspenseQuery({
     queryKey: ["patient", props.patientHid, props.access_token],
@@ -78,8 +76,8 @@ function usePatientEncounterSuspenseQuery(props: { access_token: string, patient
 
   });
   if(query.data.message){
-    console.log(query.data)
-    console.log("LOGGING OUT due in invalid access_token")
+    // console.log(query.data)
+    // console.log("LOGGING OUT due in invalid access_token")
       delay(async()=>await signOut(), 2000);
   }
   return [query.data as EncounterListItem[], query] as const;
@@ -88,11 +86,11 @@ function usePatientEncounterSuspenseQuery(props: { access_token: string, patient
 export default function PatientProfileMain({ session }: any) {
 
   const { patientId } = useLoggedInStore();
-  console.log(patientId);
-  console.log("session in detail page");
-  console.log(session);
+  // console.log(patientId);
+  // console.log("session in detail page");
+  // console.log(session);
   const [patientInfo, isLoading] = usePatientDataSuspenseQuery({ access_token:  session.accessToken ? session.accessToken:"", patientHid: patientId ?? "" });
-  console.log("Patient Id from Store is - ");
+  // console.log("Patient Id from Store is - ");
   const [patientEncounterList] = usePatientEncounterSuspenseQuery({  access_token:  session.accessToken ? session.accessToken:"", patientHid: patientId ?? "" });
   
   return (

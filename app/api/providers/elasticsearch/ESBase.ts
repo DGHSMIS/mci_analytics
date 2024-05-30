@@ -25,10 +25,15 @@ const clientOptions: ClientOptions = {
 // Establish connection to Elasticsearch
 export const esBaseClient = new Client(clientOptions);
 
-const getESAuthHeader = (esEndpoint:string) => {
+/**
+ * Method to generate the ElasticSearch Auth Header
+ * @param esEndpoint 
+ * @returns 
+ */
+export const getESAuthHeader = (esEndpoint: string) => {
   return {
-    esUrl:`${ELASTICSEARCH_HOST}/${esEndpoint}`,
-    authHeader:'Basic ' + Buffer.from(ELASTIC_USER + ':' + ELASTIC_PASSWORD).toString('base64')
+    esUrl: `${ELASTICSEARCH_HOST}/${esEndpoint}`,
+    authHeader: 'Basic ' + Buffer.from(ELASTIC_USER + ':' + ELASTIC_PASSWORD).toString('base64')
   }
 }
 
@@ -41,7 +46,7 @@ const getESAuthHeader = (esEndpoint:string) => {
  * @param wait_for_active_shards 
  * @returns 
  */
-export async function createESIndex(indexName:string, body:RequestBody) {
+export async function createESIndex(indexName: string, body: RequestBody) {
   const esAuthOptions: ESRequestOptions = getESAuthHeader(indexName);
   try {
     const response = await fetch(esAuthOptions.esUrl, {
@@ -59,7 +64,7 @@ export async function createESIndex(indexName:string, body:RequestBody) {
 
     const data = await response.json();
     console.log("Index created successfully:", data);
-    return true;
+    return Promise.resolve(true);
   } catch (error) {
     console.error("Error creating index:", (error as any).message || error);
     throw new Error(`Error creating new index: ${(error as any).message || error}`);
@@ -78,7 +83,7 @@ export async function doesESIndexExist(indexName: string) {
     return Promise.resolve({ exists: true, indexInstance: indexInstance });
   } catch (error) {
     console.error("Error checking index existence:", error);
-    return Promise.resolve( { exists: false });
+    return Promise.resolve({ exists: false });
   }
 }
 
@@ -89,7 +94,7 @@ export async function doesESIndexExist(indexName: string) {
  * @param indexName 
  * @returns 
  */
-async function checkESIndexAndGetUUID(indexName:string) {
+async function checkESIndexAndGetUUID(indexName: string) {
   const esAuthOptions: ESRequestOptions = getESAuthHeader(indexName);
 
   try {
@@ -120,7 +125,7 @@ async function checkESIndexAndGetUUID(indexName:string) {
       console.log(`Body of Index - ${indexName} is ${JSON.stringify(indexInfo[indexName])}`);
       console.log(indexInfo[indexName]);
       console.log(`UUID of ${indexName} is ${indexInfo[indexName].settings.index.uuid}`);
-      
+
       return indexInfo[indexName].settings.index.uuid;
     } else {
       console.log(`Index ${indexName} does not exist.`);
@@ -132,7 +137,7 @@ async function checkESIndexAndGetUUID(indexName:string) {
       return null;
     } else {
       console.error("Error checking index existence:", (error as any).message || error);
-      throw error;
+      throw new Error(`Error checking index named - ${indexName}'s existence | ${(error as any).message || error}` as string);
     }
   }
 }
@@ -140,17 +145,19 @@ async function checkESIndexAndGetUUID(indexName:string) {
 /**
  * Method to delete an Elasticsearch Index
  * @param indexName 
+ * @param ignore_unavailable OPTIONAL - Ignore unavailable index
+ * @returns boolean - true if index is deleted successfully
  */
-  
+
 // Example usage of deleteESIndex function
-export async function deleteESIndex(indexName:string, ignore_unavailable = true) {
+export async function deleteESIndex(indexName: string, ignore_unavailable = true) {
   const esAuthOptions: ESRequestOptions = getESAuthHeader(indexName);
 
   const indexUUID = await checkESIndexAndGetUUID(indexName);
-  
+
   if (!indexUUID && ignore_unavailable) {
     console.log("Index does not exist, skipping delete");
-    return true;
+    return Promise.resolve(true);
   } else if (!indexUUID && !ignore_unavailable) {
     throw new Error(`Index ${indexName} does not exist` as string);
   }
@@ -174,23 +181,12 @@ export async function deleteESIndex(indexName:string, ignore_unavailable = true)
     console.log("Status:", response.status);
     console.log("Headers:", response.headers);
     console.log("Data:", data);
-    return true;
+    return Promise.resolve(true);
   } catch (error) {
     console.error("Exception in Delete Index:", (error as any).message || error);
-    throw new Error(`Index ${indexName} could not be deleted ${ (error as any).message || error}` as string);
+    throw new Error(`Index ${indexName} could not be deleted | ${(error as any).message || error}` as string);
   }
 }
-
-// export async function createESIndex(indexName: string, body: Record<string,any> | string | Buffer | ReadableStream) {
-//   return await esBaseClient.indices.create({
-//     index: indexName,
-//     body: body,
-//     // master_timeout: master_timeout,
-//     // timeout: timeout,
-//     // wait_for_active_shards: wait_for_active_shards,
-//   });
-// }
-
 
 
 /**
@@ -205,11 +201,46 @@ export async function dropAndGenerateIndex(esIndexName: string, esIndexBody: Req
   try {
     const isIndexDeleted = await deleteESIndex(esIndexName);
     console.log(`Index deleted successfully - ${String(isIndexDeleted)}`);
-    
     return await createESIndex(esIndexName, esIndexBody);
-    
+
   } catch (error) {
     console.error("Error occurred while deleting index:", error);
-    return false;
+    throw new Error(`Error occurred: Index ${esIndexName} could not be deleted | ${(error as any).message || error}` as string);
+  }
+}
+
+/**
+ * Method to update the mapping of an existing Elasticsearch Index
+ * @param indexName
+ * @param mappingBody
+ * @returns boolean - true if mapping is updated successfully
+ */
+export async function updateESIndexMapping(esIndexName: string, esIndexBody: RequestBody):Promise<boolean> {
+  const esAuthOptions: ESRequestOptions = getESAuthHeader(esIndexName);
+  console.log("Updating mapping for index:", esIndexName);
+  try {
+    console.log("Hello 2");
+    const response = await fetch(`${esAuthOptions.esUrl}/_mapping`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': esAuthOptions.authHeader
+      },
+      body: JSON.stringify(esIndexBody),
+    });
+    const data = await response.json();
+    console.log("Hello 3");
+    console.log(data);
+    
+    if (!response.ok) {
+      return Promise.resolve(false);
+    }
+
+    
+    console.log("Mapping updated successfully:", data);
+    return Promise.resolve(true);
+  } catch (error) {
+    console.error("Error updating mapping:", (error as any).message || error);
+    throw new Error(`Error occurred: Mapping for Index ${esIndexName} could not be updated | ${(error as any).message || error}` as string);
   }
 }

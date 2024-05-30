@@ -31,8 +31,8 @@ const TextField = dynamic(() => import("@library/form/TextField"), {
 
 function PatientList({ session }: any) {
   const router = useRouter();
-  console.log("In Patient Listing");
-  console.log(session);
+  // console.log("In Patient Listing");
+  // console.log(session);
 
   const [isDistrictDisabled, setIsDistrictDisabled] = useState(true);
   const [districtList, setDistrictList] = useState<DropDownSingleItemProps[]>(
@@ -60,7 +60,7 @@ function PatientList({ session }: any) {
         id: Number(value[0]),
         name: value[1],
       });
-      console.log(value, index);
+      // console.log(value, index);
     });
     return divisionItems;
   };
@@ -146,8 +146,8 @@ function PatientList({ session }: any) {
     };
     const patientListingUrl =
       getUrlFromName("get-patient-listing") + setQueryParams();
-    console.log("patientListingUrl");
-    console.log(patientListingUrl);
+    // console.log("patientListingUrl");
+    // console.log(patientListingUrl);
     const data = await getAPIResponse(
       getBaseUrl(),
       patientListingUrl,
@@ -465,14 +465,14 @@ function PatientList({ session }: any) {
                 maxSize: 130,
                 Cell: ({ row }: any) => {
                   const disList: any = districts;
-                  console.log(row.original.division_id);
+                  // console.log(row.original.division_id);
                   const disIdFormat =
                     row.original.district_id < 10
                       ? "0" + String(row.original.district_id)
                       :String(row.original.district_id);
                   const disId = String(row.original.division_id) + disIdFormat;
-                  console.log(disId);
-                  console.log(disList[disId]);
+                  // console.log(disId);
+                  // console.log(disList[disId]);
                   return <div className="">{disList[disId]}</div>;
                 },
               },

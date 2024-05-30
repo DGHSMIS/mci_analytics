@@ -24,15 +24,13 @@ export const dynamicParams = true;
  * @param res
  * @returns
  */
-export async function GET(req: NextRequest) {
+export async function PUT(req: NextRequest) {
     console.log(`Add new patient to Index ${patientESIndex} index`);
-    //This route is only accessible from the known hosts
-    console.log("Get Latest Data");
     //Check Authorization & respond error if not verified
     const isValidUserRequest = await checkIfAuthenticated(req);
-  
     console.log("isValidUserRequest");
     console.log(isValidUserRequest);
+    
     if (isValidUserRequest !== null) {
       return isValidUserRequest;
     }

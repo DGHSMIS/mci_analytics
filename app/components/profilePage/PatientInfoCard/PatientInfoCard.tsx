@@ -1,12 +1,12 @@
-import dynamic from "next/dynamic";
-import React, { memo } from "react";
 import { ESPatientInterface } from "@api/providers/elasticsearch/patientIndex/interfaces/ESPatientInterface";
 import {
   convertDateToReadableFormat,
   convertGenderToReadableFormat,
   selectBloodGroupFromCode,
-  selectMaritalStatusFromCode,
+  selectMaritalStatusFromCode
 } from "@utils/utilityFunctions";
+import dynamic from "next/dynamic";
+import { memo } from "react";
 
 interface PatientTopBlockProps {
   patient: ESPatientInterface;
@@ -19,8 +19,8 @@ export default memo(function PatientTopBlock(props: PatientTopBlockProps) {
   const patientName = `${props.patient.given_name ?? ""} ${props.patient.sur_name ?? ""}`;
   const fatherName = `${props.patient.fathers_given_name ?? ""}  ${props.patient.fathers_sur_name ?? ""}`;
   const motherName = `${props.patient.mothers_given_name ?? ""}  ${props.patient.mothers_sur_name ?? ""}`;
- console.log("Martial Status");
- console.log(props.patient);
+//  console.log("Martial Status");
+//  console.log(props.patient);
   return (
     <div className="card w-full h-fit space-y-12 flex flex-col">
       <div className="flex items-center space-x-12 static md:relative">

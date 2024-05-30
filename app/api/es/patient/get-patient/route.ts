@@ -22,8 +22,8 @@ export const dynamicParams = true;
  */
 export async function GET(req: NextRequest) {
   //get Request from NextRequest
-  console.log("Get Latest Data for the patient is ");
-  console.log(req.headers);
+  // console.log("Get Latest Data for the patient is ");
+  // console.log(req.headers);
   //Check Authorization & respond error if not verified
   const isNotVerifiedResponse = await checkIfMCIAdminOrApprover(req);
   console.log(isNotVerifiedResponse);
@@ -69,7 +69,7 @@ export async function GET(req: NextRequest) {
       index: patientESIndex,
       body: query,
     });
-    console.log(body.hits?.hits[0]);
+    // console.log(body.hits?.hits[0]);
     if (body.hits?.hits[0]) {
       if (body.hits?.hits[0]._source) {
         const results: ESPatientInterface = body.hits?.hits[0]._source;
@@ -77,8 +77,8 @@ export async function GET(req: NextRequest) {
         
         const img = results.national_id ? await retrieveMinioImageAsBase64("nid-image-store", String(results.national_id)) : null;
         results.user_photo =  img ? `data:image/png;base64,${img}` : null;
-        console.log("The ES Results are --");
-        console.log(results);
+        // console.log("The ES Results are --");
+        // console.log(results);
         return NextResponse.json(results, {
           status: 200,
           headers: {

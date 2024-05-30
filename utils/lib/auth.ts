@@ -71,10 +71,10 @@ export const authOptions: any = {
           );
 
           if (verifyCreds.status == 200) {
-            const data:AuthResponseInterface = await verifyCreds.json();
+            const data: AuthResponseInterface = await verifyCreds.json();
             console.log("verifyCreds data");
             console.log(data);
-            if(data.access_token != null){
+            if (data.access_token != null) {
               console.log("data.access_token == null");
               return await verifyToken(data.access_token);
             }
@@ -148,8 +148,8 @@ export async function verifyToken(token: string) {
     headers: loginAuthenticationHeaders,
   };
   const headers: Record<string, string> = {
-      "X-Auth-Token": `${process.env.NEXT_X_LOGIN_AUTH_TOKEN ?? ""}`,
-      "client-id": `${process.env.NEXT_LOGIN_AUTH_CLIENT_ID ?? ""}`,
+    "X-Auth-Token": `${process.env.NEXT_X_LOGIN_AUTH_TOKEN ?? ""}`,
+    "client-id": `${process.env.NEXT_LOGIN_AUTH_CLIENT_ID ?? ""}`,
   };
 
   const apiHeader = {
@@ -160,61 +160,64 @@ export async function verifyToken(token: string) {
   };
 
   const userInfo = await fetch(`${process.env.NEXT_PUBLIC_AUTH_BASE_URL + getUrlFromName("auth-verify-url") + token}`, apiHeader);
-  console.log(userInfo);
+  // console.log(userInfo);
   if (userInfo.status == 200) {
     const userData: any = await userInfo.json();
     return userData;
   }
-    if (userInfo.status == 200) {
+  if (userInfo.status == 200) {
     const userData: AuthResponseInterface = await userInfo.json();
-      //Determine the type of response
-      if (userData.access_token != null) {
-        return userData;
-      }
+    //Determine the type of response
+    if (userData.access_token != null) {
+      return userData;
+    }
+    console.log("Invalid Token");
     return null;
   }
+  console.log("Invalid Token");
   return null;
 }
+
 export async function checkIfMCIAdminOrApprover(
   req: Request
 ): Promise<NextResponse | null> {
   //Get Authorization Headers
   const authorization = req.headers.get("authorization");
-  console.log("Checking Authorization headers");
-  console.log(authorization);
+  // console.log("Checking Authorization headers");
+  // console.log(authorization);
   if (!authorization) {
     console.log("Auth Token is null");
     return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
   }
   //Verifying the validity of the token
-  const isUserVerfied:AuthResponseInterface|null = await verifyToken(authorization);
+  const isUserVerfied: AuthResponseInterface | null = await verifyToken(authorization);
   //If token is not valid, return 401
-  if(isUserVerfied == null){
+  if (isUserVerfied == null) {
     console.log("Auth Token is null");
     return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
-  } else{
-    console.log("Does user have groups?");
-    console.log(isUserVerfied);
-  
-    if(isUserVerfied.group_names_formatted != null){
+  } else {
+    // console.log("Does user have groups?");
+    // console.log(isUserVerfied);
+
+    if (isUserVerfied.group_names_formatted != null) {
       let isMCIAdmin = false;
       let isMCIUser = false;
       isUserVerfied.group_names_formatted.forEach((group) => {
-        console.log("The group item is");
-        console.log(group);
-        if(group == "mci-admin"){
+        // console.log("The group item is");
+        // console.log(group);
+        if (group == "mci-admin") {
           isMCIAdmin = true
         }
-        if(group == "mci-user"){
+        if (group == "mci-user") {
           isMCIUser = true
         }
       });
-      if(isMCIAdmin && isMCIUser){ 
+      if (isMCIAdmin && isMCIUser) {
         console.log("Returning Null");
-        
+
         return null;
       }
-      else{
+      else {
         console.log("Returning Unauthorized 2");
         return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
       }
@@ -236,58 +239,58 @@ export async function checkIfAuthenticated(
   const accessToken = req.headers.get("X-Auth-Token");
   const clientId = req.headers.get("client-id");
   const email = req.headers.get("email");
-  console.log("Checking Authorization headers");
-  console.log(accessToken);
-  
+  // console.log("Checking Authorization headers");
+  // console.log(accessToken);
+
   if (!accessToken || !email || !clientId) {
     console.log("Invalid Headers");
     return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
   }
 
   //Verifying the validity of the token
-  const isUserVerfied:AuthResponseInterface|null = await verifyToken(accessToken);
+  const isUserVerfied: AuthResponseInterface | null = await verifyToken(accessToken);
   //If token is not valid, return 401
-  if(isUserVerfied == null){
+  if (isUserVerfied == null) {
     console.log("Auth Token is null");
     return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
-  } else{
-    console.log("Does user have groups?");
-    console.log(isUserVerfied);
+  } else {
+    // console.log("Does user have groups?");
+    // console.log(isUserVerfied);
     //validate email
-    if(isUserVerfied?.email == null){
+    if (isUserVerfied?.email == null) {
       return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
-    } else if(isUserVerfied?.email != email){
+    } else if (isUserVerfied?.email != email) {
       return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
     }
     //Validate Client ID
-    if(isUserVerfied.id == null){
+    if (isUserVerfied.id == null) {
       return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
-    } else if(isUserVerfied.id != parseInt(clientId)){
+    } else if (isUserVerfied.id != parseInt(clientId)) {
       return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
     }
 
-    if(isUserVerfied.group_names_formatted != null){
+    if (isUserVerfied.group_names_formatted != null) {
       let isMCIAdmin = false;
       let isMCIUser = false;
       isUserVerfied.group_names_formatted.forEach((group) => {
-        console.log("The group item is");
-        console.log(group);
-        if(group == "mci-admin"){
+        // console.log("The group item is");
+        // console.log(group);
+        if (group == "mci-admin") {
           isMCIAdmin = true
         }
-        if(group == "mci-user"){
+        if (group == "mci-user") {
           isMCIUser = true
         }
       });
-      if(isMCIAdmin && isMCIUser){ 
+      if (isMCIAdmin && isMCIUser) {
         console.log("Returning Null");
-        return null;
-      } else{
-        console.log("User does not have sufficient permissions");
+        return Promise.resolve(null);
+      } else {
+        // console.log("User does not have sufficient permissions");
         return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
       }
     }
   }
-  console.log("Returning Unauthorized 3");
+  // console.log("Returning Unauthorized 3");
   return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
 }

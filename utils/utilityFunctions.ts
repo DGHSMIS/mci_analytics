@@ -483,12 +483,11 @@ export const getResponseHeaders = (
 export const validateKnowHostToAccessRoute = (req: NextRequest) => {
   // Retrieve the IP address from the request
   const requestIP = (req.headers.get('x-forwarded-for') || req.headers.get('x-real-ip') || req.headers.get('host')) ?? "";
-  console.log(requestIP);
-
-  console.log(`requestIP: ${requestIP}`);
-  console.log(`x-forwarded-for: ${req.headers.get('x-forwarded-for')}`);
-  console.log(`x-real-ip: ${req.headers.get('x-real-ip')}`);
-  console.log(`host: ${req.headers.get('host')}`);
+  // console.log(requestIP);
+  // console.log(`requestIP: ${requestIP}`);
+  // console.log(`x-forwarded-for: ${req.headers.get('x-forwarded-for')}`);
+  // console.log(`x-real-ip: ${req.headers.get('x-real-ip')}`);
+  // console.log(`host: ${req.headers.get('host')}`);
 
   // Check if the request is from the host server
   if (!KNOWN_SAFE_HOST_IP_LIST.includes(requestIP)) {

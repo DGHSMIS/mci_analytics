@@ -42,6 +42,8 @@ export interface ESPatientInterface {
   hid_card_status: string | null;
   holding_number: string | null;
   household_code: string | null;
+  index_time: Date | null;
+  index_updated_time: Date | null;
   marital_relations: string | null;
   marital_status: string | null;
   marriage_id: string | null;

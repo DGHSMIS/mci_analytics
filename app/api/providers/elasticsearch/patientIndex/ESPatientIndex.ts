@@ -75,7 +75,7 @@ export const temporarilyHotFixJSONObject = (jsonString: string, patientId: strin
  * @param doc 
  * @returns 
  */
-async function convertDataToPatientESFormat(doc: CDPatientInterface) {
+async function convertDataToPatientESFormat(doc: CDPatientInterface, indexedTime: Date): Promise<any[]> {
   if (!doc.health_id) {
     if (DebugElasticProvider) {
       console.log("ERROR HEALTH ID NOT FOUND");
@@ -86,7 +86,7 @@ async function convertDataToPatientESFormat(doc: CDPatientInterface) {
   let hasCreatedByFacilityAdminInfo = false;
   let hasUpdatedByFacilityAdminInfo = false;
   try {
-    const esDoc: ESPatientInterface = convertCassandraPatientToESPatientIndexObject(doc);
+    const esDoc: ESPatientInterface = convertCassandraPatientToESPatientIndexObject(doc, indexedTime);
     if (!doc.created_by) {
       if (DebugElasticProvider) {
         console.log("FACILITY NOT FOUND!");
@@ -230,33 +230,70 @@ export async function insertOrUpdateSinglePatientToESIndex(healthId: String) {
   try {
     const results: CDPatientInterface[] = [];
     const queryString = `SELECT * from mci.patient WHERE health_id='${healthId}' LIMIT 1;`;
-    console.log("Query String");
-    console.log(queryString);
-    
+    if (DebugElasticProvider) {
+      console.log("Query String");
+      console.log(queryString);
+    }
     const patientSearch: any = await cassandraClient.execute(queryString);
-
     const rows: CDPatientInterface[] = patientSearch.rows;
-    console.log("Rows");
-    console.log(rows);
-    if(rows.length == 0){
+    if (DebugElasticProvider) {
+      console.log("Rows");
+      console.log(rows);
+    }
+    if (rows.length == 0) {
       console.log("No data found for the healthId");
       return Promise.resolve(false);
     }
-    
+
     results.push(...rows);
-    console.log("Results");
-    console.log(results);
-    
+    if (DebugElasticProvider) {
+      console.log("Results");
+      console.log(results);
+    }
+
+    // Find the document from ElasticSearch to get indexed_time and then update the document
+    const getRecordFromES = await esBaseClient.search({
+      index: patientESIndex,
+      body: {
+        query: {
+          match: {
+            health_id: healthId,
+          },
+        },
+      },
+    });
+
     const batch = results.slice(0, 1);
-    const formattedDocsPromises = batch.map(patient => convertDataToPatientESFormat(patient));
+
+    const formattedDocsPromises = await batch.map(async (patient) => {
+      console.log("Get Record from ES, how many exists?");
+      console.log(getRecordFromES.body.hits.hits.length);
+      let indexedTime = new Date();
+      if (getRecordFromES.body.hits.hits.length) {
+        console.log("<<<< Indexed Item >>>>");
+        console.log(getRecordFromES.body.hits.hits[0]._source);
+        console.log(getRecordFromES.body.hits.hits[0]._source['index_time']);
+        if (getRecordFromES.body.hits.hits[0]._source.index_time) {
+          console.log("<<<< index_time exists>>>>");
+          indexedTime = getRecordFromES.body.hits.hits[0]._source.index_time ?? new Date();
+        } else {
+          console.log("<<<< index_time not in index >>>>");
+        }
+        console.log("<<<< index_time set >>>>");
+        console.log(indexedTime);
+      }
+      return await convertDataToPatientESFormat(patient, indexedTime);
+    });
+
     let formattedDocs = await Promise.all(formattedDocsPromises);
     // Filter out empty array responses from formattedDocs
     formattedDocs = formattedDocs.filter(doc => doc.length > 0);
     // Step 2: Flatten the array
     const flattenedDocs = formattedDocs.reduce((acc, val) => acc.concat(val), []);
-    console.log("Flattened Docs");
-    console.log(flattenedDocs);
-    
+    if (DebugElasticProvider) {
+      console.log("Flattened Docs");
+      console.log(flattenedDocs);
+    }
     //Add Single Row to the existing Index
     if (flattenedDocs.length > 0) {
       await esBaseClient.bulk({ index: patientESIndex, body: flattenedDocs });
@@ -306,8 +343,6 @@ export async function indexAllPatientESData() {
       const rows: CDPatientInterface[] = result.rows;
       // Process each row here...
       if (DebugElasticProvider) console.log("Pushing page to allRows");
-      // console.log("rows");
-      // console.log(rows);
       results.push(...rows);
       i++;
 
@@ -325,7 +360,7 @@ export async function indexAllPatientESData() {
     for (let i = 0; i < results.length; i += batchSize) {
       const batch = results.slice(i, i + batchSize);
       // Step 1: Format the data
-      const formattedDocsPromises = batch.map(patient => convertDataToPatientESFormat(patient));
+      const formattedDocsPromises = batch.map(async(patient) => await convertDataToPatientESFormat(patient, new Date()));
       let formattedDocs = await Promise.all(formattedDocsPromises);
       // Filter out empty array responses from formattedDocs
       formattedDocs = formattedDocs.filter(doc => doc.length > 0);
@@ -365,7 +400,7 @@ export async function indexAllPatientESData() {
  * @param doc 
  * @returns 
  */
-export const convertCassandraPatientToESPatientIndexObject = (doc: CDPatientInterface): ESPatientInterface => {
+export const convertCassandraPatientToESPatientIndexObject = (doc: CDPatientInterface, indexed_time: Date): ESPatientInterface => {
   const blankCreatorAndUpdater: CreateAndUpdatedByEditorInterface = {
     facility: null,
     provider: null,
@@ -408,6 +443,8 @@ export const convertCassandraPatientToESPatientIndexObject = (doc: CDPatientInte
     hid_card_status: doc.hid_card_status,
     holding_number: doc.holding_number,
     household_code: doc.household_code,
+    index_time: indexed_time,
+    index_updated_time: new Date(),
     marital_relations: doc.marital_relations,
     marital_status: doc.marital_status,
     marriage_id: doc.marriage_id,
