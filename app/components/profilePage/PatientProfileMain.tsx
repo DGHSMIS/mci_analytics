@@ -113,7 +113,7 @@ function useFacilitySuspenseQuery(props: { access_token: string, facilityID: str
   );
 
   const query = useSuspenseQuery({
-    queryKey: ["facilityById", props.facilityID, props.access_token],
+    queryKey: ["facilityById", props.facilityID, props.access_token, facilityDetails],
     queryFn: () => fetchFacilityDetails(facilityDetails),
     retry: 3,
     refetchOnWindowFocus: true,

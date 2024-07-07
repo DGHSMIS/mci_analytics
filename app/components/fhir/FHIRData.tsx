@@ -87,7 +87,7 @@ interface RenderFhirEncounterUIProps {
   selectedEncounter: EncounterListItem;
 }
 
-const RenderFhirEncounterUI = memo(function({ fhirResource, selectedEncounter }: RenderFhirEncounterUIProps) {
+const RenderFhirEncounterUI = memo(function RenderFhirEncounterUI({ fhirResource, selectedEncounter }: RenderFhirEncounterUIProps) {
 
   if (!fhirResource || typeof fhirResource.entry!=="object") {
     return <>Resource not found in Modal</>;

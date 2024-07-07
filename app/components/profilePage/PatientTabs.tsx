@@ -105,7 +105,7 @@ const PatientTabs: React.FC<PatientDetailsProps> = ({
           />
         )}
         {tabItemToShow==1 && <AddressBlock items={addressItems} />}
-        {tabItemToShow==2 && <Encounters encounters={...encounters} />}
+        {tabItemToShow==2 && <Encounters encounters={encounters} />}
       </span>
 
     </div>
