@@ -9,7 +9,7 @@ import { getBaseUrl, getUrlFromName } from "@utils/lib/apiList";
 import { Reference } from "fhir/r3";
 import { memo } from "react";
 
-export const FacilityInfoComponent = memo(function FacilityInfoComponent(reference: Reference) {
+export const FacilityInfoComponent = async function FacilityInfoComponent(reference: Reference) {
 
 
   if (!reference.reference) return <ReferenceErrorLog error="No Reference Provided" />;
@@ -93,7 +93,7 @@ console.log(getBaseUrl()+getUrlFromName("get-identity-info") + "?url=" + facilit
       {/* {errorMessage!=="" && <ReferenceErrorLog error={errorMessage} />} */}
     </>
   );
-});
+};
 
 
 interface FacilityListInfoProps {
