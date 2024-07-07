@@ -4,11 +4,12 @@ import { getAPIResponse, getRevalidationTime } from "@library/utils";
 import { useLoggedInStore } from "@store/useLoggedInStore";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { EncounterListItem } from "@utils/interfaces/Encounter/Encounter";
-import { getBaseUrl, getUrlFromName } from "@utils/lib/apiList";
+import { getBaseUrl, getUrlFromName, resolveFacilityDetailURLFromNameAndId } from "@utils/lib/apiList";
 import { delay } from "lodash";
 import { signOut } from "next-auth/react";
 import dynamic from "next/dynamic";
-import EncounterModal from "./EncounterSegment/EncounterModal";
+import { memo } from "react";
+// import EncounterModal from "./EncounterSegment/EncounterModal";
 
 /**
  * Dynamic Imports Patient ID Blocks
@@ -19,6 +20,10 @@ const BackNavigator = dynamic(() => import("@components/globals/BackNavigator"),
 });
 
 const PatientInfoCard = dynamic(() => import("@components/profilePage/PatientInfoCard/PatientInfoCard"), {
+  ssr: true,
+});
+
+const EncounterModal = dynamic(() => import("./EncounterSegment/EncounterModal"), {
   ssr: true,
 });
 
@@ -53,6 +58,8 @@ function usePatientDataSuspenseQuery(props: { access_token: string, patientHid: 
     console.log("LOGGING OUT due in invalid access_token")
       delay(async()=>await signOut(), 2000);
   }
+  console.log("Patient Data from API is -");
+  console.log(query.data);
   return [query.data as ESPatientInterface, query] as const;
 }
 
@@ -83,7 +90,45 @@ function usePatientEncounterSuspenseQuery(props: { access_token: string, patient
   return [query.data as EncounterListItem[], query] as const;
 }
 
-export default function PatientProfileMain({ session }: any) {
+const fetchFacilityDetails = async (facilityDetails: string): Promise<any> => {
+  const response = await fetch(facilityDetails, {
+    method: "GET",
+    headers: {
+      "X-Auth-Token": String(process.env.NEXT_X_FACILITY_AUTH_TOKEN) || "",
+      "client-id": String(process.env.NEXT_X_FACILITY_CLIENT_ID) || "",
+    },
+  });
+
+  if (!response.ok) {
+    throw new Error('Network response was not ok');
+  }
+
+  return response.json();
+};
+
+function useFacilitySuspenseQuery(props: { access_token: string, facilityID: string }) {
+  const facilityDetails = resolveFacilityDetailURLFromNameAndId(
+    "auth-get-facility-by-id",
+    Number(props.facilityID)
+  );
+
+  const query = useSuspenseQuery({
+    queryKey: ["facilityById", props.facilityID, props.access_token],
+    queryFn: () => fetchFacilityDetails(facilityDetails),
+    retry: 3,
+    refetchOnWindowFocus: true,
+    refetchOnMount: true,
+  });
+
+  const { data, error, isLoading } = query;
+
+  console.log("The facility Info is - ", data);
+  console.log(facilityDetails);
+  return [data, query] as const;
+}
+
+
+export default memo(function PatientProfileMain({ session }: any) {
 
   const { patientId } = useLoggedInStore();
   // console.log(patientId);
@@ -93,9 +138,20 @@ export default function PatientProfileMain({ session }: any) {
   // console.log("Patient Id from Store is - ");
   const [patientEncounterList] = usePatientEncounterSuspenseQuery({  access_token:  session.accessToken ? session.accessToken:"", patientHid: patientId ?? "" });
   
+  const [facilityInfo] = useFacilitySuspenseQuery({ access_token: session.accessToken ? session.accessToken:"", facilityID: patientInfo.created_facility_id?.toString() ??  "10000002"});
+  // fetchAndCacheFacilityInfo
   return (
     <>
-      <BackNavigator />
+    <div className="grid grid-cols-2 gap-40 lg:grid-cols-4">
+      <BackNavigator /> 
+      <div className="grid-item">
+          <div className="flex gap-x-12">
+            <div className="info space-y-4">
+              <h6><span className="font-normal">Health ID: </span>{patientInfo.health_id}</h6>
+            </div>
+          </div>
+        </div>
+      </div>
       <div className={"grid grid-cols-12 gap-x-16"}>
         <div className={"col-span-12 md:col-span-4 lg:col-span-3 shadow-sm hover:shadow hover:md:shadow-lg"}>
           {patientInfo && <PatientInfoCard patient={patientInfo} facilityName=""/>}
@@ -107,4 +163,4 @@ export default function PatientProfileMain({ session }: any) {
       <EncounterModal />
     </>
   )
-}
+})

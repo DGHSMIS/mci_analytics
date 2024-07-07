@@ -1,7 +1,7 @@
-import React, { memo } from "react";
-import { cn } from "tailwind-cn";
 import dynamic from "next/dynamic";
+import React, { memo } from "react";
 import Skeleton from "react-loading-skeleton";
+import { cn } from "tailwind-cn";
 
 const DemographySwitcherDD = dynamic(() => import("@components/publicDashboard/sectionFilterSegment/DemographySwitcherDD"), {
   ssr: true,

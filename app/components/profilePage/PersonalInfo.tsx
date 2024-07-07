@@ -60,7 +60,7 @@ const PersonalInfo = memo(function PersonalInfo({
             />
             <div className="info space-y-4">
               <h6>Education Level</h6>
-              <p>{selectEducationLevelFromCode(eduLevel ?? "")}</p>
+              <p className="capitalize">{selectEducationLevelFromCode(eduLevel ?? "")}</p>
             </div>
           </div>
         </div>
@@ -69,7 +69,7 @@ const PersonalInfo = memo(function PersonalInfo({
             <Icon className="mt-3 stroke-primary" iconName="award-01" />
             <div className="info space-y-4">
               <h6>Nationality</h6>
-              <p>{nationality}</p>
+              <p className="capitalize">{nationality}</p>
             </div>
           </div>
         </div>
@@ -78,7 +78,7 @@ const PersonalInfo = memo(function PersonalInfo({
             <Icon className="mt-3 stroke-primary" iconName="moon-star" />
             <div className="info space-y-4">
               <h6>Religion</h6>
-              <p>{selectReligionFromCode(religion)}</p>
+              <p className="capitalize">{selectReligionFromCode(religion)}</p>
             </div>
           </div>
         </div>
@@ -87,7 +87,7 @@ const PersonalInfo = memo(function PersonalInfo({
             <Icon className="mt-3 stroke-primary" iconName="droplets-02" />
             <div className="info space-y-4">
               <h6>Blood Group</h6>
-              <p>{selectBloodGroupFromCode(bloodGroup)}</p>
+              <p className="capitalize">{selectBloodGroupFromCode(bloodGroup)}</p>
             </div>
           </div>
         </div>
@@ -96,7 +96,7 @@ const PersonalInfo = memo(function PersonalInfo({
             <Icon className="mt-3 stroke-primary" iconName="grid-dots-bottom" />
             <div className="info space-y-4">
               <h6>Disability</h6>
-              <p>{selectDisabilityFromCode(disability)}</p>
+              <p className="capitalize">{selectDisabilityFromCode(disability)}</p>
             </div>
           </div>
         </div>
@@ -105,7 +105,7 @@ const PersonalInfo = memo(function PersonalInfo({
             <Icon className="mt-3 stroke-primary" iconName="intersect-circle" />
             <div className="info space-y-4">
               <h6>Marital Status</h6>
-              <p>{selectMaritalStatusFromCode(maritalStatus)}</p>
+              <p className="capitalize">{selectMaritalStatusFromCode(maritalStatus)}</p>
             </div>
           </div>
         </div>
@@ -114,7 +114,7 @@ const PersonalInfo = memo(function PersonalInfo({
             <Icon className="mt-3 stroke-primary" iconName="briefcase-01" />
             <div className="info space-y-4">
               <h6>Occupation</h6>
-              <p>{selectOccupationFromCode(occupation)}</p>
+              <p className="capitalize">{selectOccupationFromCode(occupation)}</p>
             </div>
           </div>
         </div>
@@ -123,7 +123,7 @@ const PersonalInfo = memo(function PersonalInfo({
             <Icon className="mt-3 stroke-primary" iconName="eye-off" />
             <div className="info space-y-4">
               <h6>Confidential</h6>
-              <p>{confidential}</p>
+              <p className="capitalize">{confidential}</p>
             </div>
           </div>
         </div>

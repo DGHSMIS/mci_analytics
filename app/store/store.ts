@@ -1,4 +1,5 @@
 import { xMonthsAgo } from "@utils/utilityFunctions";
+import { Bundle } from "fhir/r3";
 import { create } from "zustand";
 
 //section 1:
@@ -14,6 +15,7 @@ export interface StoreStates {
   serviceOverviewMaxDate: Date;
   serviceOverviewApiCallInProgress: boolean;
   renderType: "RSC" | "SSR" | "Client" | undefined;
+  fhirData: Bundle | null;
 }
 
 export const initialStoreStates: StoreStates = {
@@ -28,6 +30,7 @@ export const initialStoreStates: StoreStates = {
   serviceOverviewMaxDate: xMonthsAgo(0),
   serviceOverviewApiCallInProgress: false,
   renderType: "RSC",
+  fhirData: null
 };
 
 export interface StoreActions {
@@ -43,6 +46,7 @@ export interface StoreActions {
   setRenderType: (type: "RSC" | "SSR" | "Client") => void;
   setServiceOverviewMinDate: (date: Date) => void;
   setServiceOverviewMaxDate: (date: Date) => void;
+  setFhirData: (data: Bundle) => void;
 }
 // Primary store without selectors
 export const useStore = create<StoreStates & StoreActions>(
@@ -67,5 +71,6 @@ export const useStore = create<StoreStates & StoreActions>(
       set({ selectedDivision: division }),
     resetSelectedDivision: () => set({ selectedDivision: [] }),
     setRenderType: (type) => set({ renderType: type }),
+    setFhirData: (data) => set({ fhirData: data }),
   })
 );

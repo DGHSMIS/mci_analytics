@@ -1,9 +1,9 @@
+import PatientProfileMain from "@components/profilePage/PatientProfileMain";
 import LoggedInStoreInitializer from "@store/LoggedInStoreInitializer";
 import { initialLoggedInStoreStates } from "@store/useLoggedInStore";
 import { Metadata } from "next";
 import { getServerSession } from "next-auth";
 import { signOut } from "next-auth/react";
-import dynamic from "next/dynamic";
 import { authOptions } from "utils/lib/auth";
 
 const pageTitle = "Patient Info | MCI";
@@ -15,9 +15,9 @@ export const metadata: Metadata = {
 };
 
 
-const PatientProfileMain = dynamic(() => import("@components/profilePage/PatientProfileMain"), {
-  ssr: true,
-});
+// const PatientProfileMain = dynamic(() => import("@components/profilePage/PatientProfileMain"), {
+//   ssr: false,
+// });
 
 
 interface PatientDetailsProps {

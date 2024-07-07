@@ -1,13 +1,13 @@
-import React, { memo } from "react";
-import { Composition } from "fhir/r3";
-import { EncounterSectionWrapper } from "@components/fhir/EncounterSectionWrapper";
-import { calculateAge, convertDateToReadableFormat } from "@utils/utilityFunctions";
-import { useQuery } from "@tanstack/react-query";
-import { getAPIResponse } from "@library/utils";
-import { getBaseUrl, getUrlFromName } from "@utils/lib/apiList";
-import PatientInfoInterface from "@utils/interfaces/PatientInfoInterfaces";
-import { ReferenceErrorLog } from "@components/fhir/ReferenceErrorLog";
 import { MCISpinner } from "@components/MCISpinner";
+import { EncounterSectionWrapper } from "@components/fhir/EncounterSectionWrapper";
+import { ReferenceErrorLog } from "@components/fhir/ReferenceErrorLog";
+import { getAPIResponse } from "@library/utils";
+import { useQuery } from "@tanstack/react-query";
+import PatientInfoInterface from "@utils/interfaces/PatientInfoInterfaces";
+import { getBaseUrl, getUrlFromName } from "@utils/lib/apiList";
+import { calculateAge, convertDateToReadableFormat } from "@utils/utilityFunctions";
+import { Composition } from "fhir/r3";
+import { memo } from "react";
 
 
 export default memo(function CompositionInfo({ ...composition }: Composition) {

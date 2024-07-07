@@ -26,7 +26,7 @@ export default memo(function PatientTopBlock(props: PatientTopBlockProps) {
       <div className="flex items-center space-x-12 static md:relative">
       {props.patient.user_photo !=null && props.patient.user_photo != undefined ? <Avatar size="md" className="mr-12" src={props.patient.user_photo}/> : <Avatar size="sm" className="mr-12" />}
         <h6>{patientName}</h6>
-        <span className={'text-xs capitalize'}>{props.patient.hid_card_status ? '(' + props.patient.hid_card_status.toLowerCase() + ')' :"Unregistered"}</span>
+        {/* <span className={'text-xs capitalize'}>{props.patient.hid_card_status ? '(' + props.patient.hid_card_status.toLowerCase() + ')' :"Unregistered"}</span> */}
       </div>
 
       <div className={"flex flex-col w-100 justify-start items-center space-8"}>

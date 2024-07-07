@@ -1,13 +1,15 @@
 "use client";
-import React, { useState } from "react";
-import TextField from "@library/form/TextField";
-import Button from "@library/Button";
-import { useRouter } from "next/navigation";
-import Radio, { RadioItemProps } from "@library/form/Radio";
-import SingleDatePicker from "@library/form/DatePicker/SingleDatePicker";
 import Alert from "@library/Alert";
+import Button from "@library/Button";
+import SingleDatePicker from "@library/form/DatePicker/SingleDatePicker";
+import Radio, { RadioItemProps } from "@library/form/Radio";
+import TextField from "@library/form/TextField";
 import { getAPIResponse } from "@library/utils";
+import LoggedInStoreInitializer from "@store/LoggedInStoreInitializer";
+import { initialLoggedInStoreStates } from "@store/useLoggedInStore";
 import { getBaseUrl } from "@utils/lib/apiList";
+import { useRouter } from "next/navigation";
+import React, { useState } from "react";
 
 
 const radioItemsList: RadioItemProps[] = [{
@@ -68,9 +70,14 @@ export default function page() {
     }
   };
   const router = useRouter();
+  const initalizedStoreStates = {
+    ...initialLoggedInStoreStates
+  };
 
 
   return (
+    <>
+    <LoggedInStoreInitializer {...initalizedStoreStates} />
     <div className="login-layout">
       <div className={"container grid h-full w-full items-center justify-center"}>
         <div
@@ -139,5 +146,6 @@ export default function page() {
         </div>
       </div>
     </div>
+    </>
   );
 }

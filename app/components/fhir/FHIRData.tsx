@@ -1,23 +1,32 @@
 "use client";
-import React, { memo, useEffect, useState } from "react";
-import { Bundle, BundleEntry, Composition, CompositionSection, Condition, Encounter, MedicationRequest, Observation, Resource } from "fhir/r3";
-import { ConditionTable } from "fhir-ui";
-import { EncounterListItem } from "@utils/interfaces/Encounter/Encounter";
 import { MCISpinner } from "@components/MCISpinner";
+// import ConditionInfo from "@components/fhir/ConditionInfo";
 import { EncounterSectionWrapper } from "@components/fhir/EncounterSectionWrapper";
-import ObservationResource from "@components/fhir/stu3/rendering/ObservationResource";
-import CompositionInfo from "@components/fhir/CompositionInfo";
-import ProviderAndFacilityInfo from "@components/fhir/stu3/rendering/ProviderAndFacilityInfo";
-import { ReferenceErrorLog } from "@components/fhir/ReferenceErrorLog";
-import Tabs, { TabItemProps } from "@library/Tabs";
-import { ObservationFormItemProps, ObservationSectionWrapper } from "@components/fhir/ObservationFormItem";
 import { MedicationRequestFormItem } from "@components/fhir/MedicationRequestFormItem";
-import ConditionInfo from "@components/fhir/ConditionInfo";
+import { ObservationFormItemProps, ObservationSectionWrapper } from "@components/fhir/ObservationFormItem";
+import { ReferenceErrorLog } from "@components/fhir/ReferenceErrorLog";
+import ObservationResource from "@components/fhir/stu3/rendering/ObservationResource";
+import ProviderAndFacilityInfo from "@components/fhir/stu3/rendering/ProviderAndFacilityInfo";
+import Tabs, { TabItemProps } from "@library/Tabs";
+import { useStore } from "@store/store";
+import { EncounterListItem } from "@utils/interfaces/Encounter/Encounter";
+import { ConditionTable } from "fhir-ui";
+import { Bundle, BundleEntry, Composition, CompositionSection, Condition, Encounter, MedicationRequest, Observation, Resource } from "fhir/r3";
+import dynamic from "next/dynamic";
+import { memo, useEffect, useState } from "react";
 
 interface FHIRDataProps {
   json: any;
   encounter: EncounterListItem;
 }
+const CompositionInfo = dynamic(() => import("@components/fhir/CompositionInfo"), {
+  ssr: true,
+});
+
+const ConditionInfo = dynamic(() => import("@components/fhir/ConditionInfo"), {
+  ssr: true,
+});
+
 
 // Development-only imports
 let devImports: any = null;
@@ -31,15 +40,20 @@ if (process.env.NODE_ENV==="development") {
 }
 
 export default memo(function FHIRData({ json, encounter }: FHIRDataProps) {
-  const [fhirItem, setFhirItem] = useState<Bundle>();
-
+  // const [fhirItem, setFhirItem] = useState<Bundle>();
+  const { fhirData, setFhirData } = useStore();
   //Lazy STU3 FHIR Imports
   useEffect(() => {
-    void getFhirStu3Data();
+    if (!fhirData) {
+      console.log("FHIR Data Not Found in Store");
+      void getFhirStu3Data();
+    } else{
+      console.log("FHIR Data Already Exists in Store");
+    }
   }, []);
 
   const getFhirStu3Data = async (): Promise<void> => {
-
+    console.log("Getting FHIR Data");
     let [getValuesJSON, profileTypesJSON, profileResourcesJSON, fhirLib] = process.env.NODE_ENV==="development"
       ? await devImports
       :await Promise.all([
@@ -59,11 +73,11 @@ export default memo(function FHIRData({ json, encounter }: FHIRDataProps) {
     parser.parseBundle(profileResourcesJSON);
     let fhir = new Fhir(parser);
     const fhirJson: Bundle = JSON.parse(fhir.xmlToJson(json.results));
-    setFhirItem(fhirJson);
+    setFhirData(fhirJson);
   };
 
-  return (fhirItem!=null) ?
-    <RenderFhirEncounterUI selectedEncounter={encounter} fhirResource={fhirItem} />:
+  return (fhirData!=null) ?
+    <RenderFhirEncounterUI selectedEncounter={encounter} fhirResource={fhirData} />:
     <MCISpinner classNames="max-h-[100vh] min-h-[80vh] h-full w-full flex align-center justify-center" />;
 });
 
@@ -73,7 +87,7 @@ interface RenderFhirEncounterUIProps {
   selectedEncounter: EncounterListItem;
 }
 
-const RenderFhirEncounterUI = function({ fhirResource, selectedEncounter }: RenderFhirEncounterUIProps) {
+const RenderFhirEncounterUI = memo(function({ fhirResource, selectedEncounter }: RenderFhirEncounterUIProps) {
 
   if (!fhirResource || typeof fhirResource.entry!=="object") {
     return <>Resource not found in Modal</>;
@@ -241,7 +255,7 @@ const RenderFhirEncounterUI = function({ fhirResource, selectedEncounter }: Rend
         {/*   <ObservationComponent observations={observations} />:null} */}
       </article>
     );
-};
+});
 
 
 export const ConditionComponent = memo(function ConditionComponent({ conditions }: {

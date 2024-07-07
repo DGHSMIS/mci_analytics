@@ -1,8 +1,9 @@
-import { Metadata } from "next";
-import dynamic from "next/dynamic";
-import React from "react";
-import { initialLoggedInStoreStates } from "@store/useLoggedInStore";
 import LoggedInStoreInitializer from "@store/LoggedInStoreInitializer";
+import { initialLoggedInStoreStates } from "@store/useLoggedInStore";
+import { Metadata } from "next";
+import { getServerSession } from "next-auth";
+import dynamic from "next/dynamic";
+import { authOptions } from "utils/lib/auth";
 
 const pageTitle = "Patient Info | MCI";
 const desc = "Master Client Index by MIS, DGHS";
@@ -24,7 +25,7 @@ interface PatientDetailsProps {
 
 
 async function page(params: PatientDetailsProps) {
-  // const session: any = await getServerSession(authOptions);
+  const session: any = await getServerSession(authOptions);
   //
   // //get query params
   // if (session) {
@@ -46,7 +47,7 @@ async function page(params: PatientDetailsProps) {
       <LoggedInStoreInitializer {...initalizedStoreStates} />
       <article className="h-[100%] w-full">
         <div className="mt-40 h-full h-min-[500px] flex w-full flex-col justify-center px-24 2xl:container pb-24 space-y-24">
-          <PatientProfileMain />
+          <PatientProfileMain session={session}/>
         </div>
       </article>
     </>

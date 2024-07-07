@@ -1,5 +1,5 @@
-import { NextRequest, NextResponse } from "next/server";
 import { loginAuthenticationHeaders } from "@utils/constants";
+import { NextRequest, NextResponse } from "next/server";
 
 
 export async function GET(req: NextRequest) {
@@ -49,16 +49,26 @@ export async function GET(req: NextRequest) {
     apiHeader
   );
 
-
-  console.log("Provider Info on the server");
-  console.log(results.body);
-
+  if(results.status == 200){
+    console.log("Provider Info on the server");
+    const res = await results.json();
+    console.log(res);
+  
+    return NextResponse.json({
+      status: 200,
+      headers: {
+        "content-type": "application/json",
+        "Cache-Control": "max-age=0, s-maxage=0, stale-while-revalidate=0",
+      },
+      body: res
+    });
+  }
   return NextResponse.json({
-    status: 200,
+    status: results.status,
+    message: "Error fetching provider information",
     headers: {
       "content-type": "application/json",
       "Cache-Control": "max-age=0, s-maxage=0, stale-while-revalidate=0",
     },
-    body: await results.json()
   });
 }

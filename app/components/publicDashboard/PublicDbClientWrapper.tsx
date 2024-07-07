@@ -1,13 +1,13 @@
 "use client";
-import dynamic from "next/dynamic";
-import React, { memo } from "react";
-import { QueryClient, useQueryClient, useSuspenseQuery } from "@tanstack/react-query";
-import { getAPIResponse, getRevalidationTime } from "@library/utils";
-import { getBaseUrl, getUrlFromName } from "@utils/lib/apiList";
-import { fetchDivisionWiseData } from "@utils/providers/pbdClientServiceProvider";
-import { useStore } from "@store/store";
 import { RegistrationStatsProps } from "@api/es/analytics/patient/get-facility-type-registration-stats/route";
 import SectionSkeletonLoader from "@components/publicDashboard/sections/DefaultSectionTemplate/SectionSkeletonLoader";
+import { getAPIResponse, getRevalidationTime } from "@library/utils";
+import { useStore } from "@store/store";
+import { QueryClient, useQueryClient, useSuspenseQuery } from "@tanstack/react-query";
+import { getBaseUrl, getUrlFromName } from "@utils/lib/apiList";
+import { fetchDivisionWiseData } from "@utils/providers/pbdClientServiceProvider";
+import dynamic from "next/dynamic";
+import { memo } from "react";
 import SkeletonFacilityTypewiseRegistrationStats from "./sections/facilityTypewiseRegistrationStats/SkeletonFacilityTypewiseRegistrationStats";
 
 const FacilityTypewiseRegistrationStats = dynamic(() => import("@components/publicDashboard/sections/facilityTypewiseRegistrationStats/FacilityTypewiseRegistrationStats"), {
