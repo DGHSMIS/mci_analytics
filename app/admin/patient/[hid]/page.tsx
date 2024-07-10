@@ -38,7 +38,6 @@ async function page(params: PatientDetailsProps) {
   } else {
     await signOut();
   }
-  // console.log(params.params.hid);
 
   const initalizedStoreStates = {
     ...initialLoggedInStoreStates,

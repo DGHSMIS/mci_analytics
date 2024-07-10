@@ -96,7 +96,8 @@ const fetchFacilityDetails = async (facilityDetails: string): Promise<any> => {
     headers: {
       "X-Auth-Token": String(process.env.NEXT_X_FACILITY_AUTH_TOKEN) || "",
       "client-id": String(process.env.NEXT_X_FACILITY_CLIENT_ID) || "",
-    },
+      "FROM": String(process.env.FREESHR_API_USERNAME)
+    }
   });
 
   if (!response.ok) {

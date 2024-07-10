@@ -10,7 +10,7 @@
 import PublicDbClientWrapper from "@components/publicDashboard/PublicDbClientWrapper";
 import { initialStoreStates } from "@store/store";
 import StoreInitializer from "@store/StoreInitializer";
-import { xMonthsAgo } from "@utils/utilityFunctions";
+import { xDaysAgo, xMonthsAgo } from "@utils/utilityFunctions";
 import dynamic from "next/dynamic";
 import { Metadata } from "next/types";
 
@@ -31,16 +31,9 @@ export const metadata: Metadata = {
 const currentDate = xMonthsAgo(0);
 //Dashboard Landing Page
 export default async function page() {
-  //Demography Stat Filter Set
-  let demoMaxDate = currentDate;
-  let demoMinDate = xMonthsAgo(1);
-  // Service Overview Filter Set
-  let serviceOvMaxDate = currentDate;
-  let serviceOvMinDate = xMonthsAgo(1);
-  
   return (
     <main className="mt-40 flex w-full flex-col justify-center space-y-48 px-24 2xl:container bg-transparent border-none">
-      <StoreInitializer {...initialStoreStates} serviceOverviewMaxDate={serviceOvMaxDate} serviceOverviewMinDate={serviceOvMinDate} demographyMaxDate={demoMaxDate} demographyMinDate={demoMinDate}/>
+      <StoreInitializer {...initialStoreStates} serviceOverviewMaxDate={xDaysAgo(0)} serviceOverviewMinDate={xMonthsAgo(3)} demographyMaxDate={xDaysAgo(0)} demographyMinDate={xMonthsAgo(3)}/>
       <PageHeader title={pageTitle} titleSize="sm"></PageHeader>
       <PublicDbClientWrapper section1Title={section1Title} section2Title={section2Title} section3Title={section3Title} />
     </main>

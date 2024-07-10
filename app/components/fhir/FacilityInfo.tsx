@@ -28,7 +28,7 @@ const useFacilityInfo = (reference: Reference) => {
         "GET",
         null,
         false,
-        0,
+        Number(process.env.NEXT_PUBLIC_API_REVALIDATE_TIME) || 0,
         true,
         {
           "X-Auth-Token": process.env.NEXT_X_FACILITY_AUTH_TOKEN || "",

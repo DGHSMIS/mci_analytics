@@ -1,7 +1,7 @@
 import process from "process";
 
 // Debug Mode
-export const DebugElasticProvider = false;
+export const DebugElasticProvider = true;
 
 //Elasticsearch Constants
 export const requestTimeoutInMS = 6000000; //10 Minutes

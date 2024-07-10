@@ -1,15 +1,15 @@
-import React, { memo } from "react";
-import { Composition, Encounter, Reference } from "fhir/r3";
 import { EncounterSectionWrapper } from "@components/fhir/EncounterSectionWrapper";
-import { ReferenceErrorLog } from "@components/fhir/ReferenceErrorLog";
-import { useQuery } from "@tanstack/react-query";
-import { getAPIResponse } from "@library/utils";
-import { getBaseUrl, getUrlFromName } from "@utils/lib/apiList";
-import HRISProviderInterface, { HRISProviderCodedIdentifier } from "@utils/interfaces/HRISProviderInterface";
 import KeyValueFormItem from "@components/fhir/KeyValueFormItem";
+import { ReferenceErrorLog } from "@components/fhir/ReferenceErrorLog";
 import { MCISpinner } from "@components/MCISpinner";
+import { getAPIResponse } from "@library/utils";
+import { useQuery } from "@tanstack/react-query";
+import { districtCodes, divisionCodes, upazilaCodes } from "@utils/constants";
 import { HRISFacilityInterface } from "@utils/interfaces/FacilityInterfaces";
-import { districtCodes, divisionCodes } from "@utils/constants";
+import HRISProviderInterface, { HRISProviderCodedIdentifier } from "@utils/interfaces/HRISProviderInterface";
+import { getBaseUrl, getUrlFromName } from "@utils/lib/apiList";
+import { Composition, Encounter, Reference } from "fhir/r3";
+import { memo } from "react";
 
 interface ProviderAndFacilityInfoProps {
   composition: Composition;
@@ -19,11 +19,19 @@ interface ProviderAndFacilityInfoProps {
 export default memo(function ProviderAndFacilityInfoProps({ composition, encounter }: ProviderAndFacilityInfoProps) {
   const providerReferences = composition.author;
   const facilityReferences = encounter.serviceProvider;
-  const ProviderInfo:JSX.Element[] = [];
-  const FacilityInfo:JSX.Element[] = [];
+  const ProviderInfo: JSX.Element[] = [];
+  const FacilityInfo: JSX.Element[] = [];
+
+  const getHRISHeaders = () => {
+    return {
+      "X-Auth-Token": process.env.NEXT_X_LOGIN_AUTH_TOKEN || "",
+      "client-id": process.env.NEXT_LOGIN_AUTH_CLIENT_ID || ""
+    };
+  }
+
   if (!providerReferences) {
     ProviderInfo.push(<ReferenceErrorLog error="No Provider References Provided" />);
-  }else {
+  } else {
     //Loop through the Composition reference and find the provider information
     providerReferences.forEach((reference: Reference) => {
       if (!reference.reference) {
@@ -40,7 +48,7 @@ export default memo(function ProviderAndFacilityInfoProps({ composition, encount
 
       let errorMessage = "";
 
-      if (providerURL.protocol!=="https") {
+      if (providerURL.protocol !== "https") {
         providerURL.protocol = "https";
         errorMessage = "URL must be https. Please update the URL and try again. Will be included in the validator. URL Provided was: " + url;
       }
@@ -64,34 +72,39 @@ export default memo(function ProviderAndFacilityInfoProps({ composition, encount
           null,
           false,
           0,
+          true,
+          getHRISHeaders()
         ),
       });
 
-      const providerInfo = data ? data.body as HRISProviderInterface:undefined;
-      if (!isPending && (isError || providerInfo==undefined)) {
+      const providerInfo = data ? data.body as HRISProviderInterface : undefined;
+      if (!isPending && (isError || providerInfo == undefined)) {
         errorMessage = errorMessage + " Error fetching provider information. Please check the URL and try again.";
+      } else {
+        console.log("The provider info is - ");
+        console.log(providerInfo);
       }
       let contactEmail = "";
       let contactPhone: string = "";
 
-      if (isSuccess && providerInfo!==undefined) {
-        if (providerInfo.telecom!==undefined) {
+      if (isSuccess && providerInfo !== undefined) {
+        if (providerInfo.telecom !== undefined) {
           providerInfo.telecom.forEach((telecom: HRISProviderCodedIdentifier) => {
-            if (telecom.system==="email") {
-              if (contactEmail==="") {
+            if (telecom.system === "email") {
+              if (contactEmail === "") {
                 contactEmail = telecom.value?.toString() ?? "";
               } else {
                 const contactEmailOthers = telecom.value?.toString() ?? "";
-                if (contactEmailOthers!=="") {
+                if (contactEmailOthers !== "") {
                   contactEmail = contactEmail + ", " + contactEmailOthers;
                 }
               }
-            } else if (telecom.system==="phone") {
-              if (contactPhone==="") {
+            } else if (telecom.system === "phone") {
+              if (contactPhone === "") {
                 contactPhone = telecom.value?.toString() ?? "";
               } else {
                 const contactPhoneOthers = telecom.value?.toString() ?? "";
-                if (contactPhoneOthers.length!==0) {
+                if (contactPhoneOthers.length !== 0) {
                   contactPhone = contactPhone + ", " + contactPhoneOthers;
                 }
               }
@@ -103,20 +116,20 @@ export default memo(function ProviderAndFacilityInfoProps({ composition, encount
 
       ProviderInfo.push(
         <>
-          {isSuccess && providerInfo!==undefined &&
+          {isSuccess && providerInfo !== undefined &&
             <>
               <KeyValueFormItem title="Consultant Name" value={providerInfo.name} />
               <KeyValueFormItem title="Designation"
-                                value={providerInfo.properties ? providerInfo.properties.designation ?? "Not found":"Not found"} />
+                value={providerInfo.properties ? providerInfo.properties.designation ?? "Not found" : "Not found"} />
               <KeyValueFormItem title="Discipline"
-                                value={providerInfo.properties ? providerInfo.properties.designationDiscipline ?? "Not found":"Not found"} />
-              {contactEmail!=="" &&
+                value={providerInfo.properties ? providerInfo.properties.designationDiscipline ?? "Not found" : "Not found"} />
+              {contactEmail !== "" &&
                 <KeyValueFormItem title="Email" value={contactEmail} />
               }
-              {contactPhone!=="" &&
+              {contactPhone !== "" &&
                 <KeyValueFormItem title="Phone" value={contactPhone} />
               }
-              <hr />
+              {/* <hr /> */}
             </>
           }
           {isPending && <MCISpinner classNames="h-full w-full flex align-center justify-center" />}
@@ -127,15 +140,15 @@ export default memo(function ProviderAndFacilityInfoProps({ composition, encount
     });
   }
   //Go through Encounter reference and find the facility information
-  if (facilityReferences ==undefined) {
+  if (facilityReferences == undefined) {
     FacilityInfo.push(<ReferenceErrorLog error="No Reference Provided" />);
   }
-  else{
+  else {
     console.log("The identity url is - ");
     console.log(facilityReferences.reference);
 
     const url = facilityReferences.reference;
-    if(!url) {
+    if (!url) {
       FacilityInfo.push(<ReferenceErrorLog error="No Reference Provided" />);
     }
     else {
@@ -145,7 +158,7 @@ export default memo(function ProviderAndFacilityInfoProps({ composition, encount
 
       let errorMessage = "";
 
-      if (facilityURL.protocol!=="https") {
+      if (facilityURL.protocol !== "https") {
         facilityURL.protocol = "https";
         errorMessage = "URL must be https. Please update the URL and try again. Will be included in the validator. URL Provided was: " + url;
       }
@@ -169,29 +182,46 @@ export default memo(function ProviderAndFacilityInfoProps({ composition, encount
           "GET",
           null,
           false,
-          0,
+          Number(process.env.NEXT_PUBLIC_API_REVALIDATE_TIME) || 0,
+          true,
+          getHRISHeaders()
         ),
       });
 
-      const facilityInfo = data ? data.body as HRISFacilityInterface:undefined;
-      if (!isPending && (isError || facilityInfo==undefined)) {
+      const facilityInfo = data ? data.body as HRISFacilityInterface : undefined;
+      if (!isPending && (isError || facilityInfo == undefined)) {
         errorMessage = errorMessage + " Error fetching facility information. Please check the URL and try again.";
+      } else {
+        console.log("The facilityInfo info is - 2");
+        console.log(facilityInfo);
       }
 
-      console.log("The provider info is - ");
+      console.log("The facilityInfo info is - ");
       console.log(facilityInfo);
-
+      let divisionFacility = null;
+      let districtFacility = null;
+      let upazilaFacility = null;
+      if (facilityInfo?.properties?.locations?.division_code) {
+        divisionFacility = facilityInfo.properties.locations.division_code;
+        if (facilityInfo?.properties?.locations?.district_code) {
+          districtFacility = divisionFacility + facilityInfo.properties.locations.district_code;
+        }
+        if (facilityInfo?.properties?.locations?.upazila_code) {
+          upazilaFacility = districtFacility + facilityInfo.properties.locations.upazila_code;
+        }
+      }
       FacilityInfo.push(<>
-        {isSuccess && facilityInfo!==undefined &&
+        {isSuccess && facilityInfo !== undefined &&
           <>
             <KeyValueFormItem title="Name" value={facilityInfo?.name ?? "No Name Found"} />
             <KeyValueFormItem title="Upazila"
-                              value={facilityInfo?.properties?.locations?.upazila_code ? districtCodes[facilityInfo.properties.locations.upazila_code]:"No Upazila Found"} />
+              value={upazilaFacility ? upazilaCodes[upazilaFacility] : "No Upazila Found"} />
             <KeyValueFormItem title="District"
-                              value={facilityInfo?.properties?.locations?.district_code ? districtCodes[facilityInfo.properties.locations.district_code]:"No District Found"} />
+              value={districtFacility ? districtCodes[districtFacility] : "No District Found"} />
             <KeyValueFormItem title="Division"
-                              value={facilityInfo?.properties?.locations?.division_code ? divisionCodes[facilityInfo.properties.locations.division_code]:"No Division Found"} />
-            <KeyValueFormItem title="Type" value={facilityInfo?.properties?.org_type + facilityInfo?.properties?.ownership ? " (" + facilityInfo?.properties?.ownership + ")" : ""} />
+              value={divisionFacility ? divisionCodes[divisionFacility] : "No Division Found"} />
+            <KeyValueFormItem title="Type" value={facilityInfo?.properties?.org_type ? " (" + facilityInfo?.properties?.org_type + ")" : ""} />
+            <KeyValueFormItem title="Ownership" value={facilityInfo?.properties?.ownership ? " (" + facilityInfo?.properties?.ownership + ")" : ""} />
           </>
         }
         {isPending && <MCISpinner classNames="h-full w-full flex align-center justify-center" />}
@@ -201,17 +231,24 @@ export default memo(function ProviderAndFacilityInfoProps({ composition, encount
     }
   }
 
-  return <div className="flex flex-col overflow-hidden">
-    <EncounterSectionWrapper wrapperClassNames="grid grid-cols-1 gap-y-8" title="Service Provider Information">
+  return <div className="flex flex-col px-12">
+    {/* <div className="flex flex-col justify-start items-start pb-12">
+      <h6 className={"text-md"}>Service Providers</h6>
+      <hr />
+    </div> */}
+    <EncounterSectionWrapper wrapperClassNames="grid grid-cols-1 gap-y-8 space-x-8 mb-24" title="Provider Information">
       {ProviderInfo.map((item, index) => (
-        <div key={index}>
+        <span key={index}>
           {item}
-        </div>
+        </span>
       ))}
+    </EncounterSectionWrapper>
+    
+    <EncounterSectionWrapper wrapperClassNames="grid grid-cols-1 gap-y-8 space-x-8" title="Facility Information">
       {FacilityInfo.map((item, index) => (
-        <div key={index}>
+        <span key={index}>
           {item}
-        </div>
+        </span>
       ))}
     </EncounterSectionWrapper>
   </div>;

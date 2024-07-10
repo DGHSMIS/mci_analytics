@@ -248,7 +248,7 @@ export function getDaysBetweenDates(startDate: Date, endDate: Date): number {
   const diffInMs = Math.abs(endDate.getTime() - startDate.getTime());
   return diffInMs / (1000 * 60 * 60 * 24);
 }
-
+// Calculate Age from Birth Date
 export function calculateAge(birthDate: Date, currentDate: Date): number {
   let age = currentDate.getFullYear() - birthDate.getFullYear();
   const m = currentDate.getMonth() - birthDate.getMonth();
@@ -257,10 +257,10 @@ export function calculateAge(birthDate: Date, currentDate: Date): number {
     age--;
   }
 
-  return age;
+  return Math.abs(age);
 }
 
-
+// Check if a string is a valid date
 export function isValidDateTimeString(str: string) {
   const date = new Date(str);
   return !isNaN(date.getTime());

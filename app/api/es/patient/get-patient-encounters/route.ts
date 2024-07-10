@@ -49,7 +49,7 @@ export async function GET(req: NextRequest) {
       );
     }
     //Get Encounters Ids from Patient ID
-    const query: any = `SELECT * FROM freeshr.enc_by_patient where health_id='${hid}'`;
+    const query: any = `SELECT * FROM freeshr.enc_by_patient where health_id='${hid}' ORDER BY created_at DESC`;
     // console.log(query);
     const queryOptions = { prepare: true, fetchSize: CASSANDRA_PAGE_SIZE };
 

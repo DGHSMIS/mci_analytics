@@ -1,15 +1,16 @@
-import { memo } from "react";
-import { MedicationRequest } from "fhir/r3";
-import { ObservationFormItemProps } from "@components/fhir/ObservationFormItem";
 import { EncounterSectionWrapper } from "@components/fhir/EncounterSectionWrapper";
+import { ObservationFormItemProps } from "@components/fhir/stu3/rendering/ObservationFormItem";
+import { MedicationRequest } from "fhir/r3";
+import { memo } from "react";
 import { cn } from "tailwind-cn";
+import FHIREmptySection from "../../FHIREmptySection";
 
 
 interface MedicationRequestFormItemProps {
   medicationRequests: MedicationRequest[];
 }
 
-export const MedicationRequestFormItem = memo(function MedicationRequestFormItem({ medicationRequests }: MedicationRequestFormItemProps) {
+const MedicationRequestFormItem = memo(function MedicationRequestFormItem({ medicationRequests }: MedicationRequestFormItemProps) {
   console.log("medicationRequest");
   console.log(medicationRequests);
   const MedicationHeader: ObservationFormItemProps = {
@@ -21,48 +22,45 @@ export const MedicationRequestFormItem = memo(function MedicationRequestFormItem
     // category: "Category",
     isBold: true
   }
-  if (medicationRequests.length === 0) return <></>;
-  // <EncounterSectionWrapper title={title ?? "Observations"}>
-  //   <div className='grid grid-cols-12 gap-x-4 gap-y-12 border-bottom border-slate-300 py-12'>
-  //     <ObservationFormItem {...header} />
-  //     {children}
-  //   </div>
-  // </EncounterSectionWrapper>
   return (
     <EncounterSectionWrapper title={"Medications"}>
-      <div className='grid grid-cols-12 gap-x-4 gap-y-12 border-bottom border-slate-300 py-12'>
+      <>
+
         {/* <> */}
         {/*   <div className={cn('col-span-2 text-sm text-slate-500 capitalize font-bold')}>Condition</div> */}
         {/*   <div className={cn('col-span-4 text-sm text-slate-500 capitalize font-bold')}>Value</div> */}
         {/*   <div className={cn('col-span-2 text-sm text-slate-500 capitalize font-bold')}>Category</div> */}
         {/* </> */}
         {
-          medicationRequests.length == 0 ? <>No Conditions were found</> :
-            medicationRequests.map((medicationRequest, index) => {
-              console.log(medicationRequest);
-              // console.log(medicationReqs.code);
-              // console.log(medicationReqs.code.coding);
-              const medicationReqs: ObservationFormItemProps= {
-                identifier: medicationRequest.id ?? "",
-                title: medicationRequest.medicationCodeableConcept?.coding?.at(0)?.display ?? "",
-                value: "",
-                category: "",
-                // performer: renderPerformer(observation),
-                // status: renderStatus(observation),
-                // category: observation.code?.coding?.[0]?.code || "N/A",
-              }
-              console.log("Medication Value");
-              console.log(medicationReqs);
-              return (
-                <>
-                  <div className={cn('col-span-2 text-sm text-slate-500 capitalize')}>Medication</div>
-                  <div className={cn('col-span-10 text-sm text-slate-500 capitalize')}>{medicationReqs.title}</div>
-                  {/* <div className={cn('col-span-2 text-sm text-slate-500 capitalize')}>{conditions.category ?? ""}</div> */}
-                </>
-              )
-            })
+          medicationRequests.length == 0 ? <FHIREmptySection textToDisplay="No medications were found" /> :
+            <div className='grid grid-cols-12 gap-x-4 gap-y-12 border-bottom border-slate-300 py-12'>
+              {medicationRequests.map((medicationRequest, index) => {
+                console.log(medicationRequest);
+                // console.log(medicationReqs.code);
+                // console.log(medicationReqs.code.coding);
+                const medicationReqs: ObservationFormItemProps = {
+                  identifier: medicationRequest.id ?? "",
+                  title: medicationRequest.medicationCodeableConcept?.coding?.at(0)?.display ?? "",
+                  value: "",
+                  category: "",
+                  // performer: renderPerformer(observation),
+                  // status: renderStatus(observation),
+                  // category: observation.code?.coding?.[0]?.code || "N/A",
+                }
+                console.log("Medication Value");
+                console.log(medicationReqs);
+                return (
+                  <>
+                    <div className={cn('col-span-2 text-sm text-slate-500 capitalize')}>Medication</div>
+                    <div className={cn('col-span-10 text-sm text-slate-500 capitalize')}>{medicationReqs.title}</div>
+                    {/* <div className={cn('col-span-2 text-sm text-slate-500 capitalize')}>{conditions.category ?? ""}</div> */}
+                  </>
+                )
+              })}
+            </div>
         }
-      </div>
+
+      </>
     </EncounterSectionWrapper>
   );
 })
@@ -137,3 +135,5 @@ export const MedicationRequestFormItem = memo(function MedicationRequestFormItem
 //     </EncounterSectionWrapper>
 //   );
 // })
+
+export default MedicationRequestFormItem;

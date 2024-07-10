@@ -1,7 +1,7 @@
-import React, { memo } from "react";
 import { ReferenceErrorLog } from "@components/fhir/ReferenceErrorLog";
+import ObservationFormItem, { ObservationFormItemProps } from "@components/fhir/stu3/rendering/ObservationFormItem";
 import { Observation } from "fhir/r3";
-import ObservationFormItem, { ObservationFormItemProps } from "@components/fhir/ObservationFormItem";
+import { memo } from "react";
 
 
 interface ObservationResourceProps {
@@ -15,7 +15,7 @@ export default memo(function ObservationResource({ observation }: ObservationRes
 
   const renderValue = (item:Observation) => {
     if (item.valueQuantity) {
-      return (item.valueQuantity.value ?? "No Qty Found") + " " + (item.valueQuantity.unit ?? "No Unit Found");
+      return (item.valueQuantity.value ?? "No Qty Found") + " " + (item.valueQuantity.unit ?? "");
 
     } else if (item.valueCodeableConcept) {
       return item.valueCodeableConcept.coding?.[0]?.display ?? "N/A";
@@ -55,7 +55,9 @@ export default memo(function ObservationResource({ observation }: ObservationRes
     // status: renderStatus(observation),
     // category: observation.code?.coding?.[0]?.code || "N/A",
   }
-
+  if(ObservationObject.title == "N/A" || ObservationObject.value == "N/A"){
+    return <></>
+  }
   return (
       <ObservationFormItem {...ObservationObject} />
   );

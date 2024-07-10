@@ -1,8 +1,8 @@
 "use client";
-import React, { memo, useEffect, useState } from "react";
 import { EncounterListItem, EncounterListProps } from "@utils/interfaces/Encounter/Encounter";
-import dynamic from "next/dynamic";
 import { filterArray } from "@utils/utilityFunctions";
+import dynamic from "next/dynamic";
+import { memo, useEffect, useState } from "react";
 
 const EncounterListingTable = dynamic(() => import("@components/profilePage/EncounterSegment/EncounterListingTable"), {
   ssr: true,
@@ -50,7 +50,7 @@ function EncounterList({ encounters } : EncounterListProps) {
         />
       </div>
       <div className="overflow-scroll md:overflow-auto">
-        <EncounterListingTable encounters={...encounterList} />
+        <EncounterListingTable encounters={encounterList} />
       </div>
     </div>
   );

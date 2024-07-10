@@ -2,12 +2,12 @@
 
 import { MCISpinner } from "@components/MCISpinner";
 import { getAPIResponse } from "@library/utils";
-import { getBaseUrl, getUrlFromName } from "@utils/lib/apiList";
-import dynamic from "next/dynamic";
-import React, { memo } from "react";
 import { PaletteColorOptions, useTheme } from "@mui/material";
-import variables from "@variables/variables.module.scss";
 import { useLoggedInStore } from "@store/useLoggedInStore";
+import { getBaseUrl, getUrlFromName } from "@utils/lib/apiList";
+import variables from "@variables/variables.module.scss";
+import dynamic from "next/dynamic";
+import { memo } from "react";
 // import ModalBlank from "@library/ModalBlank";
 import { useQuery } from "@tanstack/react-query";
 import { EncounterListItem } from "@utils/interfaces/Encounter/Encounter";
@@ -111,7 +111,7 @@ const EncounterDetails = ({ encounterId, hid }: EncounterDetailsProps) => {
           {status ==="pending" && <MCISpinner classNames="max-h-[100vh] min-h-[80vh] h-full w-full flex align-center justify-center" />}
 
           {status==="success"  &&
-            <div className={"w-full h-full min-h-[80vh] overflow-scroll"}>
+            <div className={"w-full h-full min-h-[80vh]"}>
                 <FHIRData
                   key={selectedEncounter.id}
                   json={fhirBundle}

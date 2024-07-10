@@ -1,4 +1,4 @@
-import React, { memo } from "react";
+import { memo } from "react";
 import { cn } from "tailwind-cn";
 
 export const EncounterSectionWrapper = memo(function EncounterSectionWrapper({ children, title, wrapperClassNames="", bodyClassNames="" }: { children: any; title?: string; wrapperClassNames?:string, bodyClassNames?:string }) {
@@ -16,7 +16,7 @@ export const EncounterSectionWrapper = memo(function EncounterSectionWrapper({ c
       }
       <div className={cn(
         "gap-y-4 h-full w-full",
-        wrapperClassNames
+        bodyClassNames
         )}>
         {children}
       </div>

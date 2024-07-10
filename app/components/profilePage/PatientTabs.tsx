@@ -48,9 +48,16 @@ const PatientTabs: React.FC<PatientDetailsProps> = ({
   const [tabItemToShow, setTabItemToShow] = useState(0);
   const tabItemsNew: TabItemProps[] = [
     {
-      name: "User Info",
+      name: "Clinical Data",
       count: "",
       current: true,
+      icon: "medical-circle",
+      isDisabled: false,
+    },
+    {
+      name: "User Info",
+      count: "",
+      current: false,
       icon: "info-circle",
       isDisabled: false,
     },
@@ -59,13 +66,6 @@ const PatientTabs: React.FC<PatientDetailsProps> = ({
       count: "",
       current: false,
       icon: "map-01",
-      isDisabled: false,
-    },
-    {
-      name: "Clinical Data",
-      count: "",
-      current: false,
-      icon: "medical-circle",
       isDisabled: false,
     }
   ];
@@ -89,7 +89,8 @@ const PatientTabs: React.FC<PatientDetailsProps> = ({
       {/* Create padding when on mobile screen using tailwind */}
       <div className="py-8 md:py-0"></div>
       <span className=" shadow-sm hover:shadow hover:md:shadow-lg">
-        {tabItemToShow==0 && (
+        {tabItemToShow==0 && <Encounters encounters={encounters} />}
+        {tabItemToShow==1 && (
           <PersonalInfo
             eduLevel={patientInfo.edu_level ?? "Unavailable"}
             pob={"Unavailable"}
@@ -104,8 +105,7 @@ const PatientTabs: React.FC<PatientDetailsProps> = ({
             phone={patientInfo.phone_no ?? "Unavailable"}
           />
         )}
-        {tabItemToShow==1 && <AddressBlock items={addressItems} />}
-        {tabItemToShow==2 && <Encounters encounters={encounters} />}
+        {tabItemToShow==2 && <AddressBlock items={addressItems} />}
       </span>
 
     </div>

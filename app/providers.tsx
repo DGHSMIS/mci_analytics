@@ -2,7 +2,6 @@
 
 import { QueryClientProvider, QueryClientProviderProps } from "@tanstack/react-query";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
-import { ReactQueryStreamedHydration } from "@tanstack/react-query-next-experimental";
 import getQueryClient from "@utils/providers/reactQuery/getQueryClient";
 import { SessionProvider } from "next-auth/react";
 import React from "react";
@@ -24,10 +23,10 @@ export default function Providers({
   };
   return <QueryClientProvider {...queryClientProps}>
     <SessionProvider session={session ? session : null}>
-      <ReactQueryStreamedHydration queryClient={queryClientProps.client}>
+      {/* <ReactQueryStreamedHydration queryClient={queryClientProps.client}> */}
         {queryClientProps.children}
-      </ReactQueryStreamedHydration>
-      {process.env.NODE_ENV !== "production" ?? <ReactQueryDevtools initialIsOpen={false} />}
+      {/* </ReactQueryStreamedHydration> */}
+      {process.env.NODE_ENV !== "production" ?? <ReactQueryDevtools initialIsOpen={true} />}
     </SessionProvider>
   </QueryClientProvider>;
 }
