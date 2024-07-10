@@ -1,12 +1,12 @@
-import React, { memo } from "react";
+import KeyValueFormItem from "@components/fhir/KeyValueFormItem";
+import { ReferenceErrorLog } from "@components/fhir/ReferenceErrorLog";
+import { MCISpinner } from "@components/MCISpinner";
+import { getAPIResponse } from "@library/utils";
 import { useQuery } from "@tanstack/react-query";
 import HRISProviderInterface, { HRISProviderCodedIdentifier } from "@utils/interfaces/HRISProviderInterface";
-import { getAPIResponse } from "@library/utils";
-import { MCISpinner } from "@components/MCISpinner";
 import { getBaseUrl, getUrlFromName } from "@utils/lib/apiList";
 import { Reference } from "fhir/r3";
-import { ReferenceErrorLog } from "@components/fhir/ReferenceErrorLog";
-import KeyValueFormItem from "@components/fhir/KeyValueFormItem";
+import { memo } from "react";
 
 export const ProviderInfo = memo(function ProviderInfo(reference: Reference) {
 

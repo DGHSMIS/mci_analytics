@@ -62,7 +62,7 @@ export default memo(function ProviderAndFacilityInfoProps({ composition, encount
       }
 
       const { isPending, isSuccess, isError, data } = useQuery({
-        queryKey: ["providerInfo", providerURL.toString(),  Number(process.env.NEXT_PUBLIC_API_REVALIDATE_TIME) || 0],
+        queryKey: ["providerInfo", providerURL.toString()],
         queryFn: async () => await getAPIResponse(
           getBaseUrl(),
           getUrlFromName("get-identity-info") + "?url=" +
@@ -173,7 +173,7 @@ export default memo(function ProviderAndFacilityInfoProps({ composition, encount
 
 
       const { isPending, isSuccess, isError, data } = useQuery({
-        queryKey: ["providerInfo", facilityURL.toString(),  Number(process.env.NEXT_PUBLIC_API_REVALIDATE_TIME) || 0],
+        queryKey: ["providerInfo", facilityURL.toString()],
         queryFn: async () => await getAPIResponse(
           getBaseUrl(),
           getUrlFromName("get-identity-info") + "?url=" +
@@ -182,7 +182,7 @@ export default memo(function ProviderAndFacilityInfoProps({ composition, encount
           "GET",
           null,
           false,
-          Number(process.env.NEXT_PUBLIC_API_REVALIDATE_TIME) || 0,
+          0,
           true,
           getHRISHeaders()
         ),

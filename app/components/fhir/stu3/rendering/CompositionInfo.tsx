@@ -13,7 +13,9 @@ export default memo(function CompositionInfo({ ...composition }: Composition) {
   if (!composition.subject?.reference) errorMessage = "No Reference Provided";
 
   const { isPending, isSuccess, isError, data } = composition.subject?.reference ? useQuery({
-    queryKey: ["patientInfo", composition.subject?.reference, Number(process.env.NEXT_PUBLIC_API_REVALIDATE_TIME) || 0],
+    queryKey: ["patientInfo", composition.subject?.reference, process.env.FREESHR_AUTH_X_TOKEN,
+      process.env.FREESHR_CLIENT_ID,
+      process.env.FREESHR_API_USERNAME],
     queryFn: async () => await getAPIResponse(
       getBaseUrl(),
       getUrlFromName("get-mci-patient") + "?url=" +
@@ -22,12 +24,12 @@ export default memo(function CompositionInfo({ ...composition }: Composition) {
       "GET",
       null,
       false,
-      Number(process.env.NEXT_PUBLIC_API_REVALIDATE_TIME) || 0,
+      0,
       true,
       {
         "X-Auth-Token": process.env.FREESHR_AUTH_X_TOKEN || "",
         "client-id": process.env.FREESHR_CLIENT_ID || "",
-        "FROM": process.env.FREESHR_API_USERNAME
+        "FROM": process.env.FREESHR_API_USERNAME || "",
       }
     ),
   }) : { isPending: false, isSuccess: false, isError: true, data: undefined };

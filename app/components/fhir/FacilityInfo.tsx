@@ -19,7 +19,7 @@ const useFacilityInfo = (reference: Reference) => {
   }, [reference.reference]);
 
   const { isLoading, isSuccess, isError, data } = useQuery({
-    queryKey: ["providerInfo", facilityURL?.toString(), Number(process.env.NEXT_PUBLIC_API_REVALIDATE_TIME) || 0],
+    queryKey: ["providerInfo", facilityURL?.toString()],
     queryFn: async () =>
       await getAPIResponse(
         getBaseUrl(),
@@ -28,7 +28,7 @@ const useFacilityInfo = (reference: Reference) => {
         "GET",
         null,
         false,
-        Number(process.env.NEXT_PUBLIC_API_REVALIDATE_TIME) || 0,
+        0,
         true,
         {
           "X-Auth-Token": process.env.NEXT_X_FACILITY_AUTH_TOKEN || "",
