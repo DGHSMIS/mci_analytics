@@ -24,7 +24,7 @@ const LineToPieChartSerieCollection = (originalData: Serie[]): Serie[] => {
   return pieData;
 };
 
-const dataCounter = (data: Datum[]) => {
+const dataCounter = (data: readonly Datum[]) => {
   let count = 0;
   data.forEach((item: Datum) => {
     if (item.y && typeof item.y === "number") {

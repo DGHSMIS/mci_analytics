@@ -1,8 +1,8 @@
 "use client";
 
-import { QueryClientProvider, QueryClientProviderProps } from "@tanstack/react-query";
+import { QueryClient, QueryClientProvider, QueryClientProviderProps } from '@tanstack/react-query';
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
-import getQueryClient from "@utils/providers/reactQuery/getQueryClient";
+import { ReactQueryStreamedHydration } from "@tanstack/react-query-next-experimental";
 import { SessionProvider } from "next-auth/react";
 import React from "react";
 
@@ -10,23 +10,24 @@ interface ProvidersProps {
   children: React.ReactNode;
   session: any;
 }
+// Create a client
+const queryClient:QueryClient = new QueryClient();
 
 export default function Providers({
                                     children,
                                     session,
                                   }: ProvidersProps) {
-  const queryClientSingleton = getQueryClient();
-  const [queryClient, setQueryClient] = React.useState(queryClientSingleton);
+
   const queryClientProps: QueryClientProviderProps = {
     client: queryClient,
     children: children,
   };
   return <QueryClientProvider {...queryClientProps}>
     <SessionProvider session={session ? session : null}>
-      {/* <ReactQueryStreamedHydration queryClient={queryClientProps.client}> */}
+      <ReactQueryStreamedHydration queryClient={queryClientProps.client}>
         {queryClientProps.children}
-      {/* </ReactQueryStreamedHydration> */}
-      {process.env.NODE_ENV !== "production" ?? <ReactQueryDevtools initialIsOpen={true} />}
+      </ReactQueryStreamedHydration>
     </SessionProvider>
+      {process.env.NODE_ENV !== "production" ?? <ReactQueryDevtools initialIsOpen={true} />}
   </QueryClientProvider>;
 }

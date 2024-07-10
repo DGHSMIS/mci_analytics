@@ -6,7 +6,7 @@ export const tokens = (isDarkMode: boolean = false) => {
   if (!fullTwConfig || !fullTwConfig.theme || !fullTwConfig.theme.colors)
     return {};
 
-  const colors = fullTwConfig.theme.colors;
+  const colors:any = fullTwConfig.theme.colors;
 
   return {
     ...(isDarkMode

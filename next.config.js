@@ -22,6 +22,7 @@ const nextConfig = {
       "original-fs": false,
       "fs": false,
     };
+    // config.devtool = process.env.NODE_ENV === 'development' ? 'eval-source-map' : false;
     return config;
   },
   // eslint: {
