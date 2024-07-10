@@ -13,7 +13,7 @@ export default memo(function CompositionInfo({ ...composition }: Composition) {
   if (!composition.subject?.reference) errorMessage = "No Reference Provided";
 
   const { isPending, isSuccess, isError, data } = composition.subject?.reference ? useQuery({
-    queryKey: ["patientInfo", composition.subject?.reference],
+    queryKey: ["patientInfo", composition.subject?.reference, Number(process.env.NEXT_PUBLIC_API_REVALIDATE_TIME) || 0],
     queryFn: async () => await getAPIResponse(
       getBaseUrl(),
       getUrlFromName("get-mci-patient") + "?url=" +

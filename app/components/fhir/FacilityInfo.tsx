@@ -19,7 +19,7 @@ const useFacilityInfo = (reference: Reference) => {
   }, [reference.reference]);
 
   const { isLoading, isSuccess, isError, data } = useQuery({
-    queryKey: ["providerInfo", facilityURL?.toString()],
+    queryKey: ["providerInfo", facilityURL?.toString(), Number(process.env.NEXT_PUBLIC_API_REVALIDATE_TIME) || 0],
     queryFn: async () =>
       await getAPIResponse(
         getBaseUrl(),

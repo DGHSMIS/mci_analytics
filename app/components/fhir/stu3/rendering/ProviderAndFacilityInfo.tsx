@@ -173,7 +173,7 @@ export default memo(function ProviderAndFacilityInfoProps({ composition, encount
 
 
       const { isPending, isSuccess, isError, data } = useQuery({
-        queryKey: ["providerInfo", facilityURL.toString()],
+        queryKey: ["providerInfo", facilityURL.toString(),  Number(process.env.NEXT_PUBLIC_API_REVALIDATE_TIME) || 0],
         queryFn: async () => await getAPIResponse(
           getBaseUrl(),
           getUrlFromName("get-identity-info") + "?url=" +
