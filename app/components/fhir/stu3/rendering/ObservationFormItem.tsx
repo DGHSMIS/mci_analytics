@@ -15,9 +15,9 @@ const ObservationFormItem = memo(function ObservationFormItem(props: Observation
     return <></>;
   }
   return <>
-    <div className={cn('col-span-5 text-sm text-slate-500 font-semibold', { '': props.isBold })}>{props.title}</div>
-    <div className={cn('col-span-5 text-sm text-slate-500', { 'font-semibold': props.isBold })}>{props.value}</div>
-    <div className={cn('col-span-2 text-sm text-slate-500', { 'font-semibold': props.isBold })}>{props.status ?? ""}</div>
+    <div className={cn('col-span-5 text-sm text-slate-500 font-semibold border-b py-8', { '': props.isBold })}>{props.title}</div>
+    <div className={cn('col-span-5 text-sm text-slate-500 border-b py-8', props.value.includes("Values") ? 'font-semibold' : '', { 'font-semibold': props.isBold })}>{props.value}</div>
+    <div className={cn('col-span-2 text-sm text-slate-500 border-b py-8', { 'font-semibold': props.isBold })}>{props.status ?? ""}</div>
     {/* <div className={cn('col-span-2 text-sm text-slate-500', { 'font-semibold': props.isBold })}>{props.performer ?? ""}</div> */}
     {/* <div className={cn('col-span-2 text-sm text-slate-500', { 'font-semibold': props.isBold })}>{props.category ?? ""}</div> */}
   </>

@@ -27,7 +27,7 @@ export default memo(function ConditionInfo({ conditions }: ConditionInfoProps) {
       <>
         {
           conditions.length == 0 ? <FHIREmptySection textToDisplay="No conditions were found"/> :
-            <div className='grid grid-cols-12 gap-x-4 gap-y-12 border-bottom border-slate-300 py-12'>
+            <div className='grid grid-cols-12 border-bottom border-slate-300 py-12'>
               {conditions.map((condition, index) => {
                 console.log(condition);
                 // console.log(condition.code);
@@ -45,8 +45,7 @@ export default memo(function ConditionInfo({ conditions }: ConditionInfoProps) {
                 console.log(conditions);
                 return (
                   <>
-                    <div className={cn('col-span-2 text-sm text-slate-500 capitalize')}>Condition</div>
-                    <div className={cn('col-span-10 text-sm text-slate-500 capitalize')}>{conditions.value}</div>
+                    <div className={cn('col-span-12 text-sm text-slate-500 capitalize border-b py-8')}><span className={cn('inline-block font-semibold mr-4')}>{index+1}.</span> {conditions.value}</div>
                     {/* <div className={cn('col-span-2 text-sm text-slate-500 capitalize')}>{conditions.category ?? ""}</div> */}
                   </>
                 )

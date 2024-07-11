@@ -70,6 +70,10 @@ const apiList: ApiUrlInterface[] = [
   {
     name: "get-mci-patient",
     urlPath: "/api/ids/get-mci-patient",
+  },
+  {
+    name: "get-patient-photo",
+    urlPath: "/api/ids/get-patient-nid-photo",
   }
 ];
 /**

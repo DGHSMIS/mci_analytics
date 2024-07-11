@@ -33,7 +33,7 @@ const MedicationRequestFormItem = memo(function MedicationRequestFormItem({ medi
         {/* </> */}
         {
           medicationRequests.length == 0 ? <FHIREmptySection textToDisplay="No medications were found" /> :
-            <div className='grid grid-cols-12 gap-x-4 gap-y-12 border-bottom border-slate-300 py-12'>
+            <div className='grid grid-cols-12 border-bottom border-slate-300 py-12'>
               {medicationRequests.map((medicationRequest, index) => {
                 console.log(medicationRequest);
                 // console.log(medicationReqs.code);
@@ -51,8 +51,7 @@ const MedicationRequestFormItem = memo(function MedicationRequestFormItem({ medi
                 console.log(medicationReqs);
                 return (
                   <>
-                    <div className={cn('col-span-2 text-sm text-slate-500 capitalize')}>Medication</div>
-                    <div className={cn('col-span-10 text-sm text-slate-500 capitalize')}>{medicationReqs.title}</div>
+                    <div className={cn('col-span-12 text-sm text-slate-500 capitalize border-b py-8')}><span className={cn('inline-block font-semibold mr-4')}>{index+1}.</span> {medicationReqs.title}</div>
                     {/* <div className={cn('col-span-2 text-sm text-slate-500 capitalize')}>{conditions.category ?? ""}</div> */}
                   </>
                 )

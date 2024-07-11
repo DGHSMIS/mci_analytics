@@ -1,4 +1,8 @@
 import { ESPatientInterface } from "@api/providers/elasticsearch/patientIndex/interfaces/ESPatientInterface";
+import { MCISpinner } from "@components/MCISpinner";
+import { getAPIResponse } from "@library/utils";
+import { useQuery } from "@tanstack/react-query";
+import { getBaseUrl, getUrlFromName } from "@utils/lib/apiList";
 import {
   convertDateToReadableFormat,
   convertGenderToReadableFormat,
@@ -16,19 +20,34 @@ interface PatientTopBlockProps {
 const PatientIDBlocks = dynamic(() => import("@components/profilePage/PatientIDBlocks/PatientIDBlocks"), { ssr: true });
 const Avatar = dynamic(() => import("@library/Avatar"), { ssr: true });
 export default memo(function PatientTopBlock(props: PatientTopBlockProps) {
+  const nid = props.patient.national_id ?? "";
+  const { isLoading, isSuccess, isError, data } = useQuery({
+    queryKey: ["profileImage", nid],
+    queryFn: async () =>
+      await getAPIResponse(
+        getBaseUrl(),
+        getUrlFromName("get-patient-photo") + `?nid=${nid}`,
+        "",
+        "GET",
+        null,
+        false,
+        0,
+        false
+      ),
+    enabled: nid.length > 0 // This will prevent the query from running if nid is empty
+  });
   const patientName = `${props.patient.given_name ?? ""} ${props.patient.sur_name ?? ""}`;
   const fatherName = `${props.patient.fathers_given_name ?? ""}  ${props.patient.fathers_sur_name ?? ""}`;
   const motherName = `${props.patient.mothers_given_name ?? ""}  ${props.patient.mothers_sur_name ?? ""}`;
-//  console.log("Martial Status");
-//  console.log(props.patient);
+
   return (
     <div className="card w-full h-fit space-y-12 flex flex-col">
       <div className="flex items-center space-x-12 static md:relative">
-      {props.patient.user_photo !=null && props.patient.user_photo != undefined ? <Avatar size="md" className="mr-12" src={props.patient.user_photo}/> : <Avatar size="sm" className="mr-12" />}
-        <h6>{patientName}</h6>
-        {/* <span className={'text-xs capitalize'}>{props.patient.hid_card_status ? '(' + props.patient.hid_card_status.toLowerCase() + ')' :"Unregistered"}</span> */}
+      {isLoading ? <MCISpinner classNames="h-full w-full flex items-start justify-start" spinnerText="" spinnerClassName="h-24 w-24" size="md"/>
+        : isError ? <><Avatar size="xl" className="mr-12" /><h6>{patientName}</h6></> 
+        : isSuccess && data.imgURI ? <><Avatar size="xl" className="mr-12" src={data.imgURI}/><h6>{patientName}</h6></>
+        : <><Avatar size="xl" className="mr-12" /><h6>{patientName}</h6></>}
       </div>
-
       <div className={"flex flex-col w-100 justify-start items-center space-8"}>
         <div className={"py-12 w-full text-sm"}>
           <b>Primary Info</b>

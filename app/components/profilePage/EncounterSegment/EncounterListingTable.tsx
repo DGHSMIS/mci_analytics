@@ -1,10 +1,10 @@
 "use client";
-import React, { memo } from "react";
+import { useLoggedInStore } from "@store/useLoggedInStore";
 import { EncounterListProps } from "@utils/interfaces/Encounter/Encounter";
 import { convertDateToReadableFormat } from "@utils/utilityFunctions";
-import { useLoggedInStore } from "@store/useLoggedInStore";
-import twcolors from "tailwindcss/colors";
 import dynamic from "next/dynamic";
+import { memo } from "react";
+import twcolors from "tailwindcss/colors";
 
 
 const Icon = dynamic(() => import("@library/Icon"), { ssr: true });
@@ -37,9 +37,9 @@ const EncounterListingTable = memo(function EncounterListingTable({ encounters }
             {/* Add Confidentiality Status using a Icon component and text*/}
             <div className="flex items-center">
               <div className="flex items-center">
-                <div className="text-xs font-medium text-gray-700 dark:text-gray-400">
+                <div className="text-xs font-medium text-gray-700 dark:text-gray-400 relative">
                   Confidentiality:
-                  <div className='inline-flex px-4 '>{!encounter.encounter_confidentiality ? <Icon iconSize='16px' iconColor={twcolors.green[600]} iconName='lock-unlocked-01' title="Visible" /> : <Icon iconSize='16px' iconName='lock-01' iconColor={twcolors.slate[600]} title="Private" />}</div>
+                  <div className='inline-flex px-4 '>{!encounter.encounter_confidentiality ? <Icon className='absolute -top-1' iconSize='16px' iconColor={twcolors.green[600]} iconName='lock-unlocked-01' title="Visible" /> : <Icon iconSize='16px' iconName='lock-01' iconColor={twcolors.slate[600]} title="Private" />}</div>
                 </div>
               </div>
             </div>

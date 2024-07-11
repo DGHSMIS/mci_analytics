@@ -27,7 +27,7 @@ export default memo(function ObservationInfo({ items, title = "Observations", ob
 
 export const ObservationSectionWrapper = memo(function ObservationSectionWrapper({ header, title, children }: { header: ObservationFormItemProps, title?: string, children: any }) {
     return (
-        <div className='grid grid-cols-12 gap-x-4 gap-y-12 border-bottom border-slate-300 py-12'>
+        <div className='grid grid-cols-12 border-bottom border-slate-300 py-12'>
             <ObservationFormItem {...header} />
             {children}
         </div>
