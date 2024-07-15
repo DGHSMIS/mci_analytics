@@ -155,7 +155,7 @@ export default memo(function PatientProfileMain({ session }: any) {
       </div>
       <div className={"grid grid-cols-12 gap-x-16"}>
         <div className={"col-span-12 md:col-span-4 lg:col-span-3 shadow-sm hover:shadow hover:md:shadow-lg"}>
-          {patientInfo && <PatientInfoCard patient={patientInfo} facilityName=""/>}
+          {patientInfo && <PatientInfoCard patient={patientInfo} facilityName="" session={session}/>}
         </div>
         <div className={"col-span-12 md:col-span-8 lg:col-span-9 shadow-sm hover:shadow hover:md:shadow-lg w-full"}>
           {patientInfo && <PatientTabs patientInfo={patientInfo} encounters={patientEncounterList ?? []} />}

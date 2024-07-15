@@ -74,6 +74,10 @@ const apiList: ApiUrlInterface[] = [
   {
     name: "get-patient-photo",
     urlPath: "/api/ids/get-patient-nid-photo",
+  },
+  {
+    name: "get-patient-health-card",
+    urlPath: "/api/ids/get-patient-health-card",
   }
 ];
 /**

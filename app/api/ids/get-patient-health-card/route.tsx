@@ -1,6 +1,5 @@
-import { retrieveMinioImageAsBase64 } from '@providers/minio/MinioBase';
 import { checkIfMCIAdminOrApprover } from '@utils/lib/auth';
-import { NextRequest, NextResponse } from "next/server";
+import { NextRequest, NextResponse } from 'next/server';
 
 export async function GET(req: NextRequest) {
     
@@ -10,24 +9,26 @@ export async function GET(req: NextRequest) {
     }
   
     const params: any = req.nextUrl.searchParams;
-    console.log("Get Patient Photo using NID");
+    console.log("Get Patient health card");
     console.log(params);
-    let nid = "";
+    let hid = "";
     params.forEach((key: any, value: any) => {
       console.log(value);
-      if (value == "nid") {
-        nid = key;
+      if (value == "hid") {
+        hid = key;
       }
     });
-    console.log("patient nid");
-    console.log(nid);
-    
-    const img = await retrieveMinioImageAsBase64("nid-image-store", String(nid));
+    console.log("patient hid");
+    console.log(hid);
+    const cardServiceBaseUrl = process.env.CARD_PRINTER_SERVICE_BASEURL ? process.env.CARD_PRINTER_SERVICE_BASEURL : "";
+    const getHealthCardFromCardServer = await fetch(
+      cardServiceBaseUrl + "/api/es/patient/get-patient-health-card?hid=" + hid,
+    );
 
-    const imgURI = img ? `data:image/png;base64,${img}` : "";
+    const results = await getHealthCardFromCardServer.json();
     
     return NextResponse.json(
-        {imgURI: imgURI},
+        {...results},
         {
           status: 200,
           headers: {

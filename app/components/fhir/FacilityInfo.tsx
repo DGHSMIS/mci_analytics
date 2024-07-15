@@ -1,7 +1,7 @@
-import { MCISpinner } from "@components/MCISpinner";
 import KeyValueFormItem from "@components/fhir/KeyValueFormItem";
 import { ReferenceErrorLog } from "@components/fhir/ReferenceErrorLog";
-import { getAPIResponse } from "@library/utils";
+import { MCISpinner } from "@components/MCISpinner";
+import { getAPIResponse, getRevalidationTime } from "@library/utils";
 import { useQuery } from "@tanstack/react-query";
 import { districtCodes, divisionCodes } from "@utils/constants";
 import { getBaseUrl } from "@utils/lib/apiList";
@@ -28,7 +28,7 @@ const useFacilityInfo = (reference: Reference) => {
         "GET",
         null,
         false,
-        0,
+        getRevalidationTime(),
         true,
         {
           "X-Auth-Token": process.env.NEXT_X_FACILITY_AUTH_TOKEN || "",

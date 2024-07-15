@@ -151,6 +151,54 @@ export const fileDownloader = async (
   URL.revokeObjectURL(url);
   return;
 };
+
+/**
+ * Converts a data URI to a Blob.
+ * @param dataURI - The data URI to convert.
+ * @returns A Blob representing the image.
+ */
+function dataURIToBlob(dataURI: string): Blob {
+  // Split the data URI into base64 and mime type parts
+  const byteString = atob(dataURI.split(',')[1]);
+  const mimeString = dataURI.split(',')[0].split(':')[1].split(';')[0];
+
+  // Write the bytes of the string to an ArrayBuffer
+  const arrayBuffer = new ArrayBuffer(byteString.length);
+  const uint8Array = new Uint8Array(arrayBuffer);
+
+  for (let i = 0; i < byteString.length; i++) {
+      uint8Array[i] = byteString.charCodeAt(i);
+  }
+
+  return new Blob([uint8Array], { type: mimeString });
+}
+
+/**
+* Triggers the download of a Blob as a file.
+* @param blob - The Blob to download.
+* @param filename - The name of the file to save.
+*/
+function downloadBlob(blob: Blob, filename: string): void {
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
+
+/**
+* Converts a data URI to a PNG file and triggers the download.
+* @param dataURI - The data URI to convert and download.
+* @param filename - The name of the file to save.
+*/
+export const downloadDataURIAsPNG = (dataURI: string, filename: string): void =>{
+  const blob = dataURIToBlob(dataURI);
+  downloadBlob(blob, filename);
+}
+
 /**
  * Convert any Object with nested Objects to Form Data
  */

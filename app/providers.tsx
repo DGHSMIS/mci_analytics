@@ -24,10 +24,10 @@ export default function Providers({
   };
   return <QueryClientProvider {...queryClientProps}>
     <SessionProvider session={session ? session : null}>
+      {process.env.NODE_ENV == "development" ? <ReactQueryDevtools initialIsOpen={true} /> : <></>}
       <ReactQueryStreamedHydration queryClient={queryClientProps.client}>
         {queryClientProps.children}
       </ReactQueryStreamedHydration>
     </SessionProvider>
-      {process.env.NODE_ENV !== "production" ?? <ReactQueryDevtools initialIsOpen={true} />}
   </QueryClientProvider>;
 }

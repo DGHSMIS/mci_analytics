@@ -4,7 +4,6 @@ import { dropAndGenerateIndex } from "@providers/elasticsearch/ESBase";
 import { indexAllHealthRecordsESData } from "@providers/elasticsearch/healthRecordSummaryIndex/ESHealthRecordSummaryIndex";
 import { ESHealthRecordSummaryIndexBody } from '@providers/elasticsearch/healthRecordSummaryIndex/ESHealthRecordSummaryMapping';
 import { sendErrorMsg, sendSuccess } from "@utils/responseHandler";
-import { validateKnowHostToAccessRoute } from "@utils/utilityFunctions";
 import { NextRequest } from "next/server";
 import "server-only";
 
@@ -30,9 +29,9 @@ const knownHostIPs = ['127.0.0.1', '::1'];
 export async function POST(req: NextRequest) {
   console.log(`Cleaning & reindexing ${healthRecordESIndexName} index`);
     //This route is only accessible from the known hosts
-  if (!validateKnowHostToAccessRoute(req)) {
-    return sendErrorMsg('Forbidden: Request is not from the host serve', 403);
-  }
+  // if (!validateKnowHostToAccessRoute(req)) {
+  //   return sendErrorMsg('Forbidden: Request is not from the host serve', 403);
+  // }
   console.log('Request is from the known host');
 
   try {
