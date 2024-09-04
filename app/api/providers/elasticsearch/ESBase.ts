@@ -32,7 +32,7 @@ export const esBaseClient = new Client(clientOptions);
  */
 export const getESAuthHeader = (esEndpoint: string) => {
   return {
-    esUrl: `${ELASTICSEARCH_HOST}/${esEndpoint}`,
+    esUrl: `${ELASTICSEARCH_HOST[0]}/${esEndpoint}`,
     authHeader: 'Basic ' + Buffer.from(ELASTIC_USER + ':' + ELASTIC_PASSWORD).toString('base64')
   }
 }
