@@ -11,7 +11,7 @@ import {
     seederParams
 } from "@providers/cassandra/PatientSeederQueries";
 import divisionList from "@utils/constants/DivisionCodes.json";
-import { CDPatientInterface } from "@utils/interfaces/CDPatientInterface";
+import { CDPatientInterface } from "@utils/interfaces/Cassandra/CDPatientInterface";
 import { NextRequest, NextResponse } from "next/server";
 import "server-only";
 

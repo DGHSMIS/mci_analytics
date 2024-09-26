@@ -1,4 +1,5 @@
-import { ESPatientInterface } from "@api/providers/elasticsearch/patientIndex/interfaces/ESPatientInterface";
+import { CreateAndUpdatedByEncounterInterface } from "@api/providers/elasticsearch/encounterIndex/interfaces/ESEncounterInterface";
+import { CreateAndUpdatedByPatientInterface, ESPatientInterface } from "@api/providers/elasticsearch/patientIndex/interfaces/ESPatientInterface";
 import { AddressProps } from "@components/profilePage/AddressBlock/AddressBlock";
 import {
   bloodGroupCodes,
@@ -494,4 +495,16 @@ export const validateKnowHostToAccessRoute = (req: NextRequest) => {
     return false;
   }
   return true;
+}
+
+export const blankCreatedAndUpdatedByPatientESObject: CreateAndUpdatedByPatientInterface = {
+  facility: null,
+  provider: null,
+  admin: null,
+}
+
+
+export const blankCreatedAndUpdatedByEncounterESObject: CreateAndUpdatedByEncounterInterface = {
+  facilityId: null,
+  provider: null
 }

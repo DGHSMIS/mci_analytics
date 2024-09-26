@@ -1,9 +1,9 @@
 "use client";
-import { RegistrationStatsProps } from "@api/es/analytics/patient/get-facility-type-registration-stats/route";
 import SectionSkeletonLoader from "@components/publicDashboard/sections/DefaultSectionTemplate/SectionSkeletonLoader";
 import { getAPIResponse, getRevalidationTime } from "@library/utils";
 import { useStore } from "@store/store";
 import { QueryClient, useQueryClient, useSuspenseQuery } from "@tanstack/react-query";
+import { FacilityTypeWiseStatsInterface } from "@utils/interfaces/Analytics/FacilityTypeWiseStatsInterface";
 import { getBaseUrl, getUrlFromName } from "@utils/lib/apiList";
 import { fetchDivisionWiseData } from "@utils/providers/pbdClientServiceProvider";
 import dynamic from "next/dynamic";
@@ -47,15 +47,53 @@ function useRegistrationStatsAPI(props: {
       if (data) {
         console.log("The registration stats from Page RSC");
         console.table(data);
-        const regStats: RegistrationStatsProps = { ...data };
+        const regStats: FacilityTypeWiseStatsInterface = { ...data };
         return regStats;
       } else {
-        const empty: RegistrationStatsProps = {
-          totalRegistration: 0,
-          openMRSFacilityCount: 0,
-          openSRPFacilityCount: 0,
-          aaloClincFacilityCount: 0,
-          eMISFacilityCount: 0,
+        const empty: FacilityTypeWiseStatsInterface = {
+          totalCount: 0,
+          openMRSCount: 0,
+          openSRPCount: 0,
+          aaloClincCount: 0,
+          eMISCount: 0,
+        };
+        return empty;
+      }
+    },
+  }, props.queryClient);
+}
+
+
+function useEncounterStatsAPI(props: {
+  queryClient: QueryClient;
+}) {
+  /* @ts-ignore */
+  return useSuspenseQuery({
+    queryKey: ["getPublicEncounterAnalytics", props.queryClient],
+    queryFn: async () => await getAPIResponse(
+      getBaseUrl(),
+      getUrlFromName("get-facilitywise-encounter-count-stats"),
+      "",
+      "GET",
+      null,
+      false,
+      getRevalidationTime(),
+    ),
+    //https://tkdodo.eu/blog/react-query-data-transformations
+    //Tranform data
+    select: (data) => {
+      if (data) {
+        console.log("The encounter stats from Page RSC");
+        console.table(data);
+        const encounterStatsData: FacilityTypeWiseStatsInterface = { ...data };
+        return encounterStatsData;
+      } else {
+        const empty: FacilityTypeWiseStatsInterface = {
+          totalCount: 0,
+          openMRSCount: 0,
+          openSRPCount: 0,
+          aaloClincCount: 0,
+          eMISCount: 0,
         };
         return empty;
       }
@@ -68,7 +106,7 @@ function useDivisionWiseDataAPI(props: {
   queryClient: QueryClient;
   minDate: Date;
   maxDate: Date;
-  regStatsData: RegistrationStatsProps;
+  regStatsData: FacilityTypeWiseStatsInterface;
 }) {
   /* @ts-ignore */
   return useSuspenseQuery({
@@ -101,12 +139,14 @@ interface PublicDashboardProps {
   section1Title: string;
   section2Title: string;
   section3Title: string;
+  section4Title: string;
 }
 
 export default memo(function PublicDbClientWrapper({
                                                      section1Title,
                                                      section2Title,
                                                      section3Title,
+                                                     section4Title,
                                                    }: PublicDashboardProps) {
 
   const {
@@ -128,32 +168,52 @@ export default memo(function PublicDbClientWrapper({
 
   // Step 1 - Getting the data for the Dashboard page, directly on the server site
   const { data: regStatsData, isError: regStatIsError, isLoading: regStatIsLoading } = useRegistrationStatsAPI({ queryClient });
-  // Step 2 - Get Division/District wise data
+
+  // Step 2 - Getting the encounter stats for the Dashboard page, directly on the server site
+  const { data: encounterStatsData, isError: encounterStatIsError, isLoading: encounterStatIsLoading } = useEncounterStatsAPI({ queryClient });
+
+  // Step 3 - Get Division/District wise data
   const { data: dvWiseData, isError: dvWiseError, isPending: dvWisePending, isLoading: dvWiseLoading } = useDivisionWiseDataAPI({
     queryClient,
     minDate: demographyMinDate,
     maxDate: demographyMaxDate,
     regStatsData: regStatsData,
   });
-
-
+  
   console.log("The registration stats from Page RSC");
 
   return (
     <>
-      {/*Section 1 - Lifetime Stats*/}
-      <FacilityTypewiseRegistrationStats
+      {/*Section 1 - Lifetime Registration Stats*/}
+      <FacilityTypewiseRegistrationStats key={1}
         sectionHeader={section1Title}
-        registrationStats={regStatsData}
+        countStats={regStatsData}
+        card1Title={"Health ID Registered"}
+        card2Title={"Regs. via OpenMRS+"}
+        card3Title={"Regs. via OpenSRP"}
+        card4Title={"Regs. via eMIS"}
       />
-      {/*/!*Section 2 - Nationwide Demography Stats *!/*/}
-      <DemographyMain
+
+      {/*Section 2 - Lifetime Clinical Data Collection Stats*/}
+      <FacilityTypewiseRegistrationStats
+        key={2}
         sectionHeader={section2Title}
+        countStats={encounterStatsData}
+        card1Title={"Total Clinical Records"}
+        card2Title={"Records via OpenMRS+"}
+        card3Title={"Records via OpenSRP"}
+        card4Title={"Records via eMIS"}
+      />
+      {/*/!*Section 3 - Nationwide Demography Stats *!/*/}
+      <DemographyMain
+        key={3}
+        sectionHeader={section3Title}
         divisionWiseRegistrationCount={dvWiseData.divisionWiseData}
       />
-      {/*/!*Section 3 - Facility-wise Registration Stats *!/*/}
+      {/*/!*Section 4 - Facility-wise Registration Stats *!/*/}
       <FacilityServiceOverview
-        sectionHeader={section3Title}
+        key={4}
+        sectionHeader={section4Title}
         apiEndPoints={[]}
       />
     </>

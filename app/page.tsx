@@ -20,9 +20,10 @@ import { Metadata } from "next/types";
 const PageHeader = dynamic(() => import("@library/PageHeader"), { ssr: true });
 const pageTitle = "Shared Health Record (SHR) Dashboard";
 const desc = "Analytics Platform by MIS, DGHS";
-const section1Title = "SHR Lifetime Stats - Registrations Per Platform";
-const section2Title = "SHR Registration Demographics Analytics";
-const section3Title = "Facility Service Registration Overview";
+const section1Title = "SHR HID Registrations by Platform";
+const section2Title = "SHR Clinical Records Collected by Platform";
+const section3Title = "SHR Registration Demographics Analytics";
+const section4Title = "Facility Service Registration Overview";
 
 export const metadata: Metadata = {
   title: pageTitle + " ",
@@ -35,7 +36,7 @@ export default async function page() {
     <main className="mt-40 flex w-full flex-col justify-center space-y-48 px-24 2xl:container bg-transparent border-none">
       <StoreInitializer {...initialStoreStates} serviceOverviewMaxDate={xDaysAgo(0)} serviceOverviewMinDate={xMonthsAgo(3)} demographyMaxDate={xDaysAgo(0)} demographyMinDate={xMonthsAgo(3)}/>
       <PageHeader title={pageTitle} titleSize="sm"></PageHeader>
-      <PublicDbClientWrapper section1Title={section1Title} section2Title={section2Title} section3Title={section3Title} />
+      <PublicDbClientWrapper section1Title={section1Title} section2Title={section2Title} section3Title={section3Title} section4Title={section4Title}/>
     </main>
   );
 }

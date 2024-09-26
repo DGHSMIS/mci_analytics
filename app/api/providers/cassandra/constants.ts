@@ -12,6 +12,7 @@ export const CASSANDRA_DATACENTER = String(process.env.CASSANDRA_DATACENTER) || 
 export const CASSANDRA_USER = String(process.env.CASSANDRA_USER) || 'cassandra';
 export const CASSANDRA_PASSWORD = String(process.env.CASSANDRA_PASSWORD) || 'cassandra';
 export const CASSANDRA_DEFAULT_KEYSPACE = String(process.env.CASSANDRA_DEFAULT_KEYSPACE) || 'mci';
+export const CASSANDRA_SHR_KEYSPACE = String(process.env.CASSANDRA_SHR_KEYSPACE) || 'freeshr';
 export const CASSANDRA_KEEP_ALIVE = Boolean(process.env.CASSANDRA_KEEP_ALIVE) || true;
 export const CASSANDRA_TCP_NODELAY = Boolean(process.env.CASSANDRA_TCP_NODELAY) || true;
 export const CASSANDRA_CONSISTENCY = Number(process.env.CASSANDRA_CONSISTENCY) || 1;

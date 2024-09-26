@@ -1,6 +1,6 @@
 import { CASSANDRA_CONNECT_TIMEOUT, CASSANDRA_CONSISTENCY, CASSANDRA_DATACENTER, CASSANDRA_DEFAULT_KEYSPACE, CASSANDRA_IP, CASSANDRA_KEEP_ALIVE, CASSANDRA_PAGE_SIZE, CASSANDRA_PAGINATION_SIZE, CASSANDRA_PASSWORD, CASSANDRA_PORT, CASSANDRA_READ_TIMEOUT, CASSANDRA_TCP_NODELAY, CASSANDRA_USER } from "@api/providers/cassandra/constants";
 import { commaSeperatedStringToArray } from "@library/utils";
-import { CDPatientInterface } from "@utils/interfaces/CDPatientInterface";
+import { CDPatientInterface } from "@utils/interfaces/Cassandra/CDPatientInterface";
 import { auth, Client, ClientOptions, policies } from "cassandra-driver";
 
 
@@ -33,6 +33,39 @@ const cassandraOptions: ClientOptions = {
   },
   localDataCenter: CASSANDRA_DATACENTER,
 };
+
+/**
+ * Cassandra connection Properties
+ */
+
+// function getCassandraOptions(keyspace: string=CASSANDRA_DEFAULT_KEYSPACE): ClientOptions {
+//   const cassandraOptions: ClientOptions = {
+//     contactPoints: commaSeperatedStringToArray(CASSANDRA_IP),
+//     protocolOptions: {
+//       port:CASSANDRA_PORT,
+//       maxSchemaAgreementWaitSeconds: CASSANDRA_READ_TIMEOUT,
+//     },
+//     keyspace: keyspace,
+//     policies: {
+//       retry: new policies.retry.RetryPolicy(),
+//     },
+//     queryOptions: { consistency: CASSANDRA_CONSISTENCY, fetchSize: CASSANDRA_PAGE_SIZE },
+//     authProvider: new auth.PlainTextAuthProvider(
+//       CASSANDRA_USER,
+//       CASSANDRA_PASSWORD
+//     ),
+//     socketOptions: {
+//       connectTimeout: CASSANDRA_CONNECT_TIMEOUT,
+//       readTimeout: CASSANDRA_READ_TIMEOUT,
+//       keepAlive: CASSANDRA_KEEP_ALIVE,
+//       keepAliveDelay:CASSANDRA_READ_TIMEOUT,
+//       tcpNoDelay: CASSANDRA_TCP_NODELAY,
+//     },
+//     localDataCenter: CASSANDRA_DATACENTER,
+//   };
+//   return cassandraOptions;
+// }
+
 
 const cassandraClient = new Client(cassandraOptions);
 

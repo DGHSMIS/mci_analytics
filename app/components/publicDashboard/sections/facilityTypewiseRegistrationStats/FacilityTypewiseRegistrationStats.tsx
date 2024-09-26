@@ -1,13 +1,17 @@
-import { RegistrationStatsProps } from "@api/es/analytics/patient/get-facility-type-registration-stats/route";
 import { CardIndicatorsProps } from "@components/globals/CardIndicator/CardIndicator";
 import SkeletonCardIndicator from "@components/globals/CardIndicator/SkeletonCardIndicator";
 import data from "@public/fake-data/DistrictWiseDataCount.json";
+import { FacilityTypeWiseStatsInterface } from "@utils/interfaces/Analytics/FacilityTypeWiseStatsInterface";
 import dynamic from "next/dynamic";
 import { memo } from "react";
 
 export interface BaseDashboardStatsProps {
   sectionHeader?: string;
-  registrationStats: RegistrationStatsProps;
+  countStats: FacilityTypeWiseStatsInterface;
+  card1Title: string;
+  card2Title: string;
+  card3Title: string;
+  card4Title: string;
   commonCardProps?: CardIndicatorsProps;
 }
 
@@ -28,7 +32,11 @@ const CardIndicators = dynamic(() => import("@components/globals/CardIndicator/C
 
 const FacilityTypewiseRegistrationStats = memo(function FacilityTypewiseRegistrationStats({
   sectionHeader,
-                                                                                            registrationStats,
+  countStats,
+  card1Title,
+card2Title,
+card3Title,
+card4Title,
   commonCardProps = DashboardCardCommonProps,
 }: BaseDashboardStatsProps) {
   return (
@@ -42,25 +50,25 @@ const FacilityTypewiseRegistrationStats = memo(function FacilityTypewiseRegistra
         <CardIndicators
           {...commonCardProps}
           key={0}
-          title="Health ID Registered"
+          title={card1Title}
           iconName="bar-chart-square-plus"
           className='col-span-2 lg:col-span-1'
           subTitle={
-            registrationStats !== null
-              ? registrationStats?.totalRegistration?.toLocaleString("en-IN")
+            countStats !== null
+              ? countStats?.totalCount?.toLocaleString("en-IN")
               : ""
           }
         />
         <CardIndicators
           {...commonCardProps}
           key={1}
-          title="Regs. via OpenMRS+"
+          title={card2Title}
           iconName="bar-chart-square-plus"
           className='col-span-1 lg:col-span-1'
 
           subTitle={
             data !== null
-              ? registrationStats?.openMRSFacilityCount?.toLocaleString(
+              ? countStats?.openMRSCount?.toLocaleString(
                   "en-IN"
                 )
               : ""
@@ -69,13 +77,13 @@ const FacilityTypewiseRegistrationStats = memo(function FacilityTypewiseRegistra
         <CardIndicators
           {...commonCardProps}
           key={2}
-          title="Regs. via OpenSRP"
+          title={card3Title}
           iconName="bar-chart-square-plus"
           className='col-span-1 lg:col-span-1'
 
           subTitle={
             data !== null
-              ? registrationStats?.openSRPFacilityCount?.toLocaleString(
+              ? countStats?.openSRPCount?.toLocaleString(
                   "en-IN"
                 )
               : ""
@@ -85,12 +93,12 @@ const FacilityTypewiseRegistrationStats = memo(function FacilityTypewiseRegistra
           {...commonCardProps}
           key={3}
           iconName="bar-chart-square-plus"
-          title="Regs. via Aalo Clinic"
+          title={card4Title}
           className='col-span-1 lg:col-span-1'
 
           subTitle={
             data !== null
-              ? registrationStats?.aaloClincFacilityCount?.toLocaleString("en-IN")
+              ? countStats?.aaloClincCount?.toLocaleString("en-IN")
               : ""
           }
         />
@@ -102,7 +110,7 @@ const FacilityTypewiseRegistrationStats = memo(function FacilityTypewiseRegistra
           className='col-span-1 lg:col-span-1'
           subTitle={
             data !== null
-              ? registrationStats?.eMISFacilityCount?.toLocaleString("en-IN")
+              ? countStats?.eMISCount?.toLocaleString("en-IN")
               : ""
           }
         />

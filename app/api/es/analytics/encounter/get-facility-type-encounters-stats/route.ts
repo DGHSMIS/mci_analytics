@@ -1,7 +1,7 @@
-import { healthRecordESIndexName } from "@api/providers/elasticsearch/constants";
+import { encounterIndexName } from "@api/providers/elasticsearch/constants";
 import { esBaseClient } from "@providers/elasticsearch/ESBase";
 import { getFacilitySolutionTypeFromName, isAaloClinic } from "@utils/constants";
-import { FacilityTypeWiseStatsInterface } from "@utils/interfaces/Analytics/FacilityTypeWiseStatsInterface";
+import { FacilityTypeWiseStatsInterface } from '@utils/interfaces/Analytics/FacilityTypeWiseStatsInterface';
 import fetchAndCacheFacilityInfo from "@utils/providers/fetchAndCacheFacilityInfo";
 import { getResponseHeaders } from "@utils/utilityFunctions";
 import { NextResponse } from "next/server";
@@ -21,7 +21,7 @@ export const dynamicParams = false;
  */
 export async function GET(req: Request) {
   // console.log(isNotVerifiedResponse);
-  const results = await getTotalRegistrationStats();
+  const results = await getTotalEncounterStats();
 
   return NextResponse.json(results, {
       status: 200,
@@ -32,9 +32,9 @@ export async function GET(req: Request) {
 
 // Get the total number of documents in the index
 // Assuming esBaseClient and other necessary imports and functions are defined
-async function getTotalRegistrationStats() {
-  const totalRegistrationCount = async() => await esBaseClient.count({
-    index: healthRecordESIndexName,
+async function getTotalEncounterStats(){
+  const totalEncounterCount = async() => await esBaseClient.count({
+    index: encounterIndexName,
   }).then(res => res.body.count).catch(err => 0);
 
   
@@ -52,13 +52,13 @@ async function getTotalRegistrationStats() {
   };
 
   const facilityCount = await esBaseClient.search({
-    index: healthRecordESIndexName,
+    index: encounterIndexName,
     body: facilityCountQuery,
   });
 
   let openMRSCount = 0;
   let openSRPCount = 0;
-  let aaloClinicFacilityCount = 0;
+  let aaloClinicCount = 0;
   let eMISCount = 0;
 
   const buckets = facilityCount.body.aggregations.created_facility_id_counts.buckets;
@@ -70,9 +70,9 @@ async function getTotalRegistrationStats() {
     if (isAaloClinic(item.key)) {
       console.log("Alo Clinic!");
       console.log(item.key);
-      aaloClinicFacilityCount += item.doc_count ?? 0;
+      aaloClinicCount += item.doc_count ?? 0;
       console.log(item);
-      console.log(aaloClinicFacilityCount);
+      console.log(aaloClinicCount);
     } else {
       switch (facilityType) {
         case "openSRP":
@@ -88,12 +88,11 @@ async function getTotalRegistrationStats() {
       }
     }
   }));
-
   const results: FacilityTypeWiseStatsInterface = {
-    totalCount: await totalRegistrationCount(),
+    totalCount: await totalEncounterCount(),
     openMRSCount: openMRSCount,
     openSRPCount: openSRPCount,
-    aaloClincCount:aaloClinicFacilityCount,
+    aaloClincCount:aaloClinicCount,
     eMISCount: eMISCount,
   };
   return results;

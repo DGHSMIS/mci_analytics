@@ -1,13 +1,13 @@
 import { CASSANDRA_PAGE_SIZE } from "@api/providers/cassandra/constants";
-import { CreateAndUpdatedByEditorInterface, ESPatientInterface } from "@api/providers/elasticsearch/patientIndex/interfaces/ESPatientInterface";
+import { ESPatientInterface } from "@api/providers/elasticsearch/patientIndex/interfaces/ESPatientInterface";
 import { cassandraClient } from "@providers/cassandra/cassandra";
 import { DebugElasticProvider, ELASTIC_BATCH_SIZE, patientESIndexName } from "@providers/elasticsearch/constants";
 import { esBaseClient } from "@providers/elasticsearch/ESBase";
 import { isAaloClinic } from "@utils/constants";
-import { CDPatientInterface } from "@utils/interfaces/CDPatientInterface";
+import { CDPatientInterface } from "@utils/interfaces/Cassandra/CDPatientInterface";
 import { FacilityInterface } from "@utils/interfaces/FacilityInterfaces";
 import fetchAndCacheFacilityInfo from "@utils/providers/fetchAndCacheFacilityInfo";
-import { timeUUIDToDate } from "@utils/utilityFunctions";
+import { blankCreatedAndUpdatedByPatientESObject, timeUUIDToDate } from "@utils/utilityFunctions";
 import { stringify } from "uuid";
 
 // Elasticsearch index name
@@ -401,11 +401,6 @@ export async function indexAllPatientESData() {
  * @returns 
  */
 export const convertCassandraPatientToESPatientIndexObject = (doc: CDPatientInterface, indexed_time: Date): ESPatientInterface => {
-  const blankCreatorAndUpdater: CreateAndUpdatedByEditorInterface = {
-    facility: null,
-    provider: null,
-    admin: null,
-  }
   return {
     health_id: doc.health_id,
     active: doc.active,
@@ -422,7 +417,7 @@ export const convertCassandraPatientToESPatientIndexObject = (doc: CDPatientInte
     created_at: Object.keys(doc.created_at.buffer).length > 0
       ? timeUUIDToDate(stringify(doc.created_at.buffer)).toISOString()
       : null,
-    created_by: blankCreatorAndUpdater,
+    created_by: blankCreatedAndUpdatedByPatientESObject,
     date_of_birth: doc.date_of_birth ? new Date(doc.date_of_birth) : null,
     date_of_death: doc.date_of_death ? new Date(doc.date_of_death) : null,
     disability: doc.disability,
@@ -494,7 +489,7 @@ export const convertCassandraPatientToESPatientIndexObject = (doc: CDPatientInte
     uid: doc.uid,
     union_or_urban_ward_id: parseInt(doc.union_or_urban_ward_id) ? parseInt(doc.union_or_urban_ward_id) : null,
     updated_facility_id: null,
-    updated_by: blankCreatorAndUpdater,
+    updated_by: blankCreatedAndUpdatedByPatientESObject,
     updated_at: Object.keys(doc.updated_at.buffer).length > 0
       ? timeUUIDToDate(stringify(doc.updated_at.buffer)).toISOString()
       : null,

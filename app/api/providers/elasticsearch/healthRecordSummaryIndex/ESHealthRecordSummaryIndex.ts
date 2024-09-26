@@ -2,7 +2,7 @@ import { cassandraClient } from "@api/providers/cassandra/cassandra";
 import { CASSANDRA_PAGE_SIZE } from "@api/providers/cassandra/constants";
 import { DebugElasticProvider, ELASTIC_BATCH_SIZE, healthRecordESIndexName } from "@providers/elasticsearch/constants";
 import { esBaseClient } from '@providers/elasticsearch/ESBase';
-import { CDPatientInterface } from "@utils/interfaces/CDPatientInterface";
+import { CDPatientInterface } from "@utils/interfaces/Cassandra/CDPatientInterface";
 import { timeUUIDToDate } from "@utils/utilityFunctions";
 import { stringify } from "uuid";
 import { temporarilyHotFixJSONObject } from "../patientIndex/ESPatientIndex";
@@ -18,7 +18,7 @@ const batchSize = ELASTIC_BATCH_SIZE;
 /**
  * This function takes in one patient data and
  * indexes it to a new patient in Elasticsearch
- * ! Not used and hence commented (to be removed)
+ * Single Patients are pushed onto the index at real time via this function
  * @param patient
  */
 export async function insertOrUpdateSinglePatientToHealthRecordESIndex(healthId: String) {

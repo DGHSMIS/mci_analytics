@@ -7,35 +7,118 @@ interface ESRequestOptions {
   authHeader: string;
   esUrl: string;
 }
-/**
- * Establish connection to Elasticsearch
- */
-const clientOptions: ClientOptions = {
-  nodes: ELASTICSEARCH_HOST,
-  compression: "gzip",
-  resurrectStrategy: "ping",
-  requestTimeout: requestTimeoutInMS, // 10 Minutes
-  maxCompressedResponseSize: maxCompressedResponseSize,
-  auth: {
-    username: ELASTIC_USER,
-    password: ELASTIC_PASSWORD,
-  },
-};
-
-// Establish connection to Elasticsearch
-export const esBaseClient = new Client(clientOptions);
 
 /**
- * Method to generate the ElasticSearch Auth Header
- * @param esEndpoint 
- * @returns 
+ * Method to get all available Elasticsearch nodes from the list.
+ * It attempts to ping each node and returns the list of nodes that respond.
+ * 
+ * @returns {Promise<string[]>} - A promise that resolves to an array of available Elasticsearch node URLs.
+ * @throws {Error} - Throws an error if no nodes are available.
  */
-export const getESAuthHeader = (esEndpoint: string) => {
-  return {
-    esUrl: `${ELASTICSEARCH_HOST[0]}/${esEndpoint}`,
-    authHeader: 'Basic ' + Buffer.from(ELASTIC_USER + ':' + ELASTIC_PASSWORD).toString('base64')
+async function getAllAvailableNodes(): Promise<string[]> {
+  const availableNodes: string[] = [];
+
+  for (const node of ELASTICSEARCH_HOST) {
+    try {
+      // Create a temporary client to ping the node
+      const tempClient = new Client({ nodes: [node] });
+      
+      // Ping the node
+      await tempClient.ping();
+
+      // If the node responds, add it to the availableNodes array
+      console.log(`Elasticsearch node is available: ${node}`);
+      availableNodes.push(node);
+    } catch (error) {
+      console.log(`Elasticsearch node is unavailable: ${node}`);
+    }
   }
+
+  // If no nodes are available, throw an error
+  if (availableNodes.length === 0) {
+    throw new Error("No Elasticsearch nodes are available");
+  }
+
+  return availableNodes;
 }
+
+/**
+ * Method to create an Elasticsearch client using all available nodes.
+ * It attempts to get the list of available nodes and creates the client with those nodes.
+ * 
+ * @returns {Promise<Client>} - A promise that resolves to the Elasticsearch client instance.
+ */
+async function createESClient(): Promise<Client> {
+  // Get the list of available nodes
+  const availableNodes = await getAllAvailableNodes();
+
+  // Define client options using all available nodes
+  const clientOptions: ClientOptions = {
+    nodes: availableNodes,  // Use all available nodes
+    compression: "gzip",
+    resurrectStrategy: "ping",
+    requestTimeout: requestTimeoutInMS, // Timeout for requests (e.g., 10 minutes)
+    maxCompressedResponseSize: maxCompressedResponseSize,
+    auth: {
+      username: ELASTIC_USER,
+      password: ELASTIC_PASSWORD,
+    },
+  };
+
+  // Create and return the Elasticsearch client with the available nodes
+  return new Client(clientOptions);
+}
+
+export const esBaseClient = await createESClient();
+
+
+/**
+ * Method to get the first available Elasticsearch node from the list of nodes.
+ * It attempts to ping each node and returns the first node that responds.
+ * 
+ * @returns {Promise<string>} - A promise that resolves to the available Elasticsearch node URL.
+ * @throws {Error} - Throws an error if no nodes are available.
+ */
+async function getFastestRespondingESNode(): Promise<string> {
+  for (const node of ELASTICSEARCH_HOST) {
+    try {
+      // Create a temporary client to ping the node
+      const tempClient = new Client({ nodes: [node] });
+      
+      // Ping the current node to check if it is available
+      await tempClient.ping();
+
+      // If ping is successful, return the node
+      console.log(`Elasticsearch node is available: ${node}`);
+      return node;
+    } catch (error) {
+      // If ping fails, log the error and move to the next node
+      console.log(`Elasticsearch node is unavailable: ${node}`);
+    }
+  }
+
+  // If no nodes are available, throw an error
+  throw new Error("No Elasticsearch nodes are available");
+}
+
+/**
+ * Method to generate the Elasticsearch Auth Header dynamically based on an available node.
+ * It attempts to dynamically select an available node rather than always using the first node in the list.
+ * 
+ * @param {string} esEndpoint - The Elasticsearch endpoint for which the auth header is generated.
+ * @returns {Promise<{esUrl: string, authHeader: string}>} - A promise that resolves to an object containing the Elasticsearch URL and the basic authorization header.
+ */
+export const getESAuthHeader = async (esEndpoint: string): Promise<{ esUrl: string; authHeader: string }> => {
+  // Dynamically get the first available node
+  const availableNode = await getFastestRespondingESNode();
+
+  // Return the Elasticsearch URL and base64 encoded authorization header
+  return {
+    esUrl: `${availableNode}/${esEndpoint}`,
+    authHeader: 'Basic ' + Buffer.from(ELASTIC_USER + ':' + ELASTIC_PASSWORD).toString('base64')
+  };
+  
+};
 
 /**
  * Method to create an Elasticsearch Index
@@ -47,7 +130,7 @@ export const getESAuthHeader = (esEndpoint: string) => {
  * @returns 
  */
 export async function createESIndex(indexName: string, body: RequestBody) {
-  const esAuthOptions: ESRequestOptions = getESAuthHeader(indexName);
+  const esAuthOptions: ESRequestOptions = await getESAuthHeader(indexName);
   try {
     const response = await fetch(esAuthOptions.esUrl, {
       method: 'PUT',
@@ -77,10 +160,14 @@ export async function createESIndex(indexName: string, body: RequestBody) {
  */
 export async function doesESIndexExist(indexName: string) {
   try {
-    const indexInstance = await checkESIndexAndGetUUID(indexName);
-    console.log("Index instance is - ");
-    console.log(indexInstance);
-    return Promise.resolve({ exists: true, indexInstance: indexInstance });
+    const indexExists = await esBaseClient.indices.exists({ index: indexName });
+    if (indexExists.body) {
+      console.log(`Index ${indexName} exists.`);
+      return Promise.resolve({ exists: true });
+    } else {
+      console.log(`Index ${indexName} does not exist.`);
+      return Promise.resolve({ exists: false });
+    }
   } catch (error) {
     console.error("Error checking index existence:", error);
     return Promise.resolve({ exists: false });
@@ -95,7 +182,7 @@ export async function doesESIndexExist(indexName: string) {
  * @returns 
  */
 async function checkESIndexAndGetUUID(indexName: string) {
-  const esAuthOptions: ESRequestOptions = getESAuthHeader(indexName);
+  const esAuthOptions: ESRequestOptions = await getESAuthHeader(indexName);
 
   try {
     // Check if the index exists
@@ -142,49 +229,36 @@ async function checkESIndexAndGetUUID(indexName: string) {
   }
 }
 
+
+
 /**
  * Method to delete an Elasticsearch Index
  * @param indexName 
  * @param ignore_unavailable OPTIONAL - Ignore unavailable index
  * @returns boolean - true if index is deleted successfully
  */
-
-// Example usage of deleteESIndex function
 export async function deleteESIndex(indexName: string, ignore_unavailable = true) {
-  const esAuthOptions: ESRequestOptions = getESAuthHeader(indexName);
-
-  const indexUUID = await checkESIndexAndGetUUID(indexName);
-
-  if (!indexUUID && ignore_unavailable) {
-    console.log("Index does not exist, skipping delete");
-    return Promise.resolve(true);
-  } else if (!indexUUID && !ignore_unavailable) {
-    throw new Error(`Index ${indexName} does not exist` as string);
-  }
-
   try {
-    console.log("Deleting Index:", indexName);
-    const response = await fetch(esAuthOptions.esUrl, {
-      method: 'DELETE',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': esAuthOptions.authHeader
-      }
-    });
-
-    if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}` as string);
+    const indexExists = await esBaseClient.indices.exists({ index: indexName });
+    if (!indexExists.body && ignore_unavailable) {
+      console.log("Index does not exist, skipping delete");
+      return Promise.resolve(true);
     }
 
-    const data = await response.json();
-    console.log("Index deleted successfully");
-    console.log("Status:", response.status);
-    console.log("Headers:", response.headers);
-    console.log("Data:", data);
-    return Promise.resolve(true);
+    const response = await esBaseClient.indices.delete({ index: indexName });
+    if (response.body.acknowledged) {
+      console.log(`Index ${indexName} deleted successfully.`);
+      console.log("Index deleted successfully");
+      console.log("Status:", response.statusCode);
+      console.log("Headers:", response.headers);
+      console.log("Body:", response.body);
+      return Promise.resolve(true);
+    } else {
+      throw new Error(`Failed to delete index ${indexName}.`);
+    }
   } catch (error) {
-    console.error("Exception in Delete Index:", (error as any).message || error);
-    throw new Error(`Index ${indexName} could not be deleted | ${(error as any).message || error}` as string);
+    console.error("Error deleting index:", error);
+    throw new Error(`Index ${indexName} could not be deleted: ${(error as any).message || error}`);
   }
 }
 
@@ -216,7 +290,7 @@ export async function dropAndGenerateIndex(esIndexName: string, esIndexBody: Req
  * @returns boolean - true if mapping is updated successfully
  */
 export async function updateESIndexMapping(esIndexName: string, esIndexBody: RequestBody):Promise<boolean> {
-  const esAuthOptions: ESRequestOptions = getESAuthHeader(esIndexName);
+  const esAuthOptions: ESRequestOptions = await getESAuthHeader(esIndexName);
   console.log("Updating mapping for index:", esIndexName);
   try {
     console.log("Hello 2");

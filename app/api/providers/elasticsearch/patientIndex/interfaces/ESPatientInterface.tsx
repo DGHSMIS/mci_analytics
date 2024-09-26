@@ -1,7 +1,7 @@
 import { FacilityAdminInterface } from "@utils/interfaces/FacilityAdminInterface";
 import { FacilityInterface } from "@utils/interfaces/FacilityInterfaces";
 
-export interface CreateAndUpdatedByEditorInterface {
+export interface CreateAndUpdatedByPatientInterface {
     facility: FacilityInterface | null;
     provider: string | null;
     admin: FacilityAdminInterface | null;
@@ -19,7 +19,7 @@ export interface ESPatientInterface {
   confidential: boolean | null;
   country_code: string | null;
   created_at: any;
-  created_by: CreateAndUpdatedByEditorInterface;
+  created_by: CreateAndUpdatedByPatientInterface;
   created_client_id: Number | null;
   created_facility_id: Number | null;
   date_of_birth: Date | null;
@@ -95,7 +95,7 @@ export interface ESPatientInterface {
   upazila_id: Number | null;
   updated_facility_id: Number | null;
   updated_at: any
-  updated_by: CreateAndUpdatedByEditorInterface;
+  updated_by: CreateAndUpdatedByPatientInterface;
   village: string | null;
   user_photo?: string | null;
 }
