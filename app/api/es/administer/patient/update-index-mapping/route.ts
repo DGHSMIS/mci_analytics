@@ -1,6 +1,7 @@
+import { ESEncounterMapping } from "@api/providers/elasticsearch/encounterIndex/ESEncounterMapping";
 import { updateESIndexMapping } from "@api/providers/elasticsearch/ESBase";
 import { ESHealthRecordSummaryMapping } from "@api/providers/elasticsearch/healthRecordSummaryIndex/ESHealthRecordSummaryMapping";
-import { healthRecordESIndexName, patientESIndexName } from '@providers/elasticsearch/constants';
+import { encounterIndexName, healthRecordESIndexName, patientESIndexName } from '@providers/elasticsearch/constants';
 import { patientESIndex } from "@providers/elasticsearch/patientIndex/ESPatientIndex";
 import { ESPatientMapping } from "@providers/elasticsearch/patientIndex/ESPatientMapping";
 import { checkIfAuthenticated } from "@utils/lib/auth";
@@ -59,7 +60,11 @@ export async function PUT(req: NextRequest) {
                     return ESPatientMapping;
                 } else if (indexName == healthRecordESIndexName) {
                     return ESHealthRecordSummaryMapping;
-                } else {
+                } 
+                else if (indexName == encounterIndexName) {
+                    return ESEncounterMapping;
+                }
+                else {
                     throw new Error(`Index ${indexName} not found`);
                 }
             }
