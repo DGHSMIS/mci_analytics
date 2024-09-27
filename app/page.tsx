@@ -23,7 +23,7 @@ const desc = "Analytics Platform by MIS, DGHS";
 const section1Title = "SHR HID Registrations by Platform";
 const section2Title = "SHR Clinical Records Collected by Platform";
 const section3Title = "SHR Registration Demographics Analytics";
-const section4Title = "Facility Service Registration Overview";
+const section4Title = "Facilitywise Stats";
 
 export const metadata: Metadata = {
   title: pageTitle + " ",

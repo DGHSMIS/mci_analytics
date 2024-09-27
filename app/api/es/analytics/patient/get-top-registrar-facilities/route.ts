@@ -11,6 +11,7 @@ import { validateFormData } from "@utils/models/Validation";
 import { sendErrorMsg, sendSuccess } from "@utils/responseHandler";
 import { NextRequest } from "next/server";
 import process from "process";
+import { getEncountersByFacilities } from "../../encounter/get-encounters-by-facilities/route";
 
 interface TopRegFacilityRespInterface {
   aggregations: {
@@ -46,14 +47,13 @@ export async function GET(req: NextRequest) {
   // Send the error response if the validation fails
 
   const { valid, errors, results }: ValidateDateAndDivisionResponseInterface =
-    await validateFormData(req, false, false, "Get Gender Wise Stats");
+    await validateFormData(req, false, false);
   console.log("The results are ");
   console.table(results);
   console.table(valid);
   if (!valid || !results) {
     console.log("The errors are ");
     console.log(errors);
-    
     return sendErrorMsg(String(errors));
   }
 
@@ -64,6 +64,11 @@ export async function GET(req: NextRequest) {
     results.dateTo,
   );
   serviceOverview.push(topXFacilities);
+
+  // Get Encounter Stats
+  const getEncountersByFacilitiesResult: RankListProps = await getEncountersByFacilities(results.dateFrom, results.dateTo);
+  serviceOverview.push(getEncountersByFacilitiesResult);
+
   // //Find Males
   const topMaleFacilities = await getGenderwiseTopXFacilitiesAndTransformToRankListItem(
     results.dateFrom,
@@ -79,9 +84,9 @@ export async function GET(req: NextRequest) {
   );
   serviceOverview.push(topFemaleFacilities);
   // //Find Top Child Registering Facilities
-  const topChildRegisteringFacilities = await findHighestChildrenRegisteringFacilitiesAndTransformToRankListItem(results.dateFrom,
-    results.dateTo, 'now-16y/y', 'now/y');
-  serviceOverview.push(topChildRegisteringFacilities);
+  // const topChildRegisteringFacilities = await findHighestChildrenRegisteringFacilitiesAndTransformToRankListItem(results.dateFrom,
+  //   results.dateTo, 'now-16y/y', 'now/y');
+  // serviceOverview.push(topChildRegisteringFacilities);
   return sendSuccess(serviceOverview);
 }
 
@@ -101,7 +106,7 @@ async function fetchTopPatientRegFacsAndTransformToRankListItem(
   const esIndexResponse = await fetchTopPatientRegisteringFacilities(daysFrom, dateTo);
   console.log("esIndexResponseesIndexResponse");
   console.log(esIndexResponse.body);
-  
+
   const finalResults: RankListProps = {
     listTitle: "Top HID Providers",
     titleIconColor: "#004D3A",
@@ -129,43 +134,43 @@ const transformResponseToRankList = async (
 ): Promise<RankItemProps[]> => {
   return await Promise.all(
     response.aggregations.top_facilities.buckets
-    
-    .map(
-      async (bucket: {
-        facility_name: {
-          hits: {
+      .map(
+        async (bucket: {
+          facility_name: {
             hits: {
-              _source: {
-                created_facility_id: any;
-                created_by: {
-                  facility: {
-                    name: string;
-                    id: string | number;
+              hits: {
+                _source: {
+                  created_facility_id: any;
+                  created_by: {
+                    facility: {
+                      name: string;
+                      id: string | number;
+                    };
                   };
                 };
-              };
-            }[];
+              }[];
+            };
           };
-        };
-        doc_count: any;
-      }) => {
-        console.log("bucket");
-        console.log(bucket.facility_name.hits.hits[0]);
-       return (
-        {
-        id: bucket.facility_name.hits.hits[0]._source.created_facility_id ? bucket.facility_name.hits.hits[0]._source.created_facility_id : bucket.facility_name.hits.hits[0]._source.created_by.facility.id,
-        name:
-          bucket.facility_name.hits.hits[0]._source.created_by.facility.name
-            .length > 0
-            ? bucket.facility_name.hits.hits[0]._source.created_by.facility.name
-            :await getFacilityNameFromId(
-              String(
-                bucket.facility_name.hits.hits[0]._source.created_facility_id ? bucket.facility_name.hits.hits[0]._source.created_facility_id : bucket.facility_name.hits.hits[0]._source.created_by.facility.id,
-              ),
-            ),
-        total: bucket.doc_count,
-      })},
-    ),
+          doc_count: any;
+        }) => {
+          console.log("bucket");
+          console.log(bucket.facility_name.hits.hits[0]);
+          return (
+            {
+              id: bucket.facility_name.hits.hits[0]._source.created_facility_id ? bucket.facility_name.hits.hits[0]._source.created_facility_id : bucket.facility_name.hits.hits[0]._source.created_by.facility.id,
+              name:
+                bucket.facility_name.hits.hits[0]._source.created_by.facility.name
+                  .length > 0
+                  ? bucket.facility_name.hits.hits[0]._source.created_by.facility.name
+                  : await getFacilityNameFromId(
+                    String(
+                      bucket.facility_name.hits.hits[0]._source.created_facility_id ? bucket.facility_name.hits.hits[0]._source.created_facility_id : bucket.facility_name.hits.hits[0]._source.created_by.facility.id,
+                    ),
+                  ),
+              total: bucket.doc_count,
+            })
+        },
+      ),
   );
 };
 
@@ -191,9 +196,9 @@ async function getGenderwiseTopXFacilitiesAndTransformToRankListItem(
   const results = await topFacilityBuckets(esIndexResponse.body.aggregations.top_facilities.buckets);
 
   const getListTitle = (gender: string) => {
-    if (gender==="F") {
+    if (gender === "F") {
       return "Top Female Registering Facilities";
-    } else if (gender==="M") {
+    } else if (gender === "M") {
       return "Top Male Registering Facilities";
     } else {
       return "N/A";
@@ -223,9 +228,9 @@ async function getGenderwiseTopXFacilitiesAndTransformToRankListItem(
  * @param totalResults 
  * @returns 
  */
-async function findHighestChildrenRegisteringFacilitiesAndTransformToRankListItem(  daysFrom: string,
-  dateTo: string, ageMax:string = 'now-16y/y', ageMin="now/y", totalResults: number = 10){
-  const facilityRating = await findAgeRangewiseHighestRegisteringFacilities(  daysFrom,
+async function findHighestChildrenRegisteringFacilitiesAndTransformToRankListItem(daysFrom: string,
+  dateTo: string, ageMax: string = 'now-16y/y', ageMin = "now/y", totalResults: number = 10) {
+  const facilityRating = await findAgeRangewiseHighestRegisteringFacilities(daysFrom,
     dateTo, ageMax, ageMin, totalResults);
   // return facilityRating.body.aggregations.top_facilities.buckets;
   const results = await topFacilityBuckets(facilityRating.body.aggregations.top_facilities.buckets);
@@ -258,7 +263,7 @@ const getFacilityNameFromId = async (facilityId: string) => {
         "client-id": String(process.env.NEXT_X_FACILITY_CLIENT_ID) || "",
       },
     });
-    if (response.status===200) {
+    if (response.status === 200) {
       const facilityAllData: any = await response.json();
       return facilityAllData.name;
     }
