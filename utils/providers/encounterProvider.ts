@@ -1,7 +1,7 @@
-import { encounterAuthenticationHeaders } from "@utils/constants";
-import { getBaseUrl, getFHIRServerEncounterURL, getUrlFromName } from "@utils/lib/apiList";
-import { EncounterListItem } from "@utils/interfaces/Encounter/Encounter";
 import { getAPIResponse, getRevalidationTime } from "@library/utils";
+import { encounterAuthenticationHeaders } from "@utils/constants";
+import { EncounterListItem } from "@utils/interfaces/Encounter/Encounter";
+import { getBaseUrl, getFHIRServerEncounterURL, getUrlFromName } from "@utils/lib/apiList";
 
 /**
  * Retrieves the encounters for a specific patient in XML format (FHIR).

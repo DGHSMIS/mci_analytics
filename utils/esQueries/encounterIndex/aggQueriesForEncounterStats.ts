@@ -1,7 +1,40 @@
 import { encounterIndexName } from "@api/providers/elasticsearch/constants";
 import { esBaseClient } from "@api/providers/elasticsearch/ESBase";
 import { ESDateRangeSingleItemQueryInterface } from "@utils/interfaces/ESModelInterfaces";
+import { FacilityInterface } from "@utils/interfaces/FacilityInterfaces";
+import { RankItemProps, RankListProps } from "@utils/interfaces/RankListProps";
+import fetchAndCacheFacilityInfo from "@utils/providers/fetchAndCacheFacilityInfo";
 import { datesRangeGenerator } from "@utils/utilityFunctions";
+
+
+export interface TopEncounterFacilityRespBucketInterface {
+  key: number;
+  doc_count: number;
+  facility_name: {
+      hits: {
+          hits: {
+              _source: {
+                  created_facility_id: Number;
+                  created_by: {
+                      facility: {
+                          name: string;
+                          id: string | number; // <--- Add this line for the id
+                      };
+                  };
+              };
+          }[];
+      };
+  };
+}
+
+
+export  interface TopEncounterFacilityRespInterface {
+  aggregations: {
+      top_facilities: {
+          buckets: TopEncounterFacilityRespBucketInterface[];
+      };
+  };
+}
 
 /**
  * Get Facilities with the highest frequency of patient registrations
@@ -60,3 +93,53 @@ export async function fetchEncountersByFacility(
       console.log("The response is: ", esIndexResponse);
       return esIndexResponse;
 }
+
+export async function getEncountersByFacilities(dateFrom:string="2023-08-25T03:30:28.468Z", dateTo:string= String(new Date().toISOString())) {
+  const totalResults = 1000;
+  const esIndexResponse = await fetchEncountersByFacility(dateFrom, dateTo, totalResults);
+
+  const resultBucket: TopEncounterFacilityRespInterface = esIndexResponse.body as TopEncounterFacilityRespInterface;
+
+  const finalResults: RankListProps = {
+      listTitle: "Top Clinical Record Provider",
+      titleIconColor: "#004D3A",
+      titleIcon: "arrow-up",
+      titleColor: "text-primary-500",
+      listHeader: {
+          id: "#ID",
+          name: "Facility Name",
+          total: "Total Reg.",
+      },
+      listData: await transformResponseToRankList(resultBucket)
+  };
+
+  return finalResults;
+}
+
+/**
+* Transform the response to Rank List Item
+* @param response 
+* @returns 
+*/
+const transformResponseToRankList = async (
+  data: TopEncounterFacilityRespInterface,
+): Promise<RankItemProps[]> => {
+  return await Promise.all(
+      data.aggregations.top_facilities.buckets
+          .map(
+              async (bucket: TopEncounterFacilityRespBucketInterface) => {
+                  console.log("bucket");
+                  console.log(bucket.key);
+
+                  const facilityInfo: FacilityInterface = await fetchAndCacheFacilityInfo(bucket.key as number);
+
+                  return (
+                      {
+                          id: bucket.key,
+                          name: facilityInfo.name ? facilityInfo.name : "Unknown",
+                          total: bucket.doc_count,
+                      })
+              },
+          ),
+  );
+};

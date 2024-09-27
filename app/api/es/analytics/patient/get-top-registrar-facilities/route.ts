@@ -1,3 +1,4 @@
+import { getEncountersByFacilities } from "@utils/esQueries/encounterIndex/aggQueriesForEncounterStats";
 import {
   fetchTopPatientRegisteringFacilities,
   findAgeRangewiseHighestRegisteringFacilities,
@@ -10,7 +11,6 @@ import { validateFormData } from "@utils/models/Validation";
 import { sendErrorMsg, sendSuccess } from "@utils/responseHandler";
 import { NextRequest } from "next/server";
 import process from "process";
-import { getEncountersByFacilities } from "../../encounter/get-encounters-by-facilities/route";
 
 interface TopRegFacilityRespInterface {
   aggregations: {
