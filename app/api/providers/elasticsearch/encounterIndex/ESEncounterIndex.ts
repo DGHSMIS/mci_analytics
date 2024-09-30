@@ -74,7 +74,8 @@ async function convertDataToEncounterESFormat(doc: CDEncounterInterface, indexed
     esDoc.created_by = JSON.parse(doc.created_by ?? {});
     const created_facility_id = esDoc.created_by.facilityId ? Number(esDoc.created_by.facilityId) : null;
 
-
+    esDoc.content_v3 = doc.content_v3 ? String(doc.content_v3) : null;
+    
     if (DebugElasticProvider) {
       console.log("created_facility_id is");
       console.log(created_facility_id);
