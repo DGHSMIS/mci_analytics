@@ -62,7 +62,14 @@ export const ESEncounterMapping = {
       type: "text"
     },
     content_v3: {
-      type: "text"
+      type: "text",
+      analyzer: "autocomplete",
+      search_analyzer: "standard",
+      fields: {
+        keyword: {
+          type: "keyword",
+        },
+      },
     },
     content_version: {
       type: "text"
@@ -114,3 +121,7 @@ export const ESEncounterIndexBody: RequestBody = {
     },
   },
 }
+
+
+// https://www.elastic.co/guide/en/elasticsearch/reference/current/search-with-synonyms.html
+// https://www.elastic.co/guide/en/elasticsearch/reference/current/analysis-synonym-tokenfilter.html
