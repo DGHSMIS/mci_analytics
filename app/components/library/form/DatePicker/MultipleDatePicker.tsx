@@ -1,17 +1,17 @@
 // https://react-day-picker.js.org/
 // https://date-fns.org/docs/Getting-Started
 
-import React, { memo, useCallback, useEffect, useRef, useState } from "react";
-import { DateRange, DayPicker } from "react-day-picker";
 import { format } from "date-fns";
+import { memo, useCallback, useEffect, useRef, useState } from "react";
+import { DateRange, DayPicker } from "react-day-picker";
 // import FocusTrap from "focus-trap-react"
+import variables from "@variables/variables.module.scss";
 import { usePopper } from "react-popper";
 import twcolors from "tailwindcss/colors";
-import variables from "@variables/variables.module.scss";
 
 import "react-day-picker/dist/style.css";
-import TextField from "../TextField";
 import { cn } from "tailwind-cn";
+import TextField from "../TextField";
 import { DatePickerParams, DaysOfWeek } from "./DatePickerProps";
 
 export interface MultipleDatePickerProps extends DatePickerParams {
@@ -82,7 +82,7 @@ const MultipleDatePicker = ({
     isReadOnly: true,
     isDisabled: false,
     isRequired: false,
-    displayDateFormat: "MMMM d, yyyy",
+    displayDateFormat: "dd MMM, yy",
     ...dateField,
   }
 

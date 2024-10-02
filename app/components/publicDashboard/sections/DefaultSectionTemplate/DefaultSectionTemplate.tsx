@@ -34,7 +34,8 @@ export default memo(function DefaultSectionTemplate({
         className={`text-sm text-primary md:hidden`}
         text="Select Metrics"
       />
-      <div className="relative min-h-[890px] w-full items-start justify-center space-y-40 rounded-lg border border-slate-200 bg-white p-20 hover:border-primary-400  hover:shadow-xl">
+      <div className="relative min-h-[400px] w-full items-start justify-center space-y-40 rounded-lg border border-slate-200 bg-white p-20 hover:border-primary-400  hover:shadow-xl">
+      {/* <div className="relative min-h-[890px] w-full items-start justify-center space-y-40 rounded-lg border border-slate-200 bg-white p-20 hover:border-primary-400  hover:shadow-xl"> */}
         {/* //! Filters */}
         <div className="mx-auto mt-16 grid max-w-7xl gap-20 sm:grid-cols-3 lg:h-36 lg:grid-cols-3 lg:gap-40 lg:pb-20">
           <div
@@ -53,7 +54,7 @@ export default memo(function DefaultSectionTemplate({
         </div>
         <hr />
         {/*Primary Analytics Display Section */}
-        <div>{children}</div>
+        {children}
       </div>
     </div>
   );

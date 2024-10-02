@@ -107,8 +107,8 @@ const PageHeader = memo(function Component({
   }, []);
 
   return (
-    <div className={cn("flex gap-8", containerClassName)}>
-      <div className={cn("flex min-w-max items-center", className)}>
+    <div className={cn("block", containerClassName)}>
+      <div className={cn("flex items-center", className)}>
         {titleSize === "sm" && (
           <h4
             className={cn("inline-flex items-center text-primary", {

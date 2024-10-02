@@ -143,11 +143,11 @@ interface PublicDashboardProps {
 }
 
 export default memo(function PublicDbClientWrapper({
-                                                     section1Title,
-                                                     section2Title,
-                                                     section3Title,
-                                                     section4Title,
-                                                   }: PublicDashboardProps) {
+  section1Title,
+  section2Title,
+  section3Title,
+  section4Title,
+}: PublicDashboardProps) {
 
   const {
     demographyMinDate,
@@ -179,7 +179,7 @@ export default memo(function PublicDbClientWrapper({
     maxDate: demographyMaxDate,
     regStatsData: regStatsData,
   });
-  
+
   console.log("The registration stats from Page RSC");
 
   return (
@@ -206,17 +206,17 @@ export default memo(function PublicDbClientWrapper({
         card4Title={"Records via Aalo Clinic"}
         card5Title={"Records via eMIS"}
       />
-      {/*/!*Section 3 - Nationwide Demography Stats *!/*/}
-      <DemographyMain
-        key={3}
-        sectionHeader={section3Title}
-        divisionWiseRegistrationCount={dvWiseData.divisionWiseData}
-      />
-      {/*/!*Section 4 - Facility-wise Registration Stats *!/*/}
+      {/*/!*Section 3 - Facility-wise Registration Stats *!/*/}
       <FacilityServiceOverview
         key={4}
-        sectionHeader={section4Title}
+        sectionHeader={section3Title}
         apiEndPoints={[]}
+      />
+      {/*/!*Section 4 - Nationwide Demography Stats *!/*/}
+      <DemographyMain
+        key={3}
+        sectionHeader={section4Title}
+        divisionWiseRegistrationCount={dvWiseData.divisionWiseData}
       />
     </>
   );

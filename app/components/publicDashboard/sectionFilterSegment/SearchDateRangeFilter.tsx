@@ -34,9 +34,13 @@ export default function SearchDateRangeFilter({
 
   const getMinDate = (context: number) => {
     if (context===1) {
+      console.log("Demo Min Date");
+      console.log(demographyMinDate.toISOString());
       return demographyMinDate;
     }
     if (context===2) {
+      console.log("Service Overview Min Date");
+      console.log(serviceOverviewMinDate.toISOString());
       return serviceOverviewMinDate;
     }
     return new Date();
@@ -74,8 +78,11 @@ export default function SearchDateRangeFilter({
     }
   }, [[tempMinDate, tempMaxDate]]);
   return (
-    <div className="grid w-full grid-cols-3 items-start  md:grid-cols-3  lg:gap-x-12 lg:space-y-0">
-      <div className={'lg:mb-0 text-sm col-span-2 w-full'}>
+    
+<div className="grid w-full grid-cols-1 items-start md:grid-cols-3 lg:gap-x-12 space-y-8 lg:space-y-0">
+<div className="lg:mb-0 text-sm col-span-1 md:col-span-2 w-full">
+{/* <div className="grid w-full grid-cols-3 items-start  md:grid-cols-3  lg:gap-x-12 lg:space-y-0">
+<div className={'lg:mb-0 text-sm col-span-2 w-full'}> */}
       <MultipleDatePicker
         mode={"range"}
         dateField={
@@ -86,7 +93,7 @@ export default function SearchDateRangeFilter({
         footerCaption={"Select Date Range"}
         fromDate={new Date("2023-01-01")}
         toDate={new Date()}
-        dateBetweenConnector={"->"}
+        dateBetweenConnector={"<=>"}
         value={allDates}
         dateReturnFormat={dateReturnFormat}
         max={Infinity}
@@ -120,7 +127,8 @@ export default function SearchDateRangeFilter({
         }}
       />
       </div>
-      <div className="col-span-1 flex flex-grow flex-col justify-start pl-8">
+      {/* <div className="col-span-1 flex flex-grow flex-col justify-start pl-8"> */}
+      <div className="col-span-1 flex flex-col md:flex-grow justify-start pl-0 md:pl-8">
         <Button
           size={"sm"}
           className={"h-36 w-full lg:w-auto"}

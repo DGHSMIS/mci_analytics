@@ -1,6 +1,5 @@
-import React from "react";
-import { cn } from "tailwind-cn";
 import Skeleton from "react-loading-skeleton";
+import { cn } from "tailwind-cn";
 
 export default function SkeletonCardIndicator({  hasTitle = true, className="" }: {
   hasTitle?: boolean;
@@ -16,7 +15,8 @@ export default function SkeletonCardIndicator({  hasTitle = true, className="" }
             <div
               className=" items-startflex w-full flex-col justify-center text-sm font-medium !leading-tight tracking-tight text-slate-500 transition dark:text-white md:text-base"
             >
-              <Skeleton width={200} height={24} />
+              <Skeleton className="hidden sm:block" width={150} height={24} />
+              <Skeleton className="block sm:hidden" width={100} height={18} />
             </div>
           )}
           <div className="flex flex-row items-center justify-between space-x-20">

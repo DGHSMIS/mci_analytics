@@ -1,7 +1,7 @@
-import React, { memo } from "react";
-import { cn } from "tailwind-cn";
-import Skeleton from "react-loading-skeleton";
 import SkeletonRankList from "@components/globals/RankList/SkeletonRankList";
+import { memo } from "react";
+import Skeleton from "react-loading-skeleton";
+import { cn } from "tailwind-cn";
 
 
 export interface SectionSkeletonLoaderProps {
@@ -24,7 +24,8 @@ export default memo(function SectionSkeletonLoader({
         <Skeleton />
       </div>
 
-      <div className="relative min-h-[890px] w-full items-start justify-center space-y-40 rounded-lg border border-slate-200 bg-white p-20">
+      <div className="relative min-h-[400px] w-full items-start justify-center space-y-40 rounded-lg border border-slate-200 bg-white p-20">
+      {/* <div className="relative min-h-[890px] w-full items-start justify-center space-y-40 rounded-lg border border-slate-200 bg-white p-20"> */}
         {/* //! Filters */}
         <div className="mx-auto mt-16 grid max-w-7xl gap-20 sm:grid-cols-2 lg:h-36 lg:grid-cols-3 lg:gap-40 lg:pb-20">
           <div className="flex justify-end lg:col-span-2 col-span-2">
@@ -66,7 +67,7 @@ export default memo(function SectionSkeletonLoader({
         {renderContext==1 && (
           <div>
             <div className="relative z-10 flex h-fit w-full items-start justify-start rounded-lg bg-white">
-              <div className="grid w-full gap-20 p-24 grid-cols-3">
+              <div className="grid w-full gap-20 p-24 grid-cols-1 md:grid-cols-2">
                 <div className="grid-item">
                   <div className="flex flex-col space-y-12">
                     <Skeleton height={24} width={100} />
@@ -85,7 +86,7 @@ export default memo(function SectionSkeletonLoader({
         )}
         {renderContext==2 && (
           <div className="relative z-10 flex h-fit w-full items-start justify-start rounded-lg bg-white">
-            <div className="grid w-full gap-20 p-24 grid-cols-4">
+            <div className="grid w-full gap-20 p-0 sm:p-24 grid-cols-1 sm:grid-cols-2 md:grid-cols-4">
               {[...Array(4)].map((item, index) => (
                 <SkeletonRankList key={index.toString()} />
               ))}
