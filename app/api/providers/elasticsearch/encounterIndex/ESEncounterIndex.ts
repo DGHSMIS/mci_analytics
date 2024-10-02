@@ -299,13 +299,13 @@ export async function indexAllEncountersInESData() {
     }
     // await esBaseClient.close();
     cassandraClient.keyspace = CASSANDRA_DEFAULT_KEYSPACE;
-    cassandraClient.shutdown();
+    // cassandraClient.shutdown();
     // await esBaseClient.close();
     return true;
   } catch (error) {
     console.error("Error in indexing all encounter data", error);
     cassandraClient.keyspace = CASSANDRA_DEFAULT_KEYSPACE;
-    cassandraClient.shutdown();
+    // cassandraClient.shutdown();
     // await esBaseClient.close();
     return false;
   }
