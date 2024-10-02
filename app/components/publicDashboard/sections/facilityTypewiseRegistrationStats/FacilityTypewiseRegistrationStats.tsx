@@ -12,6 +12,7 @@ export interface BaseDashboardStatsProps {
   card2Title: string;
   card3Title: string;
   card4Title: string;
+  card5Title: string;
   commonCardProps?: CardIndicatorsProps;
 }
 
@@ -37,6 +38,7 @@ const FacilityTypewiseRegistrationStats = memo(function FacilityTypewiseRegistra
 card2Title,
 card3Title,
 card4Title,
+card5Title,
   commonCardProps = DashboardCardCommonProps,
 }: BaseDashboardStatsProps) {
   return (
@@ -106,7 +108,7 @@ card4Title,
           {...commonCardProps}
           key={4}
           iconName="bar-chart-square-plus"
-          title="Regs. via eMIS"
+          title={card5Title}
           className='col-span-1 lg:col-span-1'
           subTitle={
             data !== null

@@ -191,7 +191,8 @@ export default memo(function PublicDbClientWrapper({
         card1Title={"Health ID Registered"}
         card2Title={"Regs. via OpenMRS+"}
         card3Title={"Regs. via OpenSRP"}
-        card4Title={"Regs. via eMIS"}
+        card4Title={"Regs. via Aalo Clinic"}
+        card5Title={"Regs. via eMIS"}
       />
 
       {/*Section 2 - Lifetime Clinical Data Collection Stats*/}
@@ -202,7 +203,8 @@ export default memo(function PublicDbClientWrapper({
         card1Title={"Total Clinical Records"}
         card2Title={"Records via OpenMRS+"}
         card3Title={"Records via OpenSRP"}
-        card4Title={"Records via eMIS"}
+        card4Title={"Records via Aalo Clinic"}
+        card5Title={"Records via eMIS"}
       />
       {/*/!*Section 3 - Nationwide Demography Stats *!/*/}
       <DemographyMain
