@@ -15,3 +15,4 @@ export const patientESIndexName = "cassandra_patients";
 export const healthRecordESIndexName="cassandra_health_record_summary"
 export const mciServiceLogIndexName="mci_service_request_log"
 export const encounterIndexName="shr_encounters"
+export const ncdIndexName="pediatric_ncd_index"

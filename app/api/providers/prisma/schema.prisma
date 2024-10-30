@@ -1,0 +1,55 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+enum Gender {
+  Male
+  Female
+  Other
+}
+
+enum ServiceLocation {
+  IPD
+  OPD
+  Emergency
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("POSTGRES_DATABASE_URL")
+}
+// Migrate a new Schema using the following command
+// npx prisma migrate dev --name init
+
+// Patient Vist Record Table
+model PatientVisit {
+  id                        Int       @id @default(autoincrement()) // Primary key
+  patientId                 Int
+  patientName               String
+  dateOfVisit               DateTime
+  dob                       DateTime
+  gender                    Gender
+  facilityId                Int
+  serviceLocation           ServiceLocation
+  diseaseId                 Int
+  disease                   Disease   @relation(fields: [diseaseId], references: [id]) // Foreign key relationship
+  isReferredToHigherFacility Boolean
+  isFollowUp                Boolean
+  createdAt                 DateTime  @default(now())
+}
+
+// Disease Table
+model Disease {
+  id            Int       @id @default(autoincrement()) // Primary key
+  name          String
+  createdAt                 DateTime  @default(now())
+  // Relationship
+  patientVisits PatientVisit[]
+}
+

@@ -1,6 +1,6 @@
 {
-  "name": "tailwind-next13-base",
-  "version": "0.1.0",
+  "name": "mci-analytics-nextjs",
+  "version": "1.0.1",
   "private": true,
   "scripts": {
     "dev": "NODE_ENV=development next dev -p 3001",
@@ -10,7 +10,12 @@
     "start": "NODE_OPTIONS='--max-old-space-size=12288 --inspect' NODE_ENV=production next start -p 3001",
     "lint": "next lint",
     "clean": "rm -rf node_modules && rm -rf .next && bun i",
-    "format": "npx prettier --write ."
+    "format": "npx prettier --write .",
+    "prisma:migrate:dev": "dotenv -e .env.development -- prisma migrate dev --schema=app/api/providers/prisma/schema.prisma",
+    "prisma:migrate:prod": "dotenv -e .env.development -- prisma migrate deploy --schema=app/api/providers/prisma/schema.prisma",
+    "prisma:generate:dev": "dotenv -e .env.development -- prisma generate --schema=app/api/providers/prisma/schema.prisma",
+    "prisma:generate:prod": "dotenv -e .env.development -- prisma generate --schema=app/api/providers/prisma/schema.prisma",
+    "prisma:studio:dev": "dotenv -e .env.development -- prisma studio --schema=app/api/providers/prisma/schema.prisma"
   },
   "dependencies": {
     "@date-io/moment": "^2.17.0",
@@ -31,6 +36,7 @@
     "@nivo/line": "^0.87.0",
     "@nivo/pie": "^0.87.0",
     "@popperjs/core": "^2.11.8",
+    "@prisma/client": "^5.21.1",
     "@tailwindcss/forms": "^0.5.7",
     "@tanstack/match-sorter-utils": "^8.15.1",
     "@tanstack/query-core": "^5.50.1",
@@ -75,7 +81,9 @@
     "next": "^14.2.5",
     "next-auth": "^4.24.7",
     "next-compose-plugins": "^2.2.1",
+    "pg": "^8.13.1",
     "postcss-preset-env": "^7.8.3",
+    "prisma": "^5.21.1",
     "puppeteer": "^22.12.1",
     "qrcode": "^1.5.3",
     "react": "^18.3.1",
@@ -108,6 +116,7 @@
     "tailwind-styled-components": "^2.2.0",
     "tailwindcss": "^3.4.4",
     "tls": "^0.0.1",
+    "ts-node": "^10.9.2",
     "typescript": "^4.9.5",
     "use-file-upload": "^1.0.11",
     "uuid": "^9.0.1",
@@ -144,6 +153,7 @@
     "@typescript-eslint/eslint-plugin": "^5.62.0",
     "@typescript-eslint/parser": "^5.62.0",
     "bun-types": "^1.1.18",
+    "dotenv-cli": "^7.4.2",
     "eslint-config-prettier": "^8.10.0",
     "faker": "5.5.3",
     "prettier": "^2.8.8",
