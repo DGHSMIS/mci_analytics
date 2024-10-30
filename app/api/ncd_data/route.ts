@@ -4,7 +4,8 @@ import Error from 'next/error';
 import { NextRequest, NextResponse } from "next/server";
 import { checkIfAuthenticated } from "utils/lib/auth";
 
-const MAX_PATIENT_LIMIT = 200;
+const MAX_PATIENT_LIMIT = 500;
+// TODO: Add Facility Verification via API Call to check if the facility exists in the Facility Registry
 //Generate Sample Data using the following at https://json-generator.com/#
 // [
 //     '{{repeat(50, 50)}}',
@@ -79,7 +80,7 @@ export async function POST(req: NextRequest) {
         const newVisits = await prisma.patientVisit.createMany({
             data: uniquePatientData,
         });
-        
+
         /**
          * Fire-and-forget call to async function to sync data to ElasticSearch
          * The async function syncs data to ElasticSearch Pediatric NCD Index without waiting for the response
@@ -88,11 +89,18 @@ export async function POST(req: NextRequest) {
         Promise.resolve(insertOrUpdateNCDDataByCreatedTimeToESIndex(createdAt)).catch((err) => {
             console.error("Error in syncing data to ElasticSearch:", err);
         });
-        // Include skippedRecords in the response
-        return NextResponse.json({
-            message: `${newVisits.count} patient visits created successfully at ${createdAt}`,
-            skippedRecords: skippedRecords // Returns the array of skipped records
-        }, { status: 201 });
+        // If all records are inserted successfully, then return a success message
+        if (newVisits.count == data.length) {
+            return NextResponse.json({
+                message: `${newVisits.count} patient visits created successfully at ${createdAt}`,
+            }, { status: 201 });
+        } else {
+            // If all records are NOT inserted, then return a success message with skipped records info
+            return NextResponse.json({
+                message: `${newVisits.count} patient visits created successfully at ${createdAt}`,
+                skippedRecords: skippedRecords // Returns the array of skipped records
+            }, { status: 201 });
+        }
     } catch (error: Error | any) {
         console.error('Error creating PatientVisits:', error);
         return NextResponse.json({ error: `Failed to create PatientVisits: ${error.message}` }, { status: 500 });

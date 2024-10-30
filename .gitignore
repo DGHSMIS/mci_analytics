@@ -44,4 +44,5 @@ next-env.d.ts
 # Sensitive Configurations in env.development and env.production
 .env.development
 .env.production
-```
+
+/bun.lockb
