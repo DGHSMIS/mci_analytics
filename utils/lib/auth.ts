@@ -228,11 +228,11 @@ export async function checkIfMCIAdminOrApprover(
 }
 
 /**
- * HRIS Authentication
+ * HRIS Authentication for MCI User/Admin
  * @param req 
  * @returns 
  */
-export async function checkIfAuthenticated(
+export async function checkIfAuthenticatedMCIUser(
   req: Request
 ): Promise<NextResponse | null> {
   //Get Authorization Headers
@@ -293,4 +293,66 @@ export async function checkIfAuthenticated(
   }
   // console.log("Returning Unauthorized 3");
   return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
+}
+
+
+
+/**
+ * HRIS Authentication for MCI User/Admin
+ * @param req 
+ * @returns 
+ */
+export async function checkIfAuthenticatedProvider(
+  req: Request
+): Promise<AuthResponseInterface> {
+  //Get Authorization Headers
+  const accessToken = req.headers.get("X-Auth-Token");
+  const clientId = req.headers.get("client-id");
+  console.log("Checking Authorization headers & client id");
+  console.log(accessToken);
+  console.log(clientId);
+  const authObject: AuthResponseInterface = {
+    status: "unauthorized"
+  }
+  if (!accessToken || !clientId) {
+    return authObject;
+  }
+  //Verifying the validity of the token
+  const isUserVerfied: AuthResponseInterface | null = await verifyToken(accessToken);
+
+  //If token is not valid, return 401
+  if (isUserVerfied == null) {
+    return authObject;
+  } else {
+
+    //Validate Client ID
+    if (isUserVerfied.id == null) {
+      return authObject;
+    } else if (isUserVerfied.id != parseInt(clientId)) {
+      return authObject;
+    }
+    
+    if (isUserVerfied.group_names_formatted != null) {
+      let isSHRUser = false;
+      let isFacilityAdmin = false;
+      isUserVerfied.group_names_formatted.forEach((group) => {
+        console.log("The group item is");
+        console.log(group);
+        if (group == 'facility-admin') {
+          isFacilityAdmin = true
+        }
+        if (group == "shr-user") {
+          isSHRUser = true
+        }
+      });
+      if (isFacilityAdmin && isSHRUser) {
+        console.log("Returning Provider Object");
+        return Promise.resolve(isUserVerfied);
+      } else {
+        console.log("Returning Invalid User");
+        return authObject;
+      }
+    }
+  }
+  return authObject;
 }

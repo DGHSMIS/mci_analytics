@@ -41,11 +41,22 @@ export const ESPediatricNCDMapping = {
         },
       },
     },
+
     date_of_visit: { type: "date" },
     dob: { type: "date" },
     gender: { type: "keyword" },
     facility_id: {
       type: "long"
+    },
+    facility_name: {
+      type: "text",
+      analyzer: "autocomplete",
+      search_analyzer: "standard",
+      fields: {
+        keyword: {
+          type: "keyword",
+        },
+      },
     },
     service_location: { type: "keyword" },
     disease_id: {

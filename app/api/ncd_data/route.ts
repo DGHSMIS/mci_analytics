@@ -1,21 +1,25 @@
 import { insertOrUpdateNCDDataByCreatedTimeToESIndex } from '@api/providers/elasticsearch/ncdIndex/ESPediatricNCDIndex';
+import { PGNCDPayloadLoggerInterface } from '@api/providers/prisma/ncd_data_models/PGNCDPayloadLoggerInterface';
+import { PGPatientVisitInterface } from '@api/providers/prisma/ncd_data_models/PGPatientVisitInterface';
 import prisma from '@providers/prisma/prismaClient';
+import AuthResponseInterface from '@utils/interfaces/Authentication/AuthResponseInterface';
+import fetchAndCacheFacilityInfo from '@utils/providers/fetchAndCacheFacilityInfo';
 import Error from 'next/error';
 import { NextRequest, NextResponse } from "next/server";
-import { checkIfAuthenticated } from "utils/lib/auth";
+import { checkIfAuthenticatedProvider } from "utils/lib/auth";
 
-const MAX_PATIENT_LIMIT = 500;
+const MAX_PATIENT_LIMIT = 5000;
 // TODO: Add Facility Verification via API Call to check if the facility exists in the Facility Registry
 //Generate Sample Data using the following at https://json-generator.com/#
 // [
-//     '{{repeat(50, 50)}}',
+//     '{{repeat(500, 500)}}',
 //     {
 //       patientId: '{{integer(1, 999999)}}',
 //       patientName: '{{firstName()}} {{surname()}}',
 //       dateOfVisit: '{{date(new Date(2024, 10, 30), new Date(), "YYYY-MM-ddThh:mm:ss")}}',
 //       dob: '{{date(new Date(integer(2010, 2024), integer(1, 12), integer(1, 28)), new Date(), "YYYY-MM-ddThh:mm:ss")}}',
 //       gender: '{{random("Male", "Female", "Other")}}',
-//       facilityId: '{{integer(20000, 40000)}}',
+//       facilityId: '{{random(10000001 , 10000051, 10000053 , 10000098, 10000104 )}}',
 //       serviceLocation: '{{random("IPD", "OPD", "Emergency")}}',
 //       diseaseId:  '{{integer(1, 6)}}',
 //       isReferredToHigherFacility: '{{bool()}}',
@@ -24,15 +28,16 @@ const MAX_PATIENT_LIMIT = 500;
 //   ]
 export async function POST(req: NextRequest) {
     // Check Authorization & respond error if not verified
-    const isValidUserRequest = await checkIfAuthenticated(req);
+    const providerUser: AuthResponseInterface = await checkIfAuthenticatedProvider(req);
 
-    if (isValidUserRequest !== null) {
-        return isValidUserRequest;
+    if (providerUser.status == "unauthorized") {
+        return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
     }
+
     console.log('Request is from Validated User');
     const createdAt = new Date().toISOString();
     try {
-        const data = await req.json();
+        const data: PGPatientVisitInterface[] = await req.json();
 
         // Check if data is an array and does not exceed the limit
         if (!Array.isArray(data) || data.length === 0) {
@@ -42,12 +47,36 @@ export async function POST(req: NextRequest) {
         if (data.length > MAX_PATIENT_LIMIT) {
             return NextResponse.json({ error: `Cannot create more than ${MAX_PATIENT_LIMIT} patients in a single request.` }, { status: 400 });
         }
+        const savedPreprocessedData: PGNCDPayloadLoggerInterface = await payloadLogger(data, providerUser);
+        /**
+        * Fire-and-forget call to async function to sync data to ElasticSearch
+        * The async function validates the data and inserts it into the database and then syncs it to ElasticSearch
+        */
+        Promise.resolve(processSubmittedData(savedPreprocessedData, createdAt)).catch((err) => {
+            console.error("Error in syncing data to ElasticSearch:", err);
+        });
+        return NextResponse.json({
+            message: `Success! Payload received for processing`,
+        }, { status: 200 });
+
+    } catch (error: Error | any) {
+        console.error('Error creating PatientVisits:', error);
+        return NextResponse.json({ error: `Failed to create PatientVisits: ${error.message}` }, { status: 500 });
+    }
+}
+
+
+//POST Processing Data to Validate and Insert into the Database & then Sync to ElasticSearch
+async function processSubmittedData(preprocessedData: PGNCDPayloadLoggerInterface, createdAt: string) {
+    try {
+        const data = JSON.parse(preprocessedData.payload);
 
         // Filter out duplicates by checking for existing records
-        const uniquePatientData = [];
+        const uniquePatientData: PGPatientVisitInterface[] = [];
         const skippedRecords = [];
 
         for (const patient of data) {
+            //Check if the record already exists in the database
             const existingRecord = await prisma.patientVisit.findFirst({
                 where: {
                     patientId: patient.patientId,
@@ -55,25 +84,39 @@ export async function POST(req: NextRequest) {
                     facilityId: patient.facilityId
                 },
             });
-
+            //No existing record found, so add it to the uniquePatientData array
             if (!existingRecord) {
-                uniquePatientData.push({
-                    patientId: patient.patientId,
-                    patientName: patient.patientName,
-                    dateOfVisit: new Date(patient.dateOfVisit),
-                    dob: new Date(patient.dob),
-                    gender: patient.gender,
-                    facilityId: patient.facilityId,
-                    serviceLocation: patient.serviceLocation,
-                    diseaseId: patient.diseaseId,
-                    isReferredToHigherFacility: patient.isReferredToHigherFacility,
-                    isFollowUp: patient.isFollowUp,
-                    createdAt: createdAt
-                });
+                // Fetch facility data and add it to the record
+                if (patient.facilityId === preprocessedData.facilityId) {
+                    // Now fetch the facility data from the Facility Registry
+                    const facilityData = await fetchAndCacheFacilityInfo(patient.facilityId);
+                    if (facilityData === null) {
+                        skippedRecords.push(patient);
+                    } else {
+                        //Provider can only add records for their own facility
+                        uniquePatientData.push({
+                            patientId: patient.patientId,
+                            patientName: patient.patientName,
+                            dateOfVisit: new Date(patient.dateOfVisit),
+                            dob: new Date(patient.dob),
+                            gender: patient.gender,
+                            facilityId: patient.facilityId,
+                            facilityName: facilityData.name ?? "",
+                            serviceLocation: patient.serviceLocation,
+                            diseaseId: patient.diseaseId,
+                            isReferredToHigherFacility: patient.isReferredToHigherFacility,
+                            isFollowUp: patient.isFollowUp,
+                            createdAt: new Date(createdAt),
+                        });
+                    }
+                } else {
+                    skippedRecords.push(patient);
+                }
             } else {
                 // Add the duplicate record details to skippedRecords
                 skippedRecords.push(patient);
             }
+
         }
 
         // Insert unique records
@@ -81,28 +124,62 @@ export async function POST(req: NextRequest) {
             data: uniquePatientData,
         });
 
-        /**
-         * Fire-and-forget call to async function to sync data to ElasticSearch
-         * The async function syncs data to ElasticSearch Pediatric NCD Index without waiting for the response
-         * The ES Index adds the data that is gte to the createdAt timestamp on the PatientVisit Table
-         */
-        Promise.resolve(insertOrUpdateNCDDataByCreatedTimeToESIndex(createdAt)).catch((err) => {
-            console.error("Error in syncing data to ElasticSearch:", err);
-        });
-        // If all records are inserted successfully, then return a success message
-        if (newVisits.count == data.length) {
-            return NextResponse.json({
-                message: `${newVisits.count} patient visits created successfully at ${createdAt}`,
-            }, { status: 201 });
-        } else {
-            // If all records are NOT inserted, then return a success message with skipped records info
-            return NextResponse.json({
-                message: `${newVisits.count} patient visits created successfully at ${createdAt}`,
-                skippedRecords: skippedRecords // Returns the array of skipped records
-            }, { status: 201 });
+        // Insert Skipped Records to SkippedPayloadLogger table
+        if (skippedRecords.length > 0) {
+            const skippedPayload = await prisma.skippedPayloadLogger.create({
+                data: {
+                    skippedItems: JSON.stringify(skippedRecords),
+                    message: `Skipped ${skippedRecords.length} records due to duplicates or invalid facility data`,
+                    providerId: preprocessedData.providerId,
+                    payloadId: preprocessedData.id ?? 0,
+                    createdAt: new Date(),
+                    facilityId: preprocessedData.facilityId,
+                }
+            });
+            console.log('Skipped Records:', skippedPayload);
         }
-    } catch (error: Error | any) {
-        console.error('Error creating PatientVisits:', error);
-        return NextResponse.json({ error: `Failed to create PatientVisits: ${error.message}` }, { status: 500 });
+
+        const indexNewData = await insertOrUpdateNCDDataByCreatedTimeToESIndex(createdAt);
+        console.log('Indexed New Data:', indexNewData);
+        return true;
+    } catch (error) {
+        console.error('Error in processing submitted data:', error);
+        await prisma.skippedPayloadLogger.create({
+            data: {
+                skippedItems: "",
+                message: `Error Processing Preprocessed id: ${preprocessedData.providerId}. Exception thrown: ${error.message}`,
+                providerId: preprocessedData.providerId,
+                payloadId: preprocessedData.id ?? 0,
+                createdAt: new Date(),
+                facilityId: preprocessedData.facilityId,
+            }
+        });
+        throw error;
     }
+
+}
+
+
+
+/**
+ * Save the payload to the database for logging & post-processing
+ * @param data 
+ * @param providerUser 
+ * @returns 
+ */
+async function payloadLogger(data: PGPatientVisitInterface[], providerUser: AuthResponseInterface): Promise<PGNCDPayloadLoggerInterface> {
+    console.log('Payload Received:');
+    console.log(data);
+    const loggableData: PGNCDPayloadLoggerInterface = {
+        providerId: Number(providerUser.id),
+        payload: JSON.stringify(data),
+        createdAt: new Date(),
+        facilityId: Number(providerUser.facility_id),
+        accessToken: String(providerUser.access_token),
+    }
+    const newPayload = await prisma.nCDPayloadLogger.create({
+        data: loggableData
+    });
+
+    return newPayload;
 }

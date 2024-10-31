@@ -7,6 +7,7 @@ export interface PGPatientVisitInterface {
     dob: Date;
     gender: 'Male' | 'Female' | 'Other';
     facilityId: number;
+    facilityName?: string;
     serviceLocation: 'IPD' | 'OPD' | 'Emergency';
     diseaseId: number;
     isReferredToHigherFacility: boolean;

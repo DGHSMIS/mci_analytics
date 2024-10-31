@@ -4,7 +4,7 @@ import { ESHealthRecordSummaryMapping } from "@api/providers/elasticsearch/healt
 import { encounterIndexName, healthRecordESIndexName, patientESIndexName } from '@providers/elasticsearch/constants';
 import { patientESIndex } from "@providers/elasticsearch/patientIndex/ESPatientIndex";
 import { ESPatientMapping } from "@providers/elasticsearch/patientIndex/ESPatientMapping";
-import { checkIfAuthenticated } from "@utils/lib/auth";
+import { checkIfAuthenticatedMCIUser } from "@utils/lib/auth";
 import { sendErrorMsg, sendSuccess } from "@utils/responseHandler";
 import { NextRequest } from "next/server";
 import "server-only";
@@ -34,7 +34,7 @@ export async function PUT(req: NextRequest) {
     //This route is only accessible from the known hosts
     console.log("Get Latest Data");
     //Check Authorization & respond error if not verified
-    const isValidUserRequest = await checkIfAuthenticated(req);
+    const isValidUserRequest = await checkIfAuthenticatedMCIUser(req);
 
     console.log("isValidUserRequest");
     console.log(isValidUserRequest);

@@ -65,6 +65,7 @@ async function convertDataToPediatricNCDDataESFormat(doc: PGPatientVisitInterfac
       dob: doc.dob,
       gender: doc.gender,
       facilityId: doc.facilityId,
+      facilityName: doc.facilityName,
       serviceLocation: doc.serviceLocation,
       diseaseId: doc.diseaseId,
       isReferredToHigherFacility: doc.isReferredToHigherFacility,

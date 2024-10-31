@@ -8,6 +8,7 @@ export interface ESPediatricNCDInterface {
     dob: Date;
     gender: string;
     facility_id: string;
+    facility_name: string;
     service_location: string;
     disease_id: string
     is_referred_to_higher_facility: boolean;

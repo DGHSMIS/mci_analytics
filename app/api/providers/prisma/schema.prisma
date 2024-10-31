@@ -24,32 +24,63 @@ datasource db {
   provider = "postgresql"
   url      = env("POSTGRES_DATABASE_URL")
 }
+
+// Payload Logger Table
+model NCDPayloadLogger {
+  id              Int                    @id @default(autoincrement())
+  payload         String
+  createdAt       DateTime               @default(now())
+  providerId      Int
+  facilityId      Int
+  accessToken      String
+  //Relationship
+  skippedPayloads SkippedPayloadLogger[]
+}
+
+// Skipped Payload Objects Logger
+model SkippedPayloadLogger {
+  id           Int              @id @default(autoincrement())
+  skippedItems String
+  createdAt    DateTime         @default(now())
+  message      String           @default("")
+  payloadId    Int
+  payload      NCDPayloadLogger @relation(fields: [payloadId], references: [id])
+  providerId   Int
+  facilityId   Int
+}
+
 // Migrate a new Schema using the following command
 // npx prisma migrate dev --name init
 
 // Patient Vist Record Table
 model PatientVisit {
-  id                        Int       @id @default(autoincrement()) // Primary key
-  patientId                 Int
-  patientName               String
-  dateOfVisit               DateTime
-  dob                       DateTime
-  gender                    Gender
-  facilityId                Int
-  serviceLocation           ServiceLocation
-  diseaseId                 Int
-  disease                   Disease   @relation(fields: [diseaseId], references: [id]) // Foreign key relationship
+  id                         Int             @id @default(autoincrement()) // Primary key
+  patientId                  Int
+  patientName                String
+  dateOfVisit                DateTime
+  dob                        DateTime
+  gender                     Gender
+  facilityId                 Int
+  facilityName               String          @default("")
+  serviceLocation            ServiceLocation
+  diseaseId                  Int
+  disease                    Disease         @relation(fields: [diseaseId], references: [id]) // Foreign key relationship
   isReferredToHigherFacility Boolean
-  isFollowUp                Boolean
-  createdAt                 DateTime  @default(now())
+  isFollowUp                 Boolean
+  createdAt                  DateTime        @default(now())
 }
 
 // Disease Table
 model Disease {
-  id            Int       @id @default(autoincrement()) // Primary key
+  id            Int            @id @default(autoincrement()) // Primary key
   name          String
-  createdAt                 DateTime  @default(now())
+  createdAt     DateTime       @default(now())
   // Relationship
   patientVisits PatientVisit[]
 }
 
+// Patient Vist Record Table
+model SkippedPatientVisit {
+  id         Int    @id @default(autoincrement()) // Primary key
+  jsonObject String
+}

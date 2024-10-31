@@ -1,7 +1,7 @@
 import { insertOrUpdateSinglePatientToHealthRecordESIndex } from "@api/providers/elasticsearch/healthRecordSummaryIndex/ESHealthRecordSummaryIndex";
 import { logApiRequest } from '@providers/elasticsearch/mciServiceLogIndex/ESMciServiceLogIndex';
 import { insertOrUpdateSinglePatientToESIndex, patientESIndex } from "@providers/elasticsearch/patientIndex/ESPatientIndex";
-import { checkIfAuthenticated } from "@utils/lib/auth";
+import { checkIfAuthenticatedMCIUser } from "@utils/lib/auth";
 import { sendErrorMsg, sendSuccess } from "@utils/responseHandler";
 import { NextRequest } from "next/server";
 import "server-only";
@@ -31,7 +31,7 @@ export async function PUT(req: NextRequest) {
     };
 
     //Check Authorization & respond error if not verified
-    const isValidUserRequest = await checkIfAuthenticated(req);
+    const isValidUserRequest = await checkIfAuthenticatedMCIUser(req);
     console.log("isValidUserRequest");
     console.log(isValidUserRequest);
 
