@@ -6,9 +6,9 @@
  */
 import { getServerSession } from "next-auth/next";
 import { signOut } from "next-auth/react";
+import dynamic from "next/dynamic";
 import { Metadata } from "next/types";
 import { authOptions } from "utils/lib/auth";
-import dynamic from "next/dynamic";
 
 /**
  * * Metadata for current page

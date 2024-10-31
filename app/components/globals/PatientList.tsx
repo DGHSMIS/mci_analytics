@@ -9,7 +9,7 @@ import { MRT_ExpandedState } from "material-react-table";
 import { signOut } from "next-auth/react";
 import dynamic from "next/dynamic";
 import { useRouter } from "next/navigation";
-import { memo, useEffect, useState } from "react";
+import { FC, memo, useEffect, useState } from "react";
 import { getBaseUrl, getUrlFromName } from "utils/lib/apiList";
 
 const TablePagyCustom = dynamic(
@@ -29,7 +29,7 @@ const TextField = dynamic(() => import("@library/form/TextField"), {
   ssr: true,
 });
 
-function PatientList({ session }: any) {
+const PatientList: FC<{ session: any }> = ({ session }) => {
   const router = useRouter();
   // console.log("In Patient Listing");
   // console.log(session);
@@ -101,44 +101,44 @@ function PatientList({ session }: any) {
   ) => {
     const setQueryParams = () => {
       let queryParams = "?";
-      if (customHid!=="" && customHid!=hid) {
+      if (customHid !== "" && customHid != hid) {
         queryParams += `healthId=${customHid}&`;
       } else {
-        if (hid!=="") {
+        if (hid !== "") {
           queryParams += `healthId=${hid}&`;
         }
       }
 
-      if (customNid!=="" && customNid!=nid) {
+      if (customNid !== "" && customNid != nid) {
         queryParams += `nationalId=${customNid}&`;
       } else {
-        if (nid!=="") {
+        if (nid !== "") {
           queryParams += `nationalId=${nid}&`;
         }
       }
 
-      if (customBrn!=="" && customBrn!=brn) {
+      if (customBrn !== "" && customBrn != brn) {
         queryParams += `brnId=${customBrn}&`;
       } else {
-        if (brn!=="") {
+        if (brn !== "") {
           queryParams += `brnId=${brn}&`;
         }
       }
 
-      if (selectedDivision!=="") {
+      if (selectedDivision !== "") {
         queryParams += `divisionId=${selectedDivision}&`;
       }
-      if (selectedDistrict!=="") {
+      if (selectedDistrict !== "") {
         queryParams += `districtId=${selectedDistrict}&`;
       }
-      if (phoneNo!=="") {
+      if (phoneNo !== "") {
         queryParams += `phoneNo=${phoneNo}&`;
       }
 
-      if (createdFacilityId!=="") {
+      if (createdFacilityId !== "") {
         queryParams += `createdFacilityId=${createdFacilityId}&`;
       }
-      if (createdClientId!=="") {
+      if (createdClientId !== "") {
         queryParams += `createdClientId=${createdClientId}&`;
       }
 
@@ -151,13 +151,13 @@ function PatientList({ session }: any) {
     const data = await getAPIResponse(
       getBaseUrl(),
       patientListingUrl,
-      session ? session.accessToken ?? "":"",
+      session ? session.accessToken ?? "" : "",
       "GET",
       null,
       false,
       getRevalidationTime(),
     );
-    if(data.message){
+    if (data.message) {
       console.log("LOGGING OUT")
       await signOut();
     }
@@ -170,14 +170,14 @@ function PatientList({ session }: any) {
 
   const clearSearchForm = async () => {
     if (
-      hid==="" &&
-      nid==="" &&
-      brn==="" &&
-      selectedDivision==="" &&
-      selectedDistrict==="" &&
-      phoneNo==="" &&
-      createdFacilityId==="" &&
-      createdClientId===""
+      hid === "" &&
+      nid === "" &&
+      brn === "" &&
+      selectedDivision === "" &&
+      selectedDistrict === "" &&
+      phoneNo === "" &&
+      createdFacilityId === "" &&
+      createdClientId === ""
     ) {
       return;
     }
@@ -198,7 +198,7 @@ function PatientList({ session }: any) {
     const data = await getAPIResponse(
       getBaseUrl(),
       getUrlFromName("get-patient-listing"),
-      session ? session.accessToken || "":"",
+      session ? session.accessToken || "" : "",
       "GET",
       null,
       false,
@@ -206,7 +206,7 @@ function PatientList({ session }: any) {
     );
     const results: any = [];
     console.log(data);
-    if(data.message){
+    if (data.message) {
       console.log("LOGGING OUT")
       await signOut();
     }
@@ -333,14 +333,14 @@ function PatientList({ session }: any) {
           index={selectedDivIndex}
           isDisabled={false}
           isRequired={false}
-          onChange={function(value: FormItemResponseProps): void {
+          onChange={function (value: FormItemResponseProps): void {
             console.log(value.data);
             let data: any = value.data;
             console.log(data.id);
             setSelectedDivision(data.id);
             setSelectedDistrict("");
             divisionList.forEach((value, index) => {
-              if (value.id==data.id) {
+              if (value.id == data.id) {
                 setSelectedDivIndex(index);
               }
             });
@@ -357,51 +357,51 @@ function PatientList({ session }: any) {
           index={selectedDisIndex}
           isDisabled={isDistrictDisabled}
           isRequired={false}
-          onChange={function(value: FormItemResponseProps): void {
+          onChange={function (value: FormItemResponseProps): void {
             let data: any = value.data;
             setSelectedDistrict(data.id);
             districtList.forEach((value, index) => {
               console.log(value.id);
               console.log(data.id);
-              if (value.id==data.id) {
+              if (value.id == data.id) {
                 setSelectedDisIndex(index);
               }
             });
           }}
         />
-          <div className="flex items-center">
-            <div
-              className=" mr-24 text-slate-400 hover:cursor-pointer"
-              onClick={() => {
-                void clearSearchForm();
-              }}
-            >
-              {renderNow && <span>
+        <div className="flex items-center">
+          <div
+            className=" mr-24 text-slate-400 hover:cursor-pointer"
+            onClick={() => {
+              void clearSearchForm();
+            }}
+          >
+            {renderNow && <span>
               clear
-              </span>
-              }
-            </div>
-            <Button
-              size="md"
-              fullWidth={true}
-              btnText="Search"
-              isDisabled={
-                hid==="" &&
-                nid==="" &&
-                brn==="" &&
-                selectedDivision==="" &&
-                selectedDistrict==="" &&
-                phoneNo==="" &&
-                createdFacilityId==="" &&
-                createdClientId===""
-              }
-              clicked={async () => {
-                setRenderNow(false);
-                await getPatientData();
-                setRenderNow(true);
-              }}
-            />
+            </span>
+            }
           </div>
+          <Button
+            size="md"
+            fullWidth={true}
+            btnText="Search"
+            isDisabled={
+              hid === "" &&
+              nid === "" &&
+              brn === "" &&
+              selectedDivision === "" &&
+              selectedDistrict === "" &&
+              phoneNo === "" &&
+              createdFacilityId === "" &&
+              createdClientId === ""
+            }
+            clicked={async () => {
+              setRenderNow(false);
+              await getPatientData();
+              setRenderNow(true);
+            }}
+          />
+        </div>
       </div>
 
       <div className="relative min-h-[400px] w-full">
@@ -469,7 +469,7 @@ function PatientList({ session }: any) {
                   const disIdFormat =
                     row.original.district_id < 10
                       ? "0" + String(row.original.district_id)
-                      :String(row.original.district_id);
+                      : String(row.original.district_id);
                   const disId = String(row.original.division_id) + disIdFormat;
                   // console.log(disId);
                   // console.log(disList[disId]);
@@ -498,7 +498,7 @@ function PatientList({ session }: any) {
               },
             ]}
           />
-        ):renderNow ? (
+        ) : renderNow ? (
           <Alert
             iconName="alert-triangle"
             className="m-20 w-fit"
@@ -514,7 +514,7 @@ function PatientList({ session }: any) {
             isBtnGhost={true}
             hideCross={true}
           />
-        ):(
+        ) : (
           <MCISpinner />
         )}
       </div>

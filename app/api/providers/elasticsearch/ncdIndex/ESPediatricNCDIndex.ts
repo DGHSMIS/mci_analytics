@@ -1,5 +1,4 @@
 import { PGPatientVisitInterface } from "@api/providers/prisma/ncd_data_models/PGPatientVisitInterface";
-import { PatientVisit } from "@prisma/client";
 import { DebugElasticProvider, ELASTIC_BATCH_SIZE, ncdIndexName } from "@providers/elasticsearch/constants";
 import { esBaseClient } from '@providers/elasticsearch/ESBase';
 import prisma from '@providers/prisma/prismaClient';
@@ -91,14 +90,14 @@ async function convertDataToPediatricNCDDataESFormat(doc: PGPatientVisitInterfac
 export async function indexAllPediatricNCDDataInESData() {
   try {
     indexCount = 0;
-    const results: PatientVisit[] = [];
+    const results: PGPatientVisitInterface[] = [];
 
     let i: number = 0;
     console.log("Fetching all data from the database");
     // Define a function to process each page of results
     const getAllNCDData = async () => {
       if (DebugElasticProvider) console.log("Retrieving page with pageIndex", i);
-      const rows: PatientVisit[] = await prisma.patientVisit.findMany({
+      const rows: PGPatientVisitInterface[] = await prisma.patientVisit.findMany({
         take: totalDataToFetchPostGreSQL,
         skip: i * totalDataToFetchPostGreSQL,
         where: {
@@ -170,7 +169,7 @@ export async function indexAllPediatricNCDDataInESData() {
 export async function insertOrUpdateNCDDataByCreatedTimeToESIndex(time: string) {
   try {
     indexCount = 0;
-    const results: PatientVisit[] = [];
+    const results: PGPatientVisitInterface[] = [];
 
     let i: number = 0;
     console.log(`Fetching all data from the database for the given time ${time}`);
@@ -178,7 +177,7 @@ export async function insertOrUpdateNCDDataByCreatedTimeToESIndex(time: string) 
     
     const getAllNCDData = async () => {
       if (DebugElasticProvider) console.log("Retrieving page with pageIndex", i);
-      const rows: PatientVisit[] = await prisma.patientVisit.findMany({
+      const rows: PGPatientVisitInterface[] = await prisma.patientVisit.findMany({
         take: totalDataToFetchPostGreSQL,
         skip: i * totalDataToFetchPostGreSQL,
         where: {
