@@ -1,5 +1,6 @@
 export interface FacilityInterface {
   id: number | string;
+  code?: string;
   name?: string;
   address?: string;
   solutionType: string;

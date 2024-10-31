@@ -7,8 +7,6 @@ import { RequestBody } from "@elastic/elasticsearch/lib/Transport";
  * Cassandra databse
 **/
 
-
-
 export const ESPediatricNCDMapping = {
   properties: {
     id: {
@@ -45,10 +43,7 @@ export const ESPediatricNCDMapping = {
     date_of_visit: { type: "date" },
     dob: { type: "date" },
     gender: { type: "keyword" },
-    facility_id: {
-      type: "long"
-    },
-    facility_name: {
+    facility_code: {
       type: "text",
       analyzer: "autocomplete",
       search_analyzer: "standard",

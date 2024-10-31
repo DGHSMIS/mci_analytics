@@ -1,3 +1,8 @@
+export interface AuthProfileInterface {
+        name: String;
+        id: String;
+        catchment: string[];
+}
 export default interface AuthResponseInterface{
     code?:Number;
     status?:string;
@@ -42,5 +47,5 @@ export default interface AuthResponseInterface{
     is_active?: Number;
     groups?: Array<String>;
     activated?: Boolean;
-    profiles?: Array<Object>;
+    profiles?: Array<AuthProfileInterface>;
 }

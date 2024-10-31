@@ -64,8 +64,7 @@ async function convertDataToPediatricNCDDataESFormat(doc: PGPatientVisitInterfac
       dateOfVisit: doc.dateOfVisit,
       dob: doc.dob,
       gender: doc.gender,
-      facilityId: doc.facilityId,
-      facilityName: doc.facilityName,
+      facilityCode: doc.facilityCode,
       serviceLocation: doc.serviceLocation,
       diseaseId: doc.diseaseId,
       isReferredToHigherFacility: doc.isReferredToHigherFacility,
@@ -110,7 +109,7 @@ export async function indexAllPediatricNCDDataInESData() {
       });
       // Process each row here...
       if (DebugElasticProvider) console.log("Pushing page to allRows");
-      console.log("row of Encounter data");
+      console.log("row of NCD Index data");
       console.log(rows);
       results.push(...rows);
       i++;
@@ -190,7 +189,7 @@ export async function insertOrUpdateNCDDataByCreatedTimeToESIndex(time: string) 
       });
       // Process each row here...
       if (DebugElasticProvider) console.log("Pushing page to allRows");
-      console.log("row of Encounter data");
+      console.log("row of NCD Index data");
       console.log(rows);
       console.log(rows.length);
       results.push(...rows);
@@ -220,9 +219,11 @@ export async function insertOrUpdateNCDDataByCreatedTimeToESIndex(time: string) 
 
       // Step 3: Send the data to ES Index, ensuring there's something to index
       if (flattenedDocs.length > 0) {
-        if (DebugElasticProvider) { indexCount += flattenedDocs.length; }
+        console.log("Flattened Docs are  ", flattenedDocs);
+        console.log("Formatted Docs are  ", formattedDocs);
+        if (DebugElasticProvider) { indexCount += formattedDocs.length; }
         await esBaseClient.bulk({ index: ncdIndexName, body: flattenedDocs });
-        if (DebugElasticProvider) console.log(`Indexed ${flattenedDocs.length} documents in current batch`);
+        if (DebugElasticProvider) console.log(`Indexed ${formattedDocs.length} documents in current batch`);
       }
     }
 

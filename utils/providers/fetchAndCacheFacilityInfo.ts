@@ -49,6 +49,7 @@ export default async function fetchAndCacheFacilityInfo(facilityId: number, show
       const facilityAllData = await response.json();
       const facilityData: FacilityInterface = {
         id: facilityId,
+        code: String(facilityId),
         name: facilityAllData.name ?? "",
         address: facilityAllData.address_line ?? "",
         solutionType: getFacilitySolutionTypeFromName(facilityAllData.name) || "openMRS+",

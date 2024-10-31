@@ -31,8 +31,8 @@ model NCDPayloadLogger {
   payload         String
   createdAt       DateTime               @default(now())
   providerId      Int
-  facilityId      Int
-  accessToken      String
+  facilityCode    String                 @default("")
+  accessToken     String
   //Relationship
   skippedPayloads SkippedPayloadLogger[]
 }
@@ -46,7 +46,7 @@ model SkippedPayloadLogger {
   payloadId    Int
   payload      NCDPayloadLogger @relation(fields: [payloadId], references: [id])
   providerId   Int
-  facilityId   Int
+  facilityCode String           @default("")
 }
 
 // Migrate a new Schema using the following command
@@ -60,8 +60,8 @@ model PatientVisit {
   dateOfVisit                DateTime
   dob                        DateTime
   gender                     Gender
-  facilityId                 Int
-  facilityName               String          @default("")
+  facilityCode               String          @default("")
+  facility                   Facility        @relation(fields: [facilityCode], references: [code]) // Foreign key relationship
   serviceLocation            ServiceLocation
   diseaseId                  Int
   disease                    Disease         @relation(fields: [diseaseId], references: [id]) // Foreign key relationship
@@ -73,14 +73,27 @@ model PatientVisit {
 // Disease Table
 model Disease {
   id            Int            @id @default(autoincrement()) // Primary key
-  name          String
+  name          String         @unique
   createdAt     DateTime       @default(now())
   // Relationship
   patientVisits PatientVisit[]
 }
 
-// Patient Vist Record Table
-model SkippedPatientVisit {
-  id         Int    @id @default(autoincrement()) // Primary key
-  jsonObject String
+// Facility Table
+model Facility {
+  id            Int            @id @default(autoincrement()) // Primary key
+  code          String         @unique
+  name          String         @default("")
+  address       String         @default("")
+  solutionType  String         @default("")
+  divisionCode  String         @default("")
+  districtCode  String         @default("")
+  upazilaCode   String         @default("")
+  catchment     String         @default("")
+  careLevel     String         @default("")
+  ownership     String         @default("")
+  orgType       String         @default("")
+  createdAt     DateTime       @default(now())
+  // Relationship
+  patientVisits PatientVisit[]
 }

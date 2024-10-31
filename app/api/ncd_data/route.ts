@@ -3,6 +3,7 @@ import { PGNCDPayloadLoggerInterface } from '@api/providers/prisma/ncd_data_mode
 import { PGPatientVisitInterface } from '@api/providers/prisma/ncd_data_models/PGPatientVisitInterface';
 import prisma from '@providers/prisma/prismaClient';
 import AuthResponseInterface from '@utils/interfaces/Authentication/AuthResponseInterface';
+import { FacilityInterface } from '@utils/interfaces/FacilityInterfaces';
 import fetchAndCacheFacilityInfo from '@utils/providers/fetchAndCacheFacilityInfo';
 import Error from 'next/error';
 import { NextRequest, NextResponse } from "next/server";
@@ -69,54 +70,61 @@ export async function POST(req: NextRequest) {
 //POST Processing Data to Validate and Insert into the Database & then Sync to ElasticSearch
 async function processSubmittedData(preprocessedData: PGNCDPayloadLoggerInterface, createdAt: string) {
     try {
-        const data = JSON.parse(preprocessedData.payload);
+        const patientVisits: PGPatientVisitInterface[] = JSON.parse(preprocessedData.payload);
 
         // Filter out duplicates by checking for existing records
         const uniquePatientData: PGPatientVisitInterface[] = [];
         const skippedRecords = [];
 
-        for (const patient of data) {
-            //Check if the record already exists in the database
-            const existingRecord = await prisma.patientVisit.findFirst({
-                where: {
-                    patientId: patient.patientId,
-                    dateOfVisit: new Date(patient.dateOfVisit),
-                    facilityId: patient.facilityId
-                },
-            });
-            //No existing record found, so add it to the uniquePatientData array
-            if (!existingRecord) {
-                // Fetch facility data and add it to the record
-                if (patient.facilityId === preprocessedData.facilityId) {
+        for (const patientVisit of patientVisits) {
+            console.log("The Patient Visit data is ", patientVisit);
+            //Validate if the facility code matches the patient visit facility code, otherwise this is invalid data
+            if (preprocessedData.facilityCode === patientVisit.facilityCode) {
+                //Check if the record already exists in the database
+                const existingRecord = await prisma.patientVisit.findFirst({
+                    where: {
+                        patientId: patientVisit.patientId,
+                        dateOfVisit: new Date(patientVisit.dateOfVisit),
+                        facilityCode: preprocessedData.facilityCode
+                    },
+                });
+
+                //No existing record found, so add it to the uniquePatientData array
+                if (!existingRecord) {
+                    // Fetch facility data and add it to the record
                     // Now fetch the facility data from the Facility Registry
-                    const facilityData = await fetchAndCacheFacilityInfo(patient.facilityId);
+                    const facilityData = await findOrCreateFacility(patientVisit.facilityCode);
+                    console.log("The Facility Data is ")
+                    console.log(facilityData);
                     if (facilityData === null) {
-                        skippedRecords.push(patient);
-                    } else {
-                        //Provider can only add records for their own facility
-                        uniquePatientData.push({
-                            patientId: patient.patientId,
-                            patientName: patient.patientName,
-                            dateOfVisit: new Date(patient.dateOfVisit),
-                            dob: new Date(patient.dob),
-                            gender: patient.gender,
-                            facilityId: patient.facilityId,
-                            facilityName: facilityData.name ?? "",
-                            serviceLocation: patient.serviceLocation,
-                            diseaseId: patient.diseaseId,
-                            isReferredToHigherFacility: patient.isReferredToHigherFacility,
-                            isFollowUp: patient.isFollowUp,
-                            createdAt: new Date(createdAt),
-                        });
+                        skippedRecords.push(patientVisit);
                     }
+                    console.log("The Facility Name is ")
+                    console.log(facilityData.name);
+                    console.log(patientVisit.facilityCode);
+                    console.log(patientVisit.facilityCode);
+                    //Provider can only add records for their own facility
+                    uniquePatientData.push({
+                        patientId: patientVisit.patientId,
+                        patientName: patientVisit.patientName,
+                        dateOfVisit: new Date(patientVisit.dateOfVisit),
+                        dob: new Date(patientVisit.dob),
+                        gender: patientVisit.gender,
+                        facilityCode: patientVisit.facilityCode,
+                        serviceLocation: patientVisit.serviceLocation,
+                        diseaseId: patientVisit.diseaseId,
+                        isReferredToHigherFacility: patientVisit.isReferredToHigherFacility,
+                        isFollowUp: patientVisit.isFollowUp,
+                        createdAt: new Date(createdAt),
+                    });
                 } else {
-                    skippedRecords.push(patient);
+                    // Add the duplicate record details to skippedRecords
+                    skippedRecords.push(patientVisit);
                 }
             } else {
-                // Add the duplicate record details to skippedRecords
-                skippedRecords.push(patient);
+                // Add the record to skippedRecords if the facility code does not match
+                skippedRecords.push(patientVisit);
             }
-
         }
 
         // Insert unique records
@@ -133,16 +141,19 @@ async function processSubmittedData(preprocessedData: PGNCDPayloadLoggerInterfac
                     providerId: preprocessedData.providerId,
                     payloadId: preprocessedData.id ?? 0,
                     createdAt: new Date(),
-                    facilityId: preprocessedData.facilityId,
+                    facilityCode: preprocessedData.facilityCode,
                 }
             });
             console.log('Skipped Records:', skippedPayload);
         }
-
-        const indexNewData = await insertOrUpdateNCDDataByCreatedTimeToESIndex(createdAt);
-        console.log('Indexed New Data:', indexNewData);
+        if (newVisits.count > 0) {
+            console.log('New Records:', newVisits);
+            const indexNewData = await insertOrUpdateNCDDataByCreatedTimeToESIndex(createdAt);
+            console.log('Indexed New Data:', indexNewData);
+        }
         return true;
-    } catch (error) {
+    } catch (error: any) {
+
         console.error('Error in processing submitted data:', error);
         await prisma.skippedPayloadLogger.create({
             data: {
@@ -151,7 +162,7 @@ async function processSubmittedData(preprocessedData: PGNCDPayloadLoggerInterfac
                 providerId: preprocessedData.providerId,
                 payloadId: preprocessedData.id ?? 0,
                 createdAt: new Date(),
-                facilityId: preprocessedData.facilityId,
+                facilityCode: preprocessedData.facilityCode,
             }
         });
         throw error;
@@ -170,11 +181,22 @@ async function processSubmittedData(preprocessedData: PGNCDPayloadLoggerInterfac
 async function payloadLogger(data: PGPatientVisitInterface[], providerUser: AuthResponseInterface): Promise<PGNCDPayloadLoggerInterface> {
     console.log('Payload Received:');
     console.log(data);
+    let facilityCode = "";
+
+    providerUser.profiles?.forEach((profile) => {
+        if (profile.name === 'facility') {
+            facilityCode = String(profile.id);
+            console.log('Profile:', profile.name);
+            console.log('facilityCode:', profile.id);
+            console.log('facilityCode:', facilityCode);
+        }
+    });
+
     const loggableData: PGNCDPayloadLoggerInterface = {
         providerId: Number(providerUser.id),
         payload: JSON.stringify(data),
         createdAt: new Date(),
-        facilityId: Number(providerUser.facility_id),
+        facilityCode: facilityCode,
         accessToken: String(providerUser.access_token),
     }
     const newPayload = await prisma.nCDPayloadLogger.create({
@@ -182,4 +204,39 @@ async function payloadLogger(data: PGPatientVisitInterface[], providerUser: Auth
     });
 
     return newPayload;
+}
+
+
+
+async function findOrCreateFacility(facilityCode: string): Promise<FacilityInterface> {
+
+    const facilityFromDB = await prisma.facility.findFirst({
+        where: { code: facilityCode },
+    });
+    console.log("The Facility from DB is ")
+    console.log(facilityFromDB);
+    if (facilityFromDB !== null) {
+        return facilityFromDB;
+    }
+    const facilityData: FacilityInterface = await fetchAndCacheFacilityInfo(Number(facilityCode));
+
+    const newFacility: FacilityInterface = await prisma.facility.create({
+        data: {
+            code: facilityCode,
+            name: facilityData.name,
+            divisionCode: facilityData.divisionCode,
+            districtCode: facilityData.districtCode,
+            upazilaCode: facilityData.upazilaCode,
+            catchment: facilityData.catchment,
+            careLevel: facilityData.careLevel,
+            address: facilityData.address,
+            solutionType: facilityData.solutionType,
+            ownership: facilityData.ownership,
+            orgType: facilityData.orgType,
+            createdAt: new Date(),
+        },
+    });
+
+    console.log('New Facility:', newFacility);
+    return newFacility;
 }
