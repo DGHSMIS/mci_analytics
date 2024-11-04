@@ -63,7 +63,7 @@ export default memo(function AgeDistributionStats() {
     let queryParams = "?dateFrom="+demographyMinDate.toISOString()+"&dateTo="+demographyMaxDate.toISOString();
     console.log("queryParams", queryParams);
     if (selectedDivision.length > 0) {
-      queryParams = queryParams+"&divisionId=" + getObjectKeyFromValue(divisionCodes, selectedDivision[0]) ?? ""
+      queryParams = queryParams+"&divisionId=" + getObjectKeyFromValue(divisionCodes, selectedDivision[0]);
     }
 
     try {

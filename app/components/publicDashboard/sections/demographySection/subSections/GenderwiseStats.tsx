@@ -13,7 +13,7 @@ import LineToPieChartSerieCollection from "@utils/converters/LineToPieChartSerie
 import { LatestGenderWiseStatsInterface } from "@utils/interfaces/PublicDashboardInterfaces";
 import { getBaseUrl, getUrlFromName } from "@utils/lib/apiList";
 import { getObjectKeyFromValue } from "@utils/utilityFunctions";
-import React, { memo, Suspense, useEffect, useMemo, useState } from "react";
+import { memo, Suspense, useEffect, useMemo, useState } from "react";
 
 type GenderwiseStatsProps = {
   lineTitle?: string;
@@ -56,7 +56,7 @@ export default memo(function GenderwiseStats({
       let queryParams = "?dateFrom="+demographyMinDate.toISOString()+"&dateTo="+demographyMaxDate.toISOString();
       console.log("queryParams", queryParams);
       if (selectedDivision.length > 0) {
-        queryParams = queryParams+"&divisionId=" + getObjectKeyFromValue(divisionCodes, selectedDivision[0]) ?? ""
+        queryParams = queryParams+"&divisionId=" + getObjectKeyFromValue(divisionCodes, selectedDivision[0]);
       }
       const results: LatestGenderWiseStatsInterface = await getAPIResponse(
         getBaseUrl(),
@@ -87,6 +87,8 @@ export default memo(function GenderwiseStats({
   }, [demographyMinDate, demographyMaxDate, selectedDivision]);
 
   const memorizedPieData = useMemo(() => {
+    console.log("GenderwiseStats - memorizedPieData called");
+    console.log(JSON.stringify(genderLineChartData));
     return LineToPieChartSerieCollection(genderLineChartData);
   }, [genderLineChartData]);
 

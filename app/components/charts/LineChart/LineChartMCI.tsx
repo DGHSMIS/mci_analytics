@@ -5,7 +5,7 @@ import { Point, PointTooltipProps, ResponsiveLine, Serie } from "@nivo/line";
 import { tokens } from "@utils/ThemeToken";
 import { timeFormat } from "d3-time-format";
 import { differenceInDays, format, parseISO } from "date-fns";
-import React, { memo, useMemo } from "react";
+import { memo, Suspense, useMemo } from "react";
 
 interface LineChartProps {
   originalData: Serie[];
@@ -26,7 +26,7 @@ function LineChartMCI({
   const windowWidth = window.innerWidth;
   const colors: any = tokens();
   console.log("Original Data", originalData.length);
-
+  console.log(JSON.stringify(originalData));
   // Get startDate and endDate
   const { startDate, endDate } = useMemo(() => {
     let startDate: Date | null = null;
@@ -205,6 +205,7 @@ function LineChartMCI({
         ];
   console.log("originalData");
   return (
+    <Suspense>
     <ResponsiveLine
       animate={true}
       data={originalData}
@@ -278,6 +279,7 @@ function LineChartMCI({
       useMesh={true}
       legends={legendProps}
     />
+    </Suspense>
   );
 }
 

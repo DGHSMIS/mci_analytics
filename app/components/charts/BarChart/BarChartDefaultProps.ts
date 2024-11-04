@@ -22,6 +22,7 @@ export const defaultBottomAxisProps: AxisProps<any> = {
 
 export const defaultBarLegend: BarLegendProps[] = [
   {
+    toggleSerie: true,
     dataFrom: "keys",
     anchor: "bottom-right",
     direction: "column",

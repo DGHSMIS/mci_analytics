@@ -1,4 +1,5 @@
-import { insertOrUpdateNCDDataByCreatedTimeToESIndex } from '@api/providers/elasticsearch/ncdIndex/ESPediatricNCDIndex';
+import { PGDiseaseInterface } from '@api/providers/prisma/ncd_data_models/PGDiseaseInterface';
+import { PGDiseasesOnVisit } from '@api/providers/prisma/ncd_data_models/PGDiseasesOnVisit';
 import { PGNCDPayloadLoggerInterface } from '@api/providers/prisma/ncd_data_models/PGNCDPayloadLoggerInterface';
 import { PGPatientVisitInterface } from '@api/providers/prisma/ncd_data_models/PGPatientVisitInterface';
 import prisma from '@providers/prisma/prismaClient';
@@ -73,24 +74,24 @@ async function processSubmittedData(preprocessedData: PGNCDPayloadLoggerInterfac
         const patientVisits: PGPatientVisitInterface[] = JSON.parse(preprocessedData.payload);
 
         // Filter out duplicates by checking for existing records
-        const uniquePatientData: PGPatientVisitInterface[] = [];
         const skippedRecords = [];
-
+        let totalNewVisits = 0;
         for (const patientVisit of patientVisits) {
             console.log("The Patient Visit data is ", patientVisit);
             //Validate if the facility code matches the patient visit facility code, otherwise this is invalid data
             if (preprocessedData.facilityCode === patientVisit.facilityCode) {
-                //Check if the record already exists in the database
+                //Check if the record already exists in the database (combination of visitId & facilityCode is unique)
                 const existingRecord = await prisma.patientVisit.findFirst({
                     where: {
-                        patientId: patientVisit.patientId,
-                        dateOfVisit: new Date(patientVisit.dateOfVisit),
+                        visitId: patientVisit.visitId,
                         facilityCode: preprocessedData.facilityCode
                     },
                 });
 
                 //No existing record found, so add it to the uniquePatientData array
-                if (!existingRecord) {
+                if (!existingRecord && patientVisit.diseaseRef) {
+
+                    const diseasesOnVisit: PGDiseasesOnVisit[] = [];
                     // Fetch facility data and add it to the record
                     // Now fetch the facility data from the Facility Registry
                     const facilityData = await findOrCreateFacility(patientVisit.facilityCode);
@@ -104,19 +105,42 @@ async function processSubmittedData(preprocessedData: PGNCDPayloadLoggerInterfac
                     console.log(patientVisit.facilityCode);
                     console.log(patientVisit.facilityCode);
                     //Provider can only add records for their own facility
-                    uniquePatientData.push({
+                    let patientVisitInfo: PGPatientVisitInterface = {
                         patientId: patientVisit.patientId,
                         patientName: patientVisit.patientName,
+                        healthId: patientVisit.healthId ?? "",
+                        visitId: patientVisit.visitId,
                         dateOfVisit: new Date(patientVisit.dateOfVisit),
                         dob: new Date(patientVisit.dob),
                         gender: patientVisit.gender,
                         facilityCode: patientVisit.facilityCode,
                         serviceLocation: patientVisit.serviceLocation,
-                        diseaseId: patientVisit.diseaseId,
                         isReferredToHigherFacility: patientVisit.isReferredToHigherFacility,
                         isFollowUp: patientVisit.isFollowUp,
                         createdAt: new Date(createdAt),
-                    });
+                    }
+                    //Add the patientVisitInfo to the database
+                    let newVisitInDB = await prisma.patientVisit.create({
+                        data: patientVisitInfo,
+                    });  
+                    //Now add the diseases that were detected on the patient visit
+                    for (const diseaseRef of patientVisit.diseaseRef) {
+                        //Check if the disease exists in the database, otherwise create it
+                        const diseaseData = await findOrCreateDisease(diseaseRef.conceptUuId, diseaseRef.conceptName ?? "");
+                        diseasesOnVisit.push({
+                            patientVisitId: newVisitInDB.id,
+                            conceptUuId: diseaseData.conceptUuId,
+                            patientSymptoms: diseaseRef.patientSymptoms,
+                            createdAt: new Date(createdAt),
+                        })
+                    }
+                    if (newVisitInDB.id != undefined) {
+                        let newDiseaseInDB = await prisma.diseasesOnVisit.createMany({
+                            data: diseasesOnVisit
+                        });
+                    }
+                    totalNewVisits++;
+
                 } else {
                     // Add the duplicate record details to skippedRecords
                     skippedRecords.push(patientVisit);
@@ -127,10 +151,10 @@ async function processSubmittedData(preprocessedData: PGNCDPayloadLoggerInterfac
             }
         }
 
-        // Insert unique records
-        const newVisits = await prisma.patientVisit.createMany({
-            data: uniquePatientData,
-        });
+        // // Insert unique records
+        // const newVisits = await prisma.patientVisit.createMany({
+        //     data: uniquePatientData,
+        // });
 
         // Insert Skipped Records to SkippedPayloadLogger table
         if (skippedRecords.length > 0) {
@@ -146,10 +170,11 @@ async function processSubmittedData(preprocessedData: PGNCDPayloadLoggerInterfac
             });
             console.log('Skipped Records:', skippedPayload);
         }
-        if (newVisits.count > 0) {
-            console.log('New Records:', newVisits);
-            const indexNewData = await insertOrUpdateNCDDataByCreatedTimeToESIndex(createdAt);
-            console.log('Indexed New Data:', indexNewData);
+        if (totalNewVisits > 0) {
+            console.log('New Records:', totalNewVisits);
+
+            // const indexNewData = await insertOrUpdateNCDDataByCreatedTimeToESIndex(createdAt);
+            // console.log('Indexed New Data:', indexNewData);
         }
         return true;
     } catch (error: any) {
@@ -239,4 +264,27 @@ async function findOrCreateFacility(facilityCode: string): Promise<FacilityInter
 
     console.log('New Facility:', newFacility);
     return newFacility;
+}
+
+
+async function findOrCreateDisease(conceptUuId: string, conceptName: string): Promise<PGDiseaseInterface> {
+
+    const diseaseFromDB = await prisma.disease.findFirst({
+        where: { conceptUuId: conceptUuId },
+    });
+    console.log("The Disease from DB is ")
+    console.log(diseaseFromDB);
+    if (diseaseFromDB !== null) {
+        return diseaseFromDB;
+    }
+
+    const newDisease: PGDiseaseInterface = await prisma.disease.create({
+        data: {
+            conceptUuId: conceptUuId,
+            conceptName: conceptName,
+        },
+    });
+
+    console.log('New Disease:', newDisease);
+    return newDisease;
 }

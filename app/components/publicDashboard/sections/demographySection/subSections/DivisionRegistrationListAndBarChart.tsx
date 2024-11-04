@@ -4,6 +4,7 @@ import { defaultBarLegend, defaultBottomAxisProps, defaultLeftAxisProps, default
 import { TooltipBarChartProps } from "@charts/BarChart/TooltipBarChart";
 import { ChartThemeDef } from "@charts/ChartThemeDef";
 import { MCISpinner } from "@components/MCISpinner";
+import { getAPIResponse, getRevalidationTime } from "@library/utils";
 import { BarDatum } from "@nivo/bar";
 import { useStore } from "@store/store";
 import { ConvertDivisionTreeCountToBarChartArray } from "@utils/converters/ConvertDivisionTreeCountToBarChartArray";
@@ -11,13 +12,12 @@ import DivisionDistrictwiseDocCountToTableData, {
   AggregatedDivisionDistrictWiseData,
 } from "@utils/converters/DivisionDistrictwiseDocCountToTableData";
 import { AreaWiseRegistrationStatsProps } from "@utils/interfaces/LocalityInterfaces";
+import { getBaseUrl, getUrlFromName } from "@utils/lib/apiList";
 import { tokens } from "@utils/ThemeToken";
+import { delay } from "lodash";
 import { MRT_ExpandedState } from "material-react-table";
 import dynamic from "next/dynamic";
-import React, { memo, Suspense, useEffect, useMemo, useRef, useState } from "react";
-import { delay } from "lodash";
-import { getAPIResponse, getRevalidationTime } from "@library/utils";
-import { getBaseUrl, getUrlFromName } from "@utils/lib/apiList";
+import { memo, Suspense, useEffect, useMemo, useRef, useState } from "react";
 
 const ChartViewManagerComponent = dynamic(
   () => import("@components/publicDashboard/sectionFilterSegment/ChartViewManagerComponent"), {

@@ -1,3 +1,4 @@
+import ChartTitle from "@components/charts/ChartTitle";
 import { AxisProps } from "@nivo/axes";
 import { BarDatum, BarLegendProps, ResponsiveBar } from "@nivo/bar";
 import { memo } from "react";
@@ -55,6 +56,13 @@ function BarChartMCI({
   };
 
   return (
+    <>
+    <ChartTitle
+        title={chartTitle ?? ""}
+        // size="lg"
+        align="left"
+        classNames="mb-12 text-slate-600 text-sm uppercase"
+      />
     <ResponsiveBar
       data={originalData}
       keys={keys}
@@ -75,6 +83,7 @@ function BarChartMCI({
       }}
       className="nivoBar"
     />
+    </>
   );
 }
 

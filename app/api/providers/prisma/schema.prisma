@@ -52,31 +52,43 @@ model SkippedPayloadLogger {
 // Migrate a new Schema using the following command
 // npx prisma migrate dev --name init
 
-// Patient Vist Record Table
+// Patient Visit Record Table
 model PatientVisit {
-  id                         Int             @id @default(autoincrement()) // Primary key
+  id                         Int               @id @default(autoincrement()) // Primary key
   patientId                  Int
+  healthId                   String            @default("")
+  visitId                    Int
   patientName                String
   dateOfVisit                DateTime
   dob                        DateTime
   gender                     Gender
-  facilityCode               String          @default("")
-  facility                   Facility        @relation(fields: [facilityCode], references: [code]) // Foreign key relationship
+  facilityCode               String            @default("")
+  facility                   Facility          @relation(fields: [facilityCode], references: [code]) // Foreign key relationship
   serviceLocation            ServiceLocation
-  diseaseId                  Int
-  disease                    Disease         @relation(fields: [diseaseId], references: [id]) // Foreign key relationship
   isReferredToHigherFacility Boolean
   isFollowUp                 Boolean
-  createdAt                  DateTime        @default(now())
+  dieasesOnVisit             DiseasesOnVisit[]
+  createdAt                  DateTime          @default(now())
 }
 
 // Disease Table
 model Disease {
-  id            Int            @id @default(autoincrement()) // Primary key
-  name          String         @unique
-  createdAt     DateTime       @default(now())
+  id              Int               @id @default(autoincrement()) // Primary key
+  conceptName     String            @default("")
+  conceptUuId     String            @unique
+  createdAt       DateTime          @default(now())
   // Relationship
-  patientVisits PatientVisit[]
+  diseasesOnVisit DiseasesOnVisit[]
+}
+
+model DiseasesOnVisit {
+  id              Int          @id @default(autoincrement()) // Primary key
+  patientVisitId  Int
+  patientVisit    PatientVisit @relation(fields: [patientVisitId], references: [id])
+  conceptUuId     String
+  disease         Disease      @relation(fields: [conceptUuId], references: [conceptUuId])
+  patientSymptoms String       @default("")
+  createdAt       DateTime     @default(now())
 }
 
 // Facility Table

@@ -1,4 +1,5 @@
 export interface PGDiseaseInterface {
-    id: number;
-    name: String;
+    id?: number;
+    conceptName: string;
+    conceptUuId: string;
 }

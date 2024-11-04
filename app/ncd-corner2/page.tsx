@@ -7,7 +7,7 @@
  */
 //section 2: Demography Stats
 //section 1: FacilityTypewiseRegistrationStats
-import NcdDbClientWrapper from "@components/ncdPublicDashboard/NcdDbClientWrapper";
+import NcdDbClientWrapper2 from "@components/ncdPublicDashboard/NcdDbClientWrapper2";
 import { initialStoreStates } from "@store/store";
 import StoreInitializer from "@store/StoreInitializer";
 import { xDaysAgo, xMonthsAgo } from "@utils/utilityFunctions";
@@ -19,7 +19,7 @@ import { Metadata } from "next/types";
  */
 const PageHeader = dynamic(() => import("@library/PageHeader"), { ssr: true });
 const pageTitle = "Pediatric Non Communicable Disease (NCD) Dashboard";
-const desc = "NCD Analytics Platform by MIS, DGHS";
+const desc = "Analytics Platform by MIS, DGHS";
 
 export const metadata: Metadata = {
   title: pageTitle + " ",
@@ -32,7 +32,7 @@ export default async function page() {
     <main className="mt-40 flex w-full flex-col justify-center space-y-48 px-24 2xl:container bg-transparent border-none">
       <StoreInitializer {...initialStoreStates} serviceOverviewMaxDate={xDaysAgo(0)} serviceOverviewMinDate={xDaysAgo(6)} demographyMaxDate={xDaysAgo(0)} demographyMinDate={xDaysAgo(6)}/>
       <PageHeader title={pageTitle} titleSize="sm"></PageHeader>
-        <NcdDbClientWrapper />
+        <NcdDbClientWrapper2 />
     </main>
   );
 }
