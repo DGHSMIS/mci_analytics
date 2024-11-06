@@ -1,6 +1,6 @@
 import { CardIndicatorsProps } from "@components/globals/CardIndicator/CardIndicator";
 import SkeletonCardIndicator from "@components/globals/CardIndicator/SkeletonCardIndicator";
-import { NCDLifetimeStats } from "@utils/interfaces/NCD/NCDLifetimeStatsProps";
+import { NCDLifetimeStats } from "@utils/interfaces/NCD/NCDLifetimeStats";
 import dynamic from "next/dynamic";
 import { memo } from "react";
 const CardIndicators = dynamic(() => import("@components/globals/CardIndicator/CardIndicator"), {
