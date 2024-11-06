@@ -82,6 +82,18 @@ const apiList: ApiUrlInterface[] = [
   {
     name: "get-patient-health-card",
     urlPath: "/api/ids/get-patient-health-card",
+  },
+  {
+    name: "get-ncd-lifetime-stats",
+    urlPath: "/api/es/analytics/ncd-corner/lifetime-stats",
+  },
+  {
+    name: "get-ncd-aggregated-stats",
+    urlPath: "/api/es/analytics/ncd-corner/aggregated-ncd-stats",
+  },
+  {
+    name: "get-ncd-disease-stats",
+    urlPath: "/api/es/analytics/ncd-corner/diseasewise-stats",
   }
 ];
 /**

@@ -15,7 +15,7 @@ import {
   upazilaCodes
 } from "@utils/constants";
 import { ESDateRangeSingleItemQueryInterface } from "@utils/interfaces/ESModelInterfaces";
-import { addDays, subDays, subMinutes, subMonths } from "date-fns";
+import { addDays, formatISO, set, subDays, subMinutes, subMonths, subYears } from "date-fns";
 import { NextRequest } from "next/server";
 import { v1 as uuidv1 } from "uuid";
 
@@ -45,6 +45,24 @@ export function convertGenderToReadableFormat(genderCode: string, lang: string =
     }
   }
 }
+
+
+  /**
+   * Sets the date by subtracting the specified number of years from today's date and returns it in ISO format.
+   *
+   * @param {number} yearsFromToday - The number of years to subtract from today's date.
+   * @return {string} The date in ISO format.
+   */
+  export function setDateByYears(yearsFromToday: number) {
+    return formatISO(
+      set(subYears(new Date(), yearsFromToday), {
+        hours: 0,
+        minutes: 0,
+        seconds: 0,
+        milliseconds: 0,
+      })
+    );
+  }
 
 /**
  * Convert Date to Readable Format

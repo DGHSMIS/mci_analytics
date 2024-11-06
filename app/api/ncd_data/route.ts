@@ -1,11 +1,11 @@
+import { insertOrUpdateNCDDataByCreatedTimeToESIndex } from '@api/providers/elasticsearch/ncdIndex/ESPediatricNCDIndex';
 import { PGDiseaseInterface } from '@api/providers/prisma/ncd_data_models/PGDiseaseInterface';
 import { PGDiseasesOnVisit } from '@api/providers/prisma/ncd_data_models/PGDiseasesOnVisit';
 import { PGNCDPayloadLoggerInterface } from '@api/providers/prisma/ncd_data_models/PGNCDPayloadLoggerInterface';
 import { PGPatientVisitInterface } from '@api/providers/prisma/ncd_data_models/PGPatientVisitInterface';
 import prisma from '@providers/prisma/prismaClient';
 import AuthResponseInterface from '@utils/interfaces/Authentication/AuthResponseInterface';
-import { FacilityInterface } from '@utils/interfaces/FacilityInterfaces';
-import fetchAndCacheFacilityInfo from '@utils/providers/fetchAndCacheFacilityInfo';
+import { findOrCreateFacility } from '@utils/providers/fetchAndCacheFacilityInfo';
 import Error from 'next/error';
 import { NextRequest, NextResponse } from "next/server";
 import { checkIfAuthenticatedProvider } from "utils/lib/auth";
@@ -173,8 +173,8 @@ async function processSubmittedData(preprocessedData: PGNCDPayloadLoggerInterfac
         if (totalNewVisits > 0) {
             console.log('New Records:', totalNewVisits);
 
-            // const indexNewData = await insertOrUpdateNCDDataByCreatedTimeToESIndex(createdAt);
-            // console.log('Indexed New Data:', indexNewData);
+            const indexNewData = await insertOrUpdateNCDDataByCreatedTimeToESIndex(createdAt);
+            console.log('Indexed New Data:', indexNewData);
         }
         return true;
     } catch (error: any) {
@@ -233,38 +233,7 @@ async function payloadLogger(data: PGPatientVisitInterface[], providerUser: Auth
 
 
 
-async function findOrCreateFacility(facilityCode: string): Promise<FacilityInterface> {
 
-    const facilityFromDB = await prisma.facility.findFirst({
-        where: { code: facilityCode },
-    });
-    console.log("The Facility from DB is ")
-    console.log(facilityFromDB);
-    if (facilityFromDB !== null) {
-        return facilityFromDB;
-    }
-    const facilityData: FacilityInterface = await fetchAndCacheFacilityInfo(Number(facilityCode));
-
-    const newFacility: FacilityInterface = await prisma.facility.create({
-        data: {
-            code: facilityCode,
-            name: facilityData.name,
-            divisionCode: facilityData.divisionCode,
-            districtCode: facilityData.districtCode,
-            upazilaCode: facilityData.upazilaCode,
-            catchment: facilityData.catchment,
-            careLevel: facilityData.careLevel,
-            address: facilityData.address,
-            solutionType: facilityData.solutionType,
-            ownership: facilityData.ownership,
-            orgType: facilityData.orgType,
-            createdAt: new Date(),
-        },
-    });
-
-    console.log('New Facility:', newFacility);
-    return newFacility;
-}
 
 
 async function findOrCreateDisease(conceptUuId: string, conceptName: string): Promise<PGDiseaseInterface> {

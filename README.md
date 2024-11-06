@@ -116,3 +116,140 @@ Add Encounter -
 curl -i -u myuser:mypassword -H "content-type:application/json" \
 -X POST http://localhost:15672/api/exchanges/%2f/patient/publish \
 -d '{"properties":{"delivery_mode":2},"routing_key":"patient.encounter","payload":"your_payload_here3","payload_encoding":"string"}'
+
+
+
+Ctech (64)
+[
+  10000013, 10000312, 10000181, 10002233, 10000182, 10019224, 10000167, 
+  10000288, 10000307, 10000303, 10000173, 10000415, 10001424, 10001433, 
+  10001438, 10000847, 10000852, 10000903, 10000297, 10000253, 10000489, 
+  10000864, 10002181, 10001464, 10000144, 10000387, 10000436, 10000456, 
+  10017210, 10000277, 10000146, 10002243, 10000141, 10017209, 10001011, 
+  10000243, 10000230, 10000249, 10000241, 10000252, 10001824, 10001943, 
+  10001933, 10001945, 10001947, 10000496, 10000274, 10000270, 10001794, 
+  10001799, 10001776, 10001780, 10001771, 10000468, 10000369, 10002177, 
+  10002172, 10001450, 10001442, 10001459, 10001455, 10001603, 10017380, 
+  10000007
+]
+
+{
+    "hidCreated": "3394",
+    "hidCreatedLast3Months": "700",
+    "encountersCreated": "140"
+}
+
+
+Aloo Clinic (6)
+[10034140,10034141,10034142,10034144,10034145,10034146]
+{
+    "hidCreated": "78",
+    "hidCreatedLast3Months": "0",
+    "encountersCreated": "73"
+}
+Bindu (11)
+[10001551, 10000008, 10000006, 10000297, 10001862, 10002288, 10000033, 10000756,10017209,10000054,10000756]
+{
+    "hidCreated": "719",
+    "hidCreatedLast3Months": "330",
+    "encountersCreated": "0"
+}
+
+Sterling (1)
+[10017210]
+{
+    "hidCreated": "7",
+    "hidCreatedLast3Months": "1",
+    "encountersCreated": "0"
+}
+
+Flora (6)
+[10001571,10002051,10001648,10000922,10001001,10001011]
+{
+    "hidCreated": "502",
+    "hidCreatedLast3Months": "148",
+    "encountersCreated": "0"
+}
+
+
+[
+        {
+            "vendor": "Crystal Tech. Bangladesh Ltd.",
+            "Total HID": 3394,
+            "Last 3 Months HIDs": 700,
+            "Encounters": 140,
+            "Total Deployments": 64
+        },
+        {
+            "vendor": "mpower Social Enterprises Ltd.",
+            "Total HID": 0,
+            "Last 3 Months HIDs": 0,
+            "Encounters": 0,
+            "Total Deployments": 0
+        },
+        {
+            "vendor": "Bindo Logic",
+            "Total HID": 719,
+            "Last 3 Months HIDs": 330,
+            "Encounters": 0,
+            "Total Deployments": 11
+        },
+        {
+            "vendor": "CMED Health Limited",
+            "Total HID": 78,
+            "Last 3 Months HIDs": 0,
+            "Encounters": 73,
+            "Total Deployments": 6
+        },
+        {
+            "vendor": "Flora Telecom Ltd.",
+            "Total HID": 502,
+            "Last 3 Months HIDs": 148,
+            "Encounters": 0,
+            "Total Deployments": 6
+        },
+        {
+            "vendor": "Sterling Multi-Technologies Limited",
+            "Total HID": 7,
+            "Last 3 Months HIDs": 0,
+            "Encounters": 0,
+            "Total Deployments": 1
+        },
+        {
+            "vendor": "HiSP",
+            "Total HID": 0,
+            "Last 3 Months HIDs": 0,
+            "Encounters": 0,
+            "Total Deployments": 0
+        },
+        {
+            "vendor": "Mazedatech Ltd.",
+            "Total HID": 0,
+            "Last 3 Months HIDs": 0,
+            "Encounters": 0,
+            "Total Deployments": 0
+        },
+        {
+            "vendor": "FHI 360",
+            "Total HID": 0,
+            "Last 3 Months HIDs": 0,
+            "Encounters": 0,
+            "Total Deployments": 0
+        },
+        {
+            "vendor": "BUHS",
+            "Total HID": 0,
+            "Last 3 Months HIDs": 0,
+            "Encounters": 0,
+            "Total Deployments": 0
+        },
+        {
+            "vendor": "Skipper International",
+            "Total HID": 0,
+            "Last 3 Months HIDs": 0,
+            "Encounters": 0,
+            "Total Deployments": 0
+        },
+
+        
+    ]

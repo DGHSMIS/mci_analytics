@@ -1,3 +1,4 @@
+import prisma from "@api/providers/prisma/prismaClient";
 import { errorFacilityData, fetchedFacilityArrayOfObjects } from "@providers/elasticsearch/patientIndex/ESPatientIndex";
 import { getFacilitySolutionTypeFromName } from "@utils/constants";
 import { FacilityInterface } from "@utils/interfaces/FacilityInterfaces";
@@ -82,4 +83,43 @@ export default async function fetchAndCacheFacilityInfo(facilityId: number, show
     fetchedFacilityArrayOfObjects.push(apiErrorResult);
      return await Promise.resolve(apiErrorResult);
   }
+}
+
+
+/**
+ * Finds or creates a facility in the database.
+ * @param facilityCode The code of the facility to find or create.
+ * @returns A promise that resolves to the facility data.
+ */
+export async function findOrCreateFacility(facilityCode: string): Promise<FacilityInterface> {
+
+  const facilityFromDB = await prisma.facility.findFirst({
+      where: { code: facilityCode },
+  });
+  console.log("The Facility from DB is ")
+  console.log(facilityFromDB);
+  if (facilityFromDB !== null) {
+      return facilityFromDB;
+  }
+  const facilityData: FacilityInterface = await fetchAndCacheFacilityInfo(Number(facilityCode));
+
+  const newFacility: FacilityInterface = await prisma.facility.create({
+      data: {
+          code: facilityCode,
+          name: facilityData.name,
+          divisionCode: facilityData.divisionCode,
+          districtCode: facilityData.districtCode,
+          upazilaCode: facilityData.upazilaCode,
+          catchment: facilityData.catchment,
+          careLevel: facilityData.careLevel,
+          address: facilityData.address,
+          solutionType: facilityData.solutionType,
+          ownership: facilityData.ownership,
+          orgType: facilityData.orgType,
+          createdAt: new Date(),
+      },
+  });
+
+  console.log('New Facility:', newFacility);
+  return newFacility;
 }

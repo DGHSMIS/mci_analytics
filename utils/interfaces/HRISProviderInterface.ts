@@ -15,7 +15,6 @@ export default interface HRISProviderInterface {
     properties: HRISProviderPropertiesInterface;
   }
 
-  ``
   
   export interface HRISProviderOrganization {
     reference: string;

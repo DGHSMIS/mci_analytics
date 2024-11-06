@@ -147,3 +147,13 @@ export const isAaloClinic = (facilityCode: string) => {
   }
   return false;
 }
+
+
+export const ncdDiseases: string[] = [
+  "Bronchial Asthma",
+  "Congenital Heart Diseases",
+  "Epilepsy",
+  "Type 1 Diabetes Mellitus",
+  "Thalassemia and iron deficiency anemia",
+  "Nephrotic Syndrome",
+]

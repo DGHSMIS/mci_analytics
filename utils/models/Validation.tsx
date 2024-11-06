@@ -1,8 +1,11 @@
 import { divisionCodes } from "@utils/constants";
 import {
   DateRangeFormInterface,
+  DateRangeWithFacilityFormInterface,
   ParsedFormDateAndDivisionInterface,
+  ParsedFormDateAndFacilityInterface,
   ValidateDateAndDivisionResponseInterface,
+  ValidateDateAndFacilityResponseInterface,
 } from "@utils/interfaces/FormDataInterfaces";
 import { isValidDateTimeString } from "@utils/utilityFunctions";
 import { differenceInDays, differenceInMonths, parseISO } from "date-fns";
@@ -432,4 +435,95 @@ export async function validateFormData(
     "Unknown error occured while parsing the form data. Please try again."
   );
   return { valid: false, errors: errors };
+}
+
+
+export async function validateFormDataForNCD(
+  req: NextRequest,
+  whichApi: string = ""
+): Promise<ValidateDateAndFacilityResponseInterface> {
+  // Parse query parameters from the request URL
+  let tempData: DateRangeWithFacilityFormInterface = {};
+  try {
+    const params = req.nextUrl.searchParams;
+    let dateFrom = params.get("dateFrom") || "";
+    let dateTo = params.get("dateTo") || "";
+    let facilityCode = params.get("facility_code") || "";
+    let diseaseCode = params.get("disease_code") || "";
+    // If dateFrom, dateTo, or facilityCode are not in query params, attempt to get them from the request body
+    console.log('log 1');
+    if (!dateFrom || !dateTo) {
+      const reqBody = await req.formData();
+      dateFrom = dateFrom || reqBody.get("dateFrom")?.toString() || "";
+      dateTo = dateTo || reqBody.get("dateTo")?.toString() || "";
+    }
+    console.log('log 2');
+
+    tempData = {
+      dateFrom: dateFrom,
+      dateTo: dateTo,
+      facilityCode: facilityCode || undefined,
+      diseaseCode: diseaseCode || undefined
+    };
+
+  } catch (error) {
+    console.error("Error while parsing form data:", error);
+    return {
+      valid: false,
+      errors: ["Invalid form data provided. Please try again."],
+    };
+  }
+
+  const data = { ...tempData };
+  const errors: string[] = [];
+  let results: ParsedFormDateAndFacilityInterface = {};
+
+  // Pass facilityCode through without validation
+  if (data.facilityCode && data.facilityCode.trim() !== "") {
+    results.facilityCode = data.facilityCode.trim();
+  }
+  // Pass diseaseCode through without validation
+  if (data.diseaseCode && data.diseaseCode.trim() !== "") {
+    results.diseaseCode = data.diseaseCode.trim();
+  }
+
+  // Validate dateFrom and dateTo
+  if ((data.dateFrom && !data.dateTo) || (!data.dateFrom && data.dateTo)) {
+    errors.push("Both dateFrom and dateTo must be provided together or both left blank.");
+  } else if (data.dateFrom && data.dateTo) {
+    if (!isValidDateTimeString(data.dateFrom) || !isValidDateTimeString(data.dateTo)) {
+      errors.push("One or both of the provided dates are invalid.");
+    } else {
+      const dateFrom = parseISO(data.dateFrom);
+      const dateTo = parseISO(data.dateTo);
+
+      results.dateFrom = data.dateFrom;
+      results.dateTo = data.dateTo;
+
+      // Check if dateFrom is less than or equal to dateTo
+      if (differenceInDays(dateTo, dateFrom) < 0) {
+        errors.push("dateFrom must be less than or equal to dateTo.");
+      }
+
+      // Check if the difference between the two dates is more than 9 months
+      if (differenceInMonths(dateTo, dateFrom) > 9) {
+        errors.push("The difference between the two dates cannot be more than 9 months.");
+      }
+    }
+  } else {
+    // Both dates are blank; leave them as undefined
+    results.dateFrom = undefined;
+    results.dateTo = undefined;
+  }
+
+  if (errors.length > 0) {
+    return { valid: false, errors };
+  }
+
+  // Return the validated results
+  return {
+    valid: true,
+    errors: [],
+    results,
+  };
 }

@@ -30,6 +30,10 @@ export default function SearchDateRangeFilter({
     serviceOverviewMaxDate,
     setServiceOverviewMinDate,
     setServiceOverviewMaxDate,
+    ncdDataMinDate,
+    ncdDataMaxDate,
+    setNCDDataMinDate,
+    setNCDDataMaxDate,
   } = useStore();
 
   const getMinDate = (context: number) => {
@@ -38,10 +42,15 @@ export default function SearchDateRangeFilter({
       console.log(demographyMinDate.toISOString());
       return demographyMinDate;
     }
-    if (context === 2) {
+    else if (context === 2) {
       console.log("Service Overview Min Date");
       console.log(serviceOverviewMinDate.toISOString());
       return serviceOverviewMinDate;
+    }
+    else if (context === 3) {
+      console.log("NCD Data Min Date");
+      console.log(ncdDataMinDate.toISOString());
+      return ncdDataMinDate;
     }
     return new Date();
   };
@@ -50,8 +59,11 @@ export default function SearchDateRangeFilter({
     if (context === 1) {
       return demographyMaxDate;
     }
-    if (context === 2) {
+    else if (context === 2) {
       return serviceOverviewMaxDate;
+    }
+    else if (context === 3) {
+      return ncdDataMaxDate;
     }
     return xMonthsAgo(3);
   };
@@ -65,7 +77,7 @@ export default function SearchDateRangeFilter({
 
   const [allDates, setAllDates] = React.useState<Date[]>([]);
   const dateReturnFormat = "yyyy-MM-dd";
-  const maxRange = 90;
+  const maxRange = renderContext != 3 ? 90 : 365;
   useEffect(() => {
     if (allDates.length == 2) {
       if (allDates[0] !== tempMinDate || allDates[1] !== tempMaxDate) {
@@ -77,11 +89,11 @@ export default function SearchDateRangeFilter({
       setAllDates([getMinDate(renderContext), getMaxDate(renderContext)]);
     }
   }, [[tempMinDate, tempMaxDate]]);
-  
+
   return (
 
     <div className="grid w-full grid-cols-1 items-start md:grid-cols-3 lg:gap-x-12 space-y-8 lg:space-y-0">
-      <div className={`lg:mb-0 text-sm w-full ${renderContext != 3 ? 'col-span-1 md:col-span-2' : 'col-span-2 md:col-span-3' }`}>
+      <div className={`lg:mb-0 text-sm w-full col-span-2 md:col-span-2}`}>
         {/* <div className="grid w-full grid-cols-3 items-start  md:grid-cols-3  lg:gap-x-12 lg:space-y-0">
 <div className={'lg:mb-0 text-sm col-span-2 w-full'}> */}
         <MultipleDatePicker
@@ -129,7 +141,7 @@ export default function SearchDateRangeFilter({
         />
       </div>
       {/* <div className="col-span-1 flex flex-grow flex-col justify-start pl-8"> */}
-      {(renderContext == 1 || renderContext == 2) &&
+      {(renderContext == 1 || renderContext == 2 || renderContext == 3 ) &&
         <div className="col-span-1 flex flex-col md:flex-grow justify-start pl-0 md:pl-8">
           <Button
             size={"sm"}
@@ -151,6 +163,15 @@ export default function SearchDateRangeFilter({
                 console.log("The render context is 2");
                 setServiceOverviewMinDate(tempMinDate);
                 setServiceOverviewMaxDate(tempMaxDate);
+                if (filterByDate) {
+                  delay(() => {
+                    filterByDate(tempMinDate, tempMaxDate);
+                  }, 200);
+                }
+              } else if (renderContext == 3) {
+                console.log("The render context is 3");
+                setNCDDataMinDate(tempMinDate);
+                setNCDDataMaxDate(tempMaxDate);
                 if (filterByDate) {
                   delay(() => {
                     filterByDate(tempMinDate, tempMaxDate);

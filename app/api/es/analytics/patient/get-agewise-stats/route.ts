@@ -1,12 +1,12 @@
-import "server-only";
 import { esBaseClient } from "@providers/elasticsearch/ESBase";
 import { patientESIndex } from "@providers/elasticsearch/patientIndex/ESPatientIndex";
 import { ageRangeKeys } from "@utils/constants";
 import { ValidateDateAndDivisionResponseInterface } from "@utils/interfaces/FormDataInterfaces";
 import { validateFormData } from "@utils/models/Validation";
 import { sendErrorMsg } from "@utils/responseHandler";
-import { formatISO, set, subYears } from "date-fns";
+import { setDateByYears } from "@utils/utilityFunctions";
 import { NextRequest, NextResponse } from "next/server";
+import "server-only";
 
 export async function GET(req: NextRequest) {
   // Send the error response if the validation fails
@@ -40,22 +40,7 @@ export async function GET(req: NextRequest) {
       },
     });
   }
-  /**
-   * Sets the date by subtracting the specified number of years from today's date and returns it in ISO format.
-   *
-   * @param {number} yearsFromToday - The number of years to subtract from today's date.
-   * @return {string} The date in ISO format.
-   */
-  function setDateByYears(yearsFromToday: number) {
-    return formatISO(
-      set(subYears(new Date(), yearsFromToday), {
-        hours: 0,
-        minutes: 0,
-        seconds: 0,
-        milliseconds: 0,
-      })
-    );
-  }
+
 
   const body = {
     size: 0,

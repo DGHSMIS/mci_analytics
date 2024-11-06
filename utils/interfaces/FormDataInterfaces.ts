@@ -17,3 +17,25 @@ export interface ValidateDateAndDivisionResponseInterface {
   errors: string[];
   results?: ParsedFormDateAndDivisionInterface;
 }
+
+
+
+export interface ValidateDateAndFacilityResponseInterface {
+  valid: boolean;
+  errors: string[];
+  results?: ParsedFormDateAndFacilityInterface;
+}
+
+export interface ParsedFormDateAndFacilityInterface {
+  dateFrom?: string;
+  dateTo?: string;
+  facilityCode?: string;
+  diseaseCode?: string;
+}
+
+export interface DateRangeWithFacilityFormInterface {
+  dateFrom?: string;
+  dateTo?: string;
+  facilityCode?: string;
+  diseaseCode?: string;
+}

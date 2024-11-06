@@ -29,6 +29,26 @@ export const ESPediatricNCDMapping = {
         },
       },
     },
+    health_id: {
+      type: "text",
+      analyzer: "autocomplete",
+      search_analyzer: "standard",
+      fields: {
+        keyword: {
+          type: "keyword",
+        },
+      },
+    },
+    visit_id: {
+      type: "text",
+      analyzer: "autocomplete",
+      search_analyzer: "standard",
+      fields: {
+        keyword: {
+          type: "keyword",
+        },
+      },
+    },
     patient_name: {
       type: "text",
       analyzer: "autocomplete",
@@ -43,6 +63,9 @@ export const ESPediatricNCDMapping = {
     date_of_visit: { type: "date" },
     dob: { type: "date" },
     gender: { type: "keyword" },
+    facility_name: { type: "keyword" },
+    division_name: { type: "keyword" },
+    district_name: { type: "keyword" },
     facility_code: {
       type: "text",
       analyzer: "autocomplete",
@@ -54,11 +77,12 @@ export const ESPediatricNCDMapping = {
       },
     },
     service_location: { type: "keyword" },
-    disease_id: {
-      type: "long"
+    diseases_on_visit: {
+      type: "keyword"
     },
     is_referred_to_higher_facility: { type: "boolean" },
-    is_follow_up: { type: "boolean" }
+    is_follow_up: { type: "boolean" },
+    created_at: { type: "date" },
   },
 };
 

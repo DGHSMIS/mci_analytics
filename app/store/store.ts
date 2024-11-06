@@ -1,4 +1,4 @@
-import { xMonthsAgo } from "@utils/utilityFunctions";
+import { addXDaysToDate, xMonthsAgo } from "@utils/utilityFunctions";
 
 import { create } from "zustand";
 
@@ -11,6 +11,10 @@ export interface StoreStates {
   dashboardDemographicViewState: number;
   demographyMinDate: Date;
   demographyMaxDate: Date;
+  ncdDataMinDate: Date;
+  ncdDataMaxDate: Date;
+  ncdAggregatedSelectedFacility: string;
+  ncdDiseaseSelected: string;
   serviceOverviewMinDate: Date;
   serviceOverviewMaxDate: Date;
   serviceOverviewApiCallInProgress: boolean;
@@ -25,6 +29,10 @@ export const initialStoreStates: StoreStates = {
   dashboardDemographicViewState: 0,
   demographyMinDate: xMonthsAgo(2),
   demographyMaxDate: xMonthsAgo(0),
+  ncdDataMinDate: xMonthsAgo(7),
+  ncdDataMaxDate: addXDaysToDate(0),
+  ncdAggregatedSelectedFacility: "",
+  ncdDiseaseSelected: "",
   serviceOverviewMinDate: xMonthsAgo(2),
   serviceOverviewMaxDate: xMonthsAgo(0),
   serviceOverviewApiCallInProgress: false,
@@ -34,6 +42,10 @@ export const initialStoreStates: StoreStates = {
 export interface StoreActions {
   setDemoGraphyMinDate: (date: Date) => void;
   setDemoGraphyMaxDate: (date: Date) => void;
+  setNCDDataMinDate: (date: Date) => void;
+  setNCDDataMaxDate: (date: Date) => void;
+  setNcdAggregatedSelectedFacility: (facility: string) => void;
+  setNcdDiseaseSelected: (disease: string) => void;
   setRequireAuth: (requireAuth: boolean) => void;
   setErrorInAPI: (hasError: boolean) => void;
   setApiCallInProgress: (inProgress: boolean) => void;
@@ -57,6 +69,10 @@ export const useStore = create<StoreStates & StoreActions>(
       set({ serviceOverviewMaxDate: date }),
     setDemoGraphyMinDate: (date: Date) => set({ demographyMinDate: date }),
     setDemoGraphyMaxDate: (date: Date) => set({ demographyMaxDate: date }),
+    setNcdAggregatedSelectedFacility: (facility: string) => set({ ncdAggregatedSelectedFacility: facility }),
+    setNcdDiseaseSelected: (disease: string)=> set({ ncdDiseaseSelected: disease }),
+    setNCDDataMinDate: (date: Date) => set({ ncdDataMinDate: date }),
+    setNCDDataMaxDate: (date: Date) => set({ ncdDataMaxDate: date }),
     setRequireAuth: (requireAuth: boolean) => set({ requireAuth: requireAuth }),
     setErrorInAPI: (errorInAPI: boolean) => set({ errorInAPI: errorInAPI }),
     setApiCallInProgress: (inProgress: boolean) =>
