@@ -1,6 +1,6 @@
 import { getAPIResponse, getRevalidationTime } from "@library/utils";
-import { encounterAuthenticationHeaders } from "@utils/constants";
-import { EncounterListItem } from "@utils/interfaces/Encounter/Encounter";
+import { encounterAuthenticationHeaders } from "@utils/constantsInMemory";
+import { EncounterListItem } from "@utils/interfaces/DataModels/Encounter";
 import { getBaseUrl, getFHIRServerEncounterURL, getUrlFromName } from "@utils/lib/apiList";
 
 /**

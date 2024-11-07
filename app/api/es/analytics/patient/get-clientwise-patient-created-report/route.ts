@@ -1,8 +1,8 @@
+import { esBaseClient } from "@providers/elasticsearch/ESBase";
+import { patientESIndex } from "@providers/elasticsearch/patientIndex/ESPatientIndex";
 import { getResponseHeaders } from "@utils/utilityFunctions";
 import { NextRequest, NextResponse } from "next/server";
 import "server-only";
-import { patientESIndex } from "@providers/elasticsearch/patientIndex/ESPatientIndex";
-import { esBaseClient } from "@providers/elasticsearch/ESBase";
 
 
 export interface ClientWisePatientCreatedReportProps {

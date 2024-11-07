@@ -1,10 +1,10 @@
-import { cassandraClient } from "@api/providers/cassandra/cassandra";
-import { CASSANDRA_DEFAULT_KEYSPACE, CASSANDRA_PAGE_SIZE, CASSANDRA_SHR_KEYSPACE } from "@api/providers/cassandra/constants";
+import { cassandraClient } from "@providers/cassandra/cassandra";
+import { CASSANDRA_DEFAULT_KEYSPACE, CASSANDRA_PAGE_SIZE, CASSANDRA_SHR_KEYSPACE } from "@providers/cassandra/constants";
 import { DebugElasticProvider, ELASTIC_BATCH_SIZE, encounterIndexName } from "@providers/elasticsearch/constants";
-import { esBaseClient } from '@providers/elasticsearch/ESBase';
 import { CDEncounterInterface } from "@utils/interfaces/Cassandra/CDEncounterInterface";
 import fetchAndCacheFacilityInfo from "@utils/providers/fetchAndCacheFacilityInfo";
 import { blankCreatedAndUpdatedByEncounterESObject, timeUUIDToDate } from "@utils/utilityFunctions";
+import { esBaseClient } from 'app/api/providers/elasticsearch/ESBase';
 import { stringify } from "uuid";
 import { ESEncounterIndexBody } from "./ESEncounterMapping";
 import { ESEncounterInterface } from "./interfaces/ESEncounterInterface";

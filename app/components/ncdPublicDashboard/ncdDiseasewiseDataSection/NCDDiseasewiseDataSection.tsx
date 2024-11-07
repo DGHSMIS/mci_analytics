@@ -1,24 +1,18 @@
 import { MCISpinner } from "@components/MCISpinner";
 import { defaultBarLegend, defaultBottomAxisProps, defaultLeftAxisProps, defaultOtherProps } from "@components/charts/BarChart/BarChartDefaultProps";
-import { TooltipBarChartProps } from "@components/charts/BarChart/TooltipBarChart";
 import { ChartThemeDef } from "@components/charts/ChartThemeDef";
 import { CardIndicatorsProps } from "@components/globals/CardIndicator/CardIndicator";
 import SkeletonCardIndicator from "@components/globals/CardIndicator/SkeletonCardIndicator";
-import SearchDateRangeFilter from "@components/publicDashboard/sectionFilterSegment/SearchDateRangeFilter";
 import FormItemResponseProps from "@library/form/FormItemResponseProps";
 import { AxisProps } from "@nivo/axes";
 import { BarLegendProps } from "@nivo/bar";
-import { tokens } from "@utils/ThemeToken";
-import { NCDDiseasewiseStatsProps } from "@utils/interfaces/NCD/NCDDiseasewiseStatsProps";
+import { NCDDiseasewiseStatsProps } from "@utils/interfaces/Analytics/NCD/NCDDiseasewiseStatsProps";
+import { tokens } from "@utils/styles/ThemeToken";
 import dynamic from "next/dynamic";
 import { memo, Suspense, useMemo } from "react";
 import { cn } from "tailwind-cn";
 // import { NCDLineGraph } from "../NcdDbClientWrapper";
 
-const NCDLineGraph = dynamic(
-    () => import("@charts/LineChart/NCDLineChart"), {
-    ssr: true,
-})
 const CardIndicators = dynamic(() => import("@components/globals/CardIndicator/CardIndicator"), {
     ssr: true,
     loading: () => (<SkeletonCardIndicator />),
@@ -37,27 +31,26 @@ const BarChartMCI = dynamic(
     () => import("@charts/BarChart/BarChartMCI"), {
     ssr: true,
 })
+
+const SearchDateRangeFilter = dynamic(
+    () => import("@components/publicDashboard/sectionFilterSegment/SearchDateRangeFilter"), {
+    ssr: true,
+})
 const DropDownSingle = dynamic(
     () => import("@library/form/DropDownSingle"), {
+    ssr: true,
+})
+
+const NCDLineGraph = dynamic(
+    () => import("@charts/LineChart/NCDLineChart"), {
     ssr: true,
 })
 const DonutChartMCI = dynamic(
     () => import("@charts/DonutChart/DonutChartMCI"), {
     ssr: true,
 })
-const TooltipBarChart = dynamic(
-    () => import("@charts/BarChart/TooltipBarChart"), {
-    ssr: true,
-})
 
-const tooltipProps = (item: any): TooltipBarChartProps => {
-    return {
-        line1Label: "Age Groups: ",
-        line1Value: item.indexValue,
-        line2Label: "Count:",
-        line2Value: item.value,
-    }
-};
+
 
 
 export interface NCDDiseasewiseDataSectionProps {
@@ -91,16 +84,19 @@ function NCDDiseasewiseDataSection({ sectionData }: NCDDiseasewiseDataSectionPro
             otherPropVals,
         };
     }, []);
-    return (<div className="relative h-full w-full items-start justify-center space-y-40 rounded-lg border border-slate-200 bg-white p-20 hover:border-primary-400  hover:shadow-xl">
-        <div className="mx-auto mt-16 grid max-w-7xl gap-20 sm:grid-cols-3 lg:h-36 lg:grid-cols-3 lg:gap-40 lg:pb-20">
+    return (<div>
+                <h3 key={4} className="mb-12 text-base font-semibold uppercase text-slate-600">
+                Disease Focused Analytics
+            </h3><div className="relative h-full w-full items-start justify-center space-y-40 rounded-lg border border-slate-200 bg-white p-20 hover:border-primary-400  hover:shadow-xl">
+        <div className="mx-auto mt-16 grid max-w-7xl gap-20 sm:grid-cols-3 lg:grid-cols-3 lg:gap-40 lg:pb-20 pb-12 shadow-sm border-slate-200 h-min-[200px]">
             <div
                 className={cn(
-                    "flex justify-end items-end lg:col-span-2 col-span-3"
+                    "col-span-3 lg:col-span-2"
                 )}
             >
-                <SearchDateRangeFilter renderContext={3} />
+                <SearchDateRangeFilter showLabel={true} renderContext={3} />
             </div>
-            <div>
+            <div className="col-span-3 lg:col-span-1">
                 <DropDownSingle size="sm" label="Filter Disease" items={[{
                     "id": 1,
                     "name": "Bronchial Asthma"
@@ -112,7 +108,6 @@ function NCDDiseasewiseDataSection({ sectionData }: NCDDiseasewiseDataSectionPro
 
         <div className="grid grid-cols-2  lg:grid-cols-4 gap-16 lg:space-x-0 px-24 align-middle">
             <div className="w-full rounded-lg col-span-4 lg:col-span-2 mt-24">
-
                 <CardIndicators
                     {...NCDashboardCardCommonProps}
                     key={10}
@@ -252,7 +247,7 @@ function NCDDiseasewiseDataSection({ sectionData }: NCDDiseasewiseDataSectionPro
                 </div>
             </div>
         </div>
-    </div>)
+    </div></div>)
 };
 
 export default memo(NCDDiseasewiseDataSection);

@@ -1,4 +1,4 @@
-import { divisionCodes } from "@utils/constants";
+import { divisionCodes } from "@utils/constantsInMemory";
 import {
   DateRangeFormInterface,
   DateRangeWithFacilityFormInterface,
@@ -6,7 +6,7 @@ import {
   ParsedFormDateAndFacilityInterface,
   ValidateDateAndDivisionResponseInterface,
   ValidateDateAndFacilityResponseInterface,
-} from "@utils/interfaces/FormDataInterfaces";
+} from "@utils/interfaces/DataModels/ApiRequestQueryParamInterfaces";
 import { isValidDateTimeString } from "@utils/utilityFunctions";
 import { differenceInDays, differenceInMonths, parseISO } from "date-fns";
 import { NextRequest } from "next/server";

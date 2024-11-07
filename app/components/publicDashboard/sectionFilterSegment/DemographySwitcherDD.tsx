@@ -2,8 +2,7 @@
 
 import DropDownSingle from "@library/form/DropDownSingle";
 import { useStore } from "@store/store";
-import { dropDownItems } from "@utils/constants";
-import React from "react";
+import { dropDownItems } from "@utils/constantsInMemory";
 
 // interface DemographySwitcherDDProps {
 //   //   switchedIndex: (index: number) => void;

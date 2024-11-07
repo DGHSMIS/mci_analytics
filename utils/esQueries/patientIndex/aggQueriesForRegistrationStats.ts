@@ -1,7 +1,7 @@
 import { ApiResponse } from "@elastic/elasticsearch";
 import { esBaseClient } from "@providers/elasticsearch/ESBase";
 import { patientESIndex } from "@providers/elasticsearch/patientIndex/ESPatientIndex";
-import { ESDateRangeSingleItemQueryInterface } from "@utils/interfaces/ESModelInterfaces";
+import { ESDateRangeSingleItemQueryInterface } from "@utils/interfaces/DataModels/ESModelInterfaces";
 import { datesRangeGenerator } from "@utils/utilityFunctions";
 
 /**

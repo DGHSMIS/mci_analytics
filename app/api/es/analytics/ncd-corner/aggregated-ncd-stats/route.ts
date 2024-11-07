@@ -1,12 +1,16 @@
-import { ncdESIndex } from "@api/providers/elasticsearch/ncdIndex/ESPediatricNCDIndex";
 import { esBaseClient } from "@providers/elasticsearch/ESBase";
-import { ncdDiseases } from "@utils/constants";
-import { ValidateDateAndFacilityResponseInterface } from "@utils/interfaces/FormDataInterfaces";
+import { ncdESIndex } from "@providers/elasticsearch/ncdIndex/ESPediatricNCDIndex";
+import { ValidateDateAndFacilityResponseInterface } from "@utils/interfaces/DataModels/ApiRequestQueryParamInterfaces";
 import { validateFormDataForNCD } from "@utils/models/Validation";
-import { sendErrorMsg } from "@utils/responseHandler";
-import { getDateFromString, setDateByYears } from "@utils/utilityFunctions";
+import { sendErrorMsg } from "@utils/responseHandlers/responseHandler";
+import { getDateFromString, ncdDiseases, setDateByYears } from "@utils/utilityFunctions";
 import { NextRequest, NextResponse } from "next/server";
 import "server-only";
+
+export const dynamic = "force-dynamic";
+export const revalidate = true;
+export const fetchCache = "force-no-store";
+export const dynamicParams = true;
 
 export async function GET(req: NextRequest) {
     // Validate the incoming request parameters

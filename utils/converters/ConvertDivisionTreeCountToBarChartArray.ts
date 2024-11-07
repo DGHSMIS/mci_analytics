@@ -5,12 +5,12 @@ import {
   primaryMapGradientSaturation,
   secondaryMapGradientHue,
   secondaryMapGradientSaturation,
-} from "@utils/constants";
+} from "@utils/constantsInMemory";
 import {
   AreaWiseRegistrationStatsProps,
   DistrictWiseCounter,
   DivisionWiseCounter,
-} from "@utils/interfaces/LocalityInterfaces";
+} from "@utils/interfaces/DataModels/LocalityInterfaces";
 import { generateHslLightShades } from "@utils/utilityFunctions";
 
 export const ConvertDivisionTreeCountToBarChartArray = (

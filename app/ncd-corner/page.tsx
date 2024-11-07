@@ -10,6 +10,7 @@
 import NcdDbClientWrapper from "@components/ncdPublicDashboard/NcdDbClientWrapper";
 import { initialStoreStates } from "@store/store";
 import StoreInitializer from "@store/StoreInitializer";
+import { ncdFacilityListDropdown } from "@utils/constantsInMemory";
 import { xDaysAgo, xMonthsAgo } from "@utils/utilityFunctions";
 import dynamic from "next/dynamic";
 import { Metadata } from "next/types";
@@ -28,11 +29,22 @@ export const metadata: Metadata = {
 const currentDate = xMonthsAgo(0);
 //Dashboard Landing Page
 export default async function page() {
+  const getFacilityDD = await ncdFacilityListDropdown();
+  console.log("The NCD Facility DD");
+  console.log(getFacilityDD);
+  const updatedStoreState = {
+    ...initialStoreStates,
+    ncdAggregatedFacilityDDItems: getFacilityDD,
+    serviceOverviewMaxDate: xDaysAgo(0),
+    serviceOverviewMinDate: xDaysAgo(6),
+    demographyMaxDate: xDaysAgo(0),
+    demographyMinDate: xDaysAgo(6)
+  }
   return (
     <main className="mt-40 flex w-full flex-col justify-center space-y-48 px-24 2xl:container bg-transparent border-none">
-      <StoreInitializer {...initialStoreStates} serviceOverviewMaxDate={xDaysAgo(0)} serviceOverviewMinDate={xDaysAgo(6)} demographyMaxDate={xDaysAgo(0)} demographyMinDate={xDaysAgo(6)}/>
+      <StoreInitializer {...updatedStoreState} />
       <PageHeader title={pageTitle} titleSize="sm"></PageHeader>
-        <NcdDbClientWrapper />
+      <NcdDbClientWrapper />
     </main>
   );
 }

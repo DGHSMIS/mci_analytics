@@ -1,6 +1,6 @@
 // Next.js API route support: https://nextjs.org/docs/api-routes/introduction
-import { CASSANDRA_PAGE_SIZE } from "@api/providers/cassandra/constants";
 import { cassandraClient } from "@providers/cassandra/cassandra";
+import { CASSANDRA_PAGE_SIZE } from "@providers/cassandra/constants";
 import { NextRequest, NextResponse } from "next/server";
 
 

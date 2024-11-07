@@ -1,10 +1,10 @@
-import { PGDiseasesOnVisit } from "@api/providers/prisma/ncd_data_models/PGDiseasesOnVisit";
-import { PGPatientVisitInterface } from "@api/providers/prisma/ncd_data_models/PGPatientVisitInterface";
+import { PGDiseasesOnVisit } from "@api/providers/prisma/models/PGDiseasesOnVisit";
+import { PGPatientVisitInterface } from "@api/providers/prisma/models/PGPatientVisitInterface";
 import { DebugElasticProvider, ELASTIC_BATCH_SIZE, ncdIndexName } from "@providers/elasticsearch/constants";
-import { esBaseClient } from '@providers/elasticsearch/ESBase';
-import prisma from '@providers/prisma/prismaClient';
 import { findOrCreateFacility } from "@utils/providers/fetchAndCacheFacilityInfo";
 import { selectDistrictFromCode, selectDivisionFromCode } from "@utils/utilityFunctions";
+import { esBaseClient } from 'app/api/providers/elasticsearch/ESBase';
+import prisma from 'app/api/providers/prisma/prismaClient';
 import { ESPediatricNCDIndexBody } from "./ESPediatricNCDMapping";
 import { ESPediatricNCDInterface } from "./interfaces/ESPediatricNCDInterface";
 

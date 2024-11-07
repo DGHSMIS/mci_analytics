@@ -1,3 +1,4 @@
+import prisma from "@api/providers/prisma/prismaClient";
 import { MapDataItem } from "@components/charts/Map/BangladeshChart";
 import { DropDownSingleItemProps } from "@library/form/DropDownSingle";
 import bloodGroupList from "@utils/constants/BloodGroupCodes.json";
@@ -11,8 +12,8 @@ import maritalStatusList from "@utils/constants/MaritalStatus.json";
 import occupationList from "@utils/constants/OccupationCodes.json";
 import religionList from "@utils/constants/ReligionCodes.json";
 import upazilaList from "@utils/constants/UpazilaCodes.json";
-import { FacilityInterface } from "@utils/interfaces/FacilityInterfaces";
-import { CountryInterface, DistrictInterface, DivisionInterface, UpazilaInterface } from "@utils/interfaces/LocalityInterfaces";
+import { FacilityInterface } from "@utils/interfaces/DataModels/FacilityInterfaces";
+import { CountryInterface, DistrictInterface, DivisionInterface, UpazilaInterface } from "@utils/interfaces/DataModels/LocalityInterfaces";
 import {
   BloodGroupInterface,
   DisabilityInterface,
@@ -20,10 +21,10 @@ import {
   MaritalStatusInterface,
   OccupationInterface,
   ReligionInterface
-} from "@utils/interfaces/PatientInfoInterfaces";
+} from "@utils/interfaces/DataModels/PatientInfoInterfaces";
 import process from "process";
 
-export const KNOWN_SAFE_HOST_IP_LIST =  String(process.env.KNOWN_SAFE_HOST_IP_LIST|| '127.0.0.1,::1').split(",");
+export const KNOWN_SAFE_HOST_IP_LIST = String(process.env.KNOWN_SAFE_HOST_IP_LIST || '127.0.0.1,::1').split(",");
 
 export const dropDownItems: DropDownSingleItemProps[] = [
   {
@@ -122,38 +123,44 @@ export const encounterAuthenticationHeaders = new Headers({
 
 
 
-
 export const facilityAPIAuthenticationHeaders = new Headers({
   "X-Auth-Token": String(process.env.NEXT_X_FACILITY_AUTH_TOKEN),
   "client-id": String(process.env.NEXT_X_FACILITY_CLIENT_ID),
 });
-export const getFacilitySolutionTypeFromName = (
-  facilityNamePartialMatch: string
-) => {
-  if (
-    facilityNamePartialMatch.includes("Directorate General of Health Services (DGHS)")
-  ) {
-    return "openSRP";
-  }
-  return "openMRS+";
-};
 
-export const isAaloClinic = (facilityCode: string) => {
-  const aaloClinicFacilityCodes = ["10034140", "10034141", "10034142" , "10034144", "10034145", "10034146"];
-  for (const code of aaloClinicFacilityCodes) {
-    if (code == facilityCode) {
-      return true;
+
+let facilityDropDownItems: DropDownSingleItemProps[] = [];
+let facilityFetchCount: number = 0;
+export const ncdFacilityListDropdown = async (): Promise<DropDownSingleItemProps[]> => {
+  if (facilityDropDownItems.length > 0 && facilityFetchCount < 10) {
+    console.log("Returning from cache");
+    console.log(facilityDropDownItems);
+    console.log("Fetch Count");
+    console.log(facilityFetchCount);
+    facilityFetchCount++;
+    return facilityDropDownItems;
+  }
+
+  facilityFetchCount = 0;
+  facilityDropDownItems = [];
+  console.log("Array state before fetching");
+  console.log(facilityDropDownItems);
+  console.log("Fetching from DB");
+  const facilityFromNCDDB: FacilityInterface[] = await prisma.facility.findMany({
+    where: {
+      id: {
+        gte: 0
+      }
     }
-  }
-  return false;
+  })
+  let count = 1;
+  facilityFromNCDDB.forEach((facility) => {
+    facilityDropDownItems.push({
+      id: count,
+      name: facility.name ? (facility.code + " - " + facility.name) : ""
+    });
+    count++;
+  })
+
+  return facilityDropDownItems;
 }
-
-
-export const ncdDiseases: string[] = [
-  "Bronchial Asthma",
-  "Congenital Heart Diseases",
-  "Epilepsy",
-  "Type 1 Diabetes Mellitus",
-  "Thalassemia and iron deficiency anemia",
-  "Nephrotic Syndrome",
-]

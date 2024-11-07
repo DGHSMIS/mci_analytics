@@ -1,6 +1,6 @@
 import { Serie } from "@nivo/line";
-import { monthNames } from "@utils/constants";
-import { LatestGenderWiseStatsInterface } from "@utils/interfaces/PublicDashboardInterfaces";
+import { monthNames } from "@utils/constantsInMemory";
+import { LatestGenderWiseStatsInterface } from "@utils/interfaces/Analytics/PublicDashboard/PublicDashboardInterfaces";
 
 /**
  * Transform the data for the Nivo Line Graph

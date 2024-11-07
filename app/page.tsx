@@ -10,7 +10,7 @@
 import PublicDbClientWrapper from "@components/publicDashboard/PublicDbClientWrapper";
 import { initialStoreStates } from "@store/store";
 import StoreInitializer from "@store/StoreInitializer";
-import { xDaysAgo, xMonthsAgo } from "@utils/utilityFunctions";
+import { xDaysAgo } from "@utils/utilityFunctions";
 import dynamic from "next/dynamic";
 import { Metadata } from "next/types";
 
@@ -29,7 +29,7 @@ export const metadata: Metadata = {
   title: pageTitle + " ",
   description: desc,
 };
-const currentDate = xMonthsAgo(0);
+// const currentDate = xMonthsAgo(0);
 //Dashboard Landing Page
 export default async function page() {
   return (

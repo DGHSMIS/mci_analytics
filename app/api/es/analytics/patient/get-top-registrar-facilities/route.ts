@@ -1,14 +1,14 @@
+import { RankItemProps, RankListProps } from "@components/globals/RankList/RankListProps";
 import { getEncountersByFacilities } from "@utils/esQueries/encounterIndex/aggQueriesForEncounterStats";
 import {
   fetchTopPatientRegisteringFacilities,
   findAgeRangewiseHighestRegisteringFacilities,
   findGenderwiseTopRegisteringFacilities
 } from "@utils/esQueries/patientIndex/aggQueriesForRegistrationStats";
-import { ValidateDateAndDivisionResponseInterface } from "@utils/interfaces/FormDataInterfaces";
-import { RankItemProps, RankListProps } from "@utils/interfaces/RankListProps";
+import { ValidateDateAndDivisionResponseInterface } from "@utils/interfaces/DataModels/ApiRequestQueryParamInterfaces";
 import { resolveFacilityDetailURLFromNameAndId } from "@utils/lib/apiList";
 import { validateFormData } from "@utils/models/Validation";
-import { sendErrorMsg, sendSuccess } from "@utils/responseHandler";
+import { sendErrorMsg, sendSuccess } from "@utils/responseHandlers/responseHandler";
 import { NextRequest } from "next/server";
 import process from "process";
 

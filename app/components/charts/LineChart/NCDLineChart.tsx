@@ -7,7 +7,7 @@ import ChartTitle from "../ChartTitle";
 export interface NCDLineGraphProps {
     data: any;
 }
-function NCDLineGraph({ data  }: NCDLineGraphProps) {
+function NCDLineGraph({ data }: NCDLineGraphProps) {
 
     const timeSeriesData: Serie[] = data;
     const [filteredData, setFilteredData] = useState(timeSeriesData);
@@ -175,73 +175,75 @@ function NCDLineGraph({ data  }: NCDLineGraphProps) {
                 align="left"
                 classNames="mb-12 text-slate-600 text-sm uppercase"
             />
-            <ResponsiveLine animate
-                margin={{ top: 20, right: 20, bottom: 200, left: 60 }}
-                legends={legendProps}
-                axisBottom={{
-                    format: '%b %d',
-                    legend: 'time scale',
-                    legendOffset: -12,
-                    tickRotation: -45,
-                }}
-                // axisBottom={axisBottom}
-                axisLeft={{
-                    legend: 'Diseasewise Count',
-                    legendOffset: -40
-                }}
-                // curve="cardinal"
-                data={visibleData}
-                enablePointLabel
-                enableTouchCrosshair
-                //   height={400}
-                //   initialHiddenIds={[
-                //     'cognac'
-                //   ]}
-                isInteractive={true}
-                pointBorderColor={{
-                    from: 'color',
-                    modifiers: [
-                        [
-                            'darker',
-                            0.3
+            {visibleData.length == 0 ?
+                <div className="text-center text-primary-900">No data to display</div> :
+                <ResponsiveLine animate
+                    margin={{ top: 20, right: 20, bottom: 200, left: 60 }}
+                    legends={legendProps}
+                    axisBottom={{
+                        format: '%b %d',
+                        legend: 'time scale',
+                        legendOffset: -12,
+                        tickRotation: -45,
+                    }}
+                    // axisBottom={axisBottom}
+                    axisLeft={{
+                        legend: 'Diseasewise Count',
+                        legendOffset: -40
+                    }}
+                    // curve="cardinal"
+                    data={visibleData}
+                    enablePointLabel
+                    enableTouchCrosshair
+                    //   height={400}
+                    //   initialHiddenIds={[
+                    //     'cognac'
+                    //   ]}
+                    isInteractive={true}
+                    pointBorderColor={{
+                        from: 'color',
+                        modifiers: [
+                            [
+                                'darker',
+                                0.3
+                            ]
                         ]
-                    ]
-                }}
-                pointBorderWidth={1}
-                pointSize={8}
-                pointSymbol={function noRefCheck() { return <></> }}
-                useMesh={true}
-                //   width={900}
-                xFormat="time:%Y-%m-%d"
-                xScale={{
-                    format: '%Y-%m-%d',
-                    precision: 'day',
-                    type: 'time',
-                    useUTC: false
-                }}
-                onClick={(point) => {
-                    console.log("Point Clicked");
-                    console.log(point);
-                }}
-                tooltip={({ point }) => {
-                    return (
-                        <div
-                            className={"rounded bg-slate-100 p-12 text-primary-900 backdrop:rounded"}
-                        >
-                            <div className="text-base">
-                                <strong className="font-bold">Disease: &nbsp;</strong>
-                                {point.id.split(".")[0]}
-                                <div className="capitalize">
-                                    <strong className="font-bold">Count: &nbsp;</strong>
-                                    {point.data.yFormatted}
+                    }}
+                    pointBorderWidth={1}
+                    pointSize={8}
+                    pointSymbol={function noRefCheck() { return <></> }}
+                    useMesh={true}
+                    //   width={900}
+                    xFormat="time:%Y-%m-%d"
+                    xScale={{
+                        format: '%Y-%m-%d',
+                        precision: 'day',
+                        type: 'time',
+                        useUTC: false
+                    }}
+                    onClick={(point) => {
+                        console.log("Point Clicked");
+                        console.log(point);
+                    }}
+                    tooltip={({ point }) => {
+                        return (
+                            <div
+                                className={"rounded bg-slate-100 p-12 text-primary-900 backdrop:rounded"}
+                            >
+                                <div className="text-base">
+                                    <strong className="font-bold">Disease: &nbsp;</strong>
+                                    {point.id.split(".")[0]}
+                                    <div className="capitalize">
+                                        <strong className="font-bold">Count: &nbsp;</strong>
+                                        {point.data.yFormatted}
+                                    </div>
                                 </div>
                             </div>
-                        </div>
-                    )
-                }}
-                yScale={{
-                    type: 'linear'
-                }} />
+                        )
+                    }}
+                    yScale={{
+                        type: 'linear'
+                    }} />}
         </>
     )
 }

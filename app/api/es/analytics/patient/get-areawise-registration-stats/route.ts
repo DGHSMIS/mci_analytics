@@ -1,12 +1,12 @@
-import "server-only";
 import { esBaseClient } from "@providers/elasticsearch/ESBase";
 import { patientESIndex } from "@providers/elasticsearch/patientIndex/ESPatientIndex";
-import { districtCodes, divisionCodes } from "@utils/constants";
-import { ValidateDateAndDivisionResponseInterface } from "@utils/interfaces/FormDataInterfaces";
-import { AreaWiseRegistrationStatsProps } from "@utils/interfaces/LocalityInterfaces";
+import { districtCodes, divisionCodes } from "@utils/constantsInMemory";
+import { ValidateDateAndDivisionResponseInterface } from "@utils/interfaces/DataModels/ApiRequestQueryParamInterfaces";
+import { AreaWiseRegistrationStatsProps } from "@utils/interfaces/DataModels/LocalityInterfaces";
 import { validateFormData } from "@utils/models/Validation";
-import { cacheHeaderes, noCacheHeaderes, sendErrorMsg } from "@utils/responseHandler";
+import { cacheHeaderes, noCacheHeaderes, sendErrorMsg } from "@utils/responseHandlers/responseHandler";
 import { NextRequest, NextResponse } from "next/server";
+import "server-only";
 
 // export const dynamic = "force-dynamic";
 // export const revalidate = process.env.REVALIDATE_VAR;

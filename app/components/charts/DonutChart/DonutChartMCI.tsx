@@ -2,7 +2,7 @@ import ChartTitle from "@components/charts/ChartTitle";
 import { ColorSchemeId } from "@nivo/colors";
 import { Serie } from "@nivo/line";
 import { ResponsivePie } from "@nivo/pie";
-import { tokens } from "@utils/ThemeToken";
+import { tokens } from "@utils/styles/ThemeToken";
 import { memo } from "react";
 
 // import data from "public/fake-data/DistrictWiseDataCount.json";

@@ -1,10 +1,10 @@
-import { dropAndGenerateIndex } from "@api/providers/elasticsearch/ESBase";
-import { indexAllPediatricNCDDataInESData } from "@api/providers/elasticsearch/ncdIndex/ESPediatricNCDIndex";
-import { ESPediatricNCDIndexBody } from "@api/providers/elasticsearch/ncdIndex/ESPediatricNCDMapping";
 import { formatDateTime } from "@library/utils";
 import { ncdIndexName } from "@providers/elasticsearch/constants";
+import { dropAndGenerateIndex } from "@providers/elasticsearch/ESBase";
+import { indexAllPediatricNCDDataInESData } from "@providers/elasticsearch/ncdIndex/ESPediatricNCDIndex";
+import { ESPediatricNCDIndexBody } from "@providers/elasticsearch/ncdIndex/ESPediatricNCDMapping";
 import { checkIfAuthenticatedMCIUser } from "@utils/lib/auth";
-import { sendErrorMsg, sendSuccess } from "@utils/responseHandler";
+import { sendErrorMsg, sendSuccess } from "@utils/responseHandlers/responseHandler";
 import { NextRequest } from "next/server";
 import "server-only";
 

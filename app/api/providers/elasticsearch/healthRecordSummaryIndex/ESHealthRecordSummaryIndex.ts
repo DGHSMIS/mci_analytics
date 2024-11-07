@@ -1,9 +1,9 @@
-import { cassandraClient } from "@api/providers/cassandra/cassandra";
-import { CASSANDRA_PAGE_SIZE } from "@api/providers/cassandra/constants";
+import { cassandraClient } from "@providers/cassandra/cassandra";
+import { CASSANDRA_PAGE_SIZE } from "@providers/cassandra/constants";
 import { DebugElasticProvider, ELASTIC_BATCH_SIZE, healthRecordESIndexName } from "@providers/elasticsearch/constants";
-import { esBaseClient } from '@providers/elasticsearch/ESBase';
 import { CDPatientInterface } from "@utils/interfaces/Cassandra/CDPatientInterface";
 import { timeUUIDToDate } from "@utils/utilityFunctions";
+import { esBaseClient } from 'app/api/providers/elasticsearch/ESBase';
 import { stringify } from "uuid";
 import { temporarilyHotFixJSONObject } from "../patientIndex/ESPatientIndex";
 import { ESHealthRecordSummaryInterface } from "./interfaces/ESHealthRecordSummaryInterface";

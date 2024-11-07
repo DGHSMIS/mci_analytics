@@ -1,4 +1,4 @@
-import { loginAuthenticationHeaders } from "@utils/constants";
+import { loginAuthenticationHeaders } from "@utils/constantsInMemory";
 import { NextRequest, NextResponse } from "next/server";
 
 

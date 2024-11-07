@@ -1,4 +1,4 @@
-import { loginAuthenticationHeaders } from "@utils/constants";
+import { loginAuthenticationHeaders } from "@utils/constantsInMemory";
 import AuthResponseInterface from "@utils/interfaces/Authentication/AuthResponseInterface";
 import CredentialsProvider from "next-auth/providers/credentials";
 import { NextResponse } from "next/server";
@@ -299,6 +299,7 @@ export async function checkIfAuthenticatedMCIUser(
 
 /**
  * HRIS Authentication for MCI User/Admin
+ * Validate if the requester is a SHR User
  * @param req 
  * @returns 
  */
@@ -334,18 +335,14 @@ export async function checkIfAuthenticatedProvider(
     
     if (isUserVerfied.group_names_formatted != null) {
       let isSHRUser = false;
-      let isFacilityAdmin = false;
       isUserVerfied.group_names_formatted.forEach((group) => {
         console.log("The group item is");
         console.log(group);
-        if (group == 'facility-admin') {
-          isFacilityAdmin = true
-        }
         if (group == "shr-user") {
           isSHRUser = true
         }
       });
-      if (isFacilityAdmin && isSHRUser) {
+      if (isSHRUser) {
         console.log("Returning Provider Object");
         return Promise.resolve(isUserVerfied);
       } else {

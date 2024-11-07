@@ -1,5 +1,5 @@
 "use client";
-import { EncounterListItem, EncounterListProps } from "@utils/interfaces/Encounter/Encounter";
+import { EncounterListItem, EncounterListProps } from "@utils/interfaces/DataModels/Encounter";
 import { filterArray } from "@utils/utilityFunctions";
 import dynamic from "next/dynamic";
 import { memo, useEffect, useState } from "react";

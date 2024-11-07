@@ -2,8 +2,8 @@ import { formatDateTime } from "@library/utils";
 import { healthRecordESIndexName } from "@providers/elasticsearch/constants";
 import { dropAndGenerateIndex } from "@providers/elasticsearch/ESBase";
 import { indexAllHealthRecordsESData } from "@providers/elasticsearch/healthRecordSummaryIndex/ESHealthRecordSummaryIndex";
-import { ESHealthRecordSummaryIndexBody } from '@providers/elasticsearch/healthRecordSummaryIndex/ESHealthRecordSummaryMapping';
-import { sendErrorMsg, sendSuccess } from "@utils/responseHandler";
+import { sendErrorMsg, sendSuccess } from "@utils/responseHandlers/responseHandler";
+import { ESHealthRecordSummaryIndexBody } from 'app/api/providers/elasticsearch/healthRecordSummaryIndex/ESHealthRecordSummaryMapping';
 import { NextRequest } from "next/server";
 import "server-only";
 

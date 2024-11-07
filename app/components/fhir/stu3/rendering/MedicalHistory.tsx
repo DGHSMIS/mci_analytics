@@ -1,13 +1,13 @@
 "use client";
 
-import React, { memo } from "react";
+import useWindowSize from "@utils/hooks/useWindowSize";
+import { EncounterListItem } from "@utils/interfaces/DataModels/Encounter";
+import dynamic from "next/dynamic";
+import { memo } from "react";
 import { VerticalTimeline, VerticalTimelineElement } from "react-vertical-timeline-component";
 import "react-vertical-timeline-component/style.min.css";
-import useWindowSize from "@utils/hooks/useWindowSize";
-import dynamic from "next/dynamic";
 import tailwindConfig from "tailwind.config.js";
 import resolveConfig from "tailwindcss/resolveConfig";
-import { EncounterListItem } from "@utils/interfaces/Encounter/Encounter";
 
 
 const Button = dynamic(() => import("@library/Button"), {

@@ -1,10 +1,10 @@
 "use client";
 
+import { RankListProps } from "@components/globals/RankList/RankListProps";
 import SkeletonRankList from "@components/globals/RankList/SkeletonRankList";
 import SectionSkeletonLoader from "@components/publicDashboard/sections/DefaultSectionTemplate/SectionSkeletonLoader";
 import { useStore } from "@store/store";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { RankListProps } from "@utils/interfaces/RankListProps";
 import { fetchFacilityServiceOverview } from "@utils/providers/pbdClientServiceProvider";
 import dynamic from "next/dynamic";
 import { memo } from "react";

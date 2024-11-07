@@ -1,8 +1,8 @@
-import { encounterIndexName } from "@api/providers/elasticsearch/constants";
-import { esBaseClient } from "@api/providers/elasticsearch/ESBase";
-import { ESDateRangeSingleItemQueryInterface } from "@utils/interfaces/ESModelInterfaces";
-import { FacilityInterface } from "@utils/interfaces/FacilityInterfaces";
-import { RankItemProps, RankListProps } from "@utils/interfaces/RankListProps";
+import { RankItemProps, RankListProps } from "@components/globals/RankList/RankListProps";
+import { encounterIndexName } from "@providers/elasticsearch/constants";
+import { esBaseClient } from "@providers/elasticsearch/ESBase";
+import { ESDateRangeSingleItemQueryInterface } from "@utils/interfaces/DataModels/ESModelInterfaces";
+import { FacilityInterface } from "@utils/interfaces/DataModels/FacilityInterfaces";
 import fetchAndCacheFacilityInfo from "@utils/providers/fetchAndCacheFacilityInfo";
 import { datesRangeGenerator } from "@utils/utilityFunctions";
 

@@ -1,11 +1,11 @@
 "use client";
 
-import { ESPatientInterface } from "@api/providers/elasticsearch/patientIndex/interfaces/ESPatientInterface";
 import { MCISpinner } from "@components/MCISpinner";
 import SkeletonAddressBlock from "@components/profilePage/AddressBlock/SkeletonAddressBlock";
 import { SkeletonPersonalInfo } from "@components/profilePage/PersonalInfo";
 import { SkeletonTab, TabItemProps } from "@library/Tabs";
-import { EncounterListItem } from "@utils/interfaces/Encounter/Encounter";
+import { ESPatientInterface } from "@providers/elasticsearch/patientIndex/interfaces/ESPatientInterface";
+import { EncounterListItem } from "@utils/interfaces/DataModels/Encounter";
 import { getUserAddressesFromInstance } from "@utils/utilityFunctions";
 import dynamic from "next/dynamic";
 import React, { memo, useState } from "react";

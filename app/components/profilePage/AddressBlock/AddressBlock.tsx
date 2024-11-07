@@ -5,7 +5,7 @@
  * website: https://aritsltd.com
  */
 import Icon from "@library/Icon";
-import { Address } from "@utils/interfaces/MCIPatientInterface";
+import { Address } from "@utils/interfaces/DataModels/MCIPatientInterface";
 import { selectDistrictFromCode, selectDivisionFromCode, selectUpazilaFromCode } from "@utils/utilityFunctions";
 import { memo } from "react";
 

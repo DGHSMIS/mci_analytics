@@ -1,4 +1,4 @@
-import { FacilityInterface } from "@utils/interfaces/FacilityInterfaces";
+import { FacilityInterface } from "@utils/interfaces/DataModels/FacilityInterfaces";
 
 export interface Admin {
   id: string | null;

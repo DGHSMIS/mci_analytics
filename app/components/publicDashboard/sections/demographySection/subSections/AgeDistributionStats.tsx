@@ -9,14 +9,14 @@ import { getAPIResponse, getRevalidationTime } from "@library/utils";
 import { AxisProps } from "@nivo/axes";
 import { BarDatum, BarLegendProps } from "@nivo/bar";
 import { useStore } from "@store/store";
-import { divisionCodes, primaryMapGradientHue, primaryMapGradientSaturation } from "@utils/constants";
-import { LatestGenderWiseStatsInterface } from "@utils/interfaces/PublicDashboardInterfaces";
+import { divisionCodes, primaryMapGradientHue, primaryMapGradientSaturation } from "@utils/constantsInMemory";
+import { LatestGenderWiseStatsInterface } from "@utils/interfaces/Analytics/PublicDashboard/PublicDashboardInterfaces";
 import { getBaseUrl, getUrlFromName } from "@utils/lib/apiList";
-import { tokens } from "@utils/ThemeToken";
+import { tokens } from "@utils/styles/ThemeToken";
 import { generateHslLightShades, getObjectKeyFromValue } from "@utils/utilityFunctions";
 import { size } from "lodash";
-import React, { memo, Suspense, useEffect, useMemo, useState } from "react";
 import dynamic from "next/dynamic";
+import { memo, Suspense, useEffect, useMemo, useState } from "react";
 
 const TooltipBarChart = dynamic(() => import("@charts/BarChart/TooltipBarChart"), {
   ssr: true,

@@ -1,9 +1,9 @@
-import { indexAllEncountersInESData } from "@api/providers/elasticsearch/encounterIndex/ESEncounterIndex";
-import { ESEncounterIndexBody } from "@api/providers/elasticsearch/encounterIndex/ESEncounterMapping";
 import { formatDateTime } from "@library/utils";
 import { encounterIndexName } from "@providers/elasticsearch/constants";
+import { indexAllEncountersInESData } from "@providers/elasticsearch/encounterIndex/ESEncounterIndex";
+import { ESEncounterIndexBody } from "@providers/elasticsearch/encounterIndex/ESEncounterMapping";
 import { dropAndGenerateIndex } from "@providers/elasticsearch/ESBase";
-import { sendErrorMsg, sendSuccess } from "@utils/responseHandler";
+import { sendErrorMsg, sendSuccess } from "@utils/responseHandlers/responseHandler";
 import { NextRequest } from "next/server";
 import "server-only";
 

@@ -1,9 +1,8 @@
-import { healthRecordESIndexName } from "@api/providers/elasticsearch/constants";
+import { healthRecordESIndexName } from "@providers/elasticsearch/constants";
 import { esBaseClient } from "@providers/elasticsearch/ESBase";
-import { getFacilitySolutionTypeFromName, isAaloClinic } from "@utils/constants";
-import { FacilityTypeWiseStatsInterface } from "@utils/interfaces/Analytics/FacilityTypeWiseStatsInterface";
+import { FacilityTypeWiseStatsInterface } from "@utils/interfaces/Analytics/PublicDashboard/FacilityTypeWiseStatsInterface";
 import fetchAndCacheFacilityInfo from "@utils/providers/fetchAndCacheFacilityInfo";
-import { getResponseHeaders } from "@utils/utilityFunctions";
+import { getFacilitySolutionTypeFromName, getResponseHeaders, isAaloClinic } from "@utils/utilityFunctions";
 import { NextResponse } from "next/server";
 import "server-only";
 

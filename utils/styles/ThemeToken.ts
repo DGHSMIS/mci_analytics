@@ -1,5 +1,5 @@
 import resolveConfig from "tailwindcss/resolveConfig";
-import tailwindConfig from "../tailwind.config.js";
+import tailwindConfig from "../../tailwind.config";
 
 export const tokens = (isDarkMode: boolean = false) => {
   const fullTwConfig = resolveConfig(tailwindConfig);

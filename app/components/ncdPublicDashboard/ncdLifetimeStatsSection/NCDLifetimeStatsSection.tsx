@@ -1,13 +1,15 @@
 import { CardIndicatorsProps } from "@components/globals/CardIndicator/CardIndicator";
 import SkeletonCardIndicator from "@components/globals/CardIndicator/SkeletonCardIndicator";
-import { NCDLifetimeStats } from "@utils/interfaces/NCD/NCDLifetimeStats";
+import { NCDLifetimeStats } from "@utils/interfaces/Analytics/NCD/NCDLifetimeStats";
 import dynamic from "next/dynamic";
 import { memo } from "react";
+
 const CardIndicators = dynamic(() => import("@components/globals/CardIndicator/CardIndicator"), {
     ssr: true,
     loading: () => (<SkeletonCardIndicator />),
 });
-export const NCDLifetimeStatsSection = memo(function NCDLifetimeStatsSection({
+
+function NCDLifetimeStatsSection({
     totalPatients,
     totalReferrals,
     totalFollowUps,
@@ -23,7 +25,7 @@ export const NCDLifetimeStatsSection = memo(function NCDLifetimeStatsSection({
         titleAlign: "center",
     };
 
-    return (<><h3 className="mb-12 text-base font-semibold uppercase text-slate-600">
+    return (<div><h3 className="mb-12 text-base font-semibold uppercase text-slate-600">
         Pediatric NCD Lifetime Stats
     </h3>
         <div className="grid grid-cols-4  lg:grid-cols-4 gap-16 lg:space-x-0 mb-12">
@@ -65,5 +67,7 @@ export const NCDLifetimeStatsSection = memo(function NCDLifetimeStatsSection({
                 subTitle={String(totalFollowUps)}
 
             />
-        </div></>)
-});
+        </div></div>)
+};
+
+export default memo(NCDLifetimeStatsSection);

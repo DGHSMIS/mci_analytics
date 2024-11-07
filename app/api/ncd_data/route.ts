@@ -1,14 +1,15 @@
-import { insertOrUpdateNCDDataByCreatedTimeToESIndex } from '@api/providers/elasticsearch/ncdIndex/ESPediatricNCDIndex';
-import { PGDiseaseInterface } from '@api/providers/prisma/ncd_data_models/PGDiseaseInterface';
-import { PGDiseasesOnVisit } from '@api/providers/prisma/ncd_data_models/PGDiseasesOnVisit';
-import { PGNCDPayloadLoggerInterface } from '@api/providers/prisma/ncd_data_models/PGNCDPayloadLoggerInterface';
-import { PGPatientVisitInterface } from '@api/providers/prisma/ncd_data_models/PGPatientVisitInterface';
-import prisma from '@providers/prisma/prismaClient';
+import { PGDiseaseInterface } from '@api/providers/prisma/models/PGDiseaseInterface';
+import { PGDiseasesOnVisit } from '@api/providers/prisma/models/PGDiseasesOnVisit';
+import { PGNCDPayloadLoggerInterface } from '@api/providers/prisma/models/PGNCDPayloadLoggerInterface';
+import { PGPatientVisitInterface } from '@api/providers/prisma/models/PGPatientVisitInterface';
 import AuthResponseInterface from '@utils/interfaces/Authentication/AuthResponseInterface';
+import { FacilityInterface } from '@utils/interfaces/DataModels/FacilityInterfaces';
+import { checkIfAuthenticatedProvider } from '@utils/lib/auth';
 import { findOrCreateFacility } from '@utils/providers/fetchAndCacheFacilityInfo';
+import { insertOrUpdateNCDDataByCreatedTimeToESIndex } from 'app/api/providers/elasticsearch/ncdIndex/ESPediatricNCDIndex';
+import prisma from 'app/api/providers/prisma/prismaClient';
 import Error from 'next/error';
 import { NextRequest, NextResponse } from "next/server";
-import { checkIfAuthenticatedProvider } from "utils/lib/auth";
 
 const MAX_PATIENT_LIMIT = 5000;
 // TODO: Add Facility Verification via API Call to check if the facility exists in the Facility Registry
@@ -29,6 +30,9 @@ const MAX_PATIENT_LIMIT = 5000;
 //     }
 //   ]
 export async function POST(req: NextRequest) {
+    /**
+     * Disabled Authentication on Request
+     */
     // Check Authorization & respond error if not verified
     const providerUser: AuthResponseInterface = await checkIfAuthenticatedProvider(req);
 
@@ -36,7 +40,7 @@ export async function POST(req: NextRequest) {
         return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
     }
 
-    console.log('Request is from Validated User');
+    // console.log('Request is from Validated User');
     const createdAt = new Date().toISOString();
     try {
         const data: PGPatientVisitInterface[] = await req.json();
@@ -94,7 +98,7 @@ async function processSubmittedData(preprocessedData: PGNCDPayloadLoggerInterfac
                     const diseasesOnVisit: PGDiseasesOnVisit[] = [];
                     // Fetch facility data and add it to the record
                     // Now fetch the facility data from the Facility Registry
-                    const facilityData = await findOrCreateFacility(patientVisit.facilityCode);
+                    const facilityData:FacilityInterface = await findOrCreateFacility(patientVisit.facilityCode);
                     console.log("The Facility Data is ")
                     console.log(facilityData);
                     if (facilityData === null) {
@@ -235,11 +239,17 @@ async function payloadLogger(data: PGPatientVisitInterface[], providerUser: Auth
 
 
 
-
+/**
+ * Find Or Create Disease in the Database using the conceptUuId and conceptName
+ * 
+ * @param conceptUuId 
+ * @param conceptName 
+ * @returns 
+ */
 async function findOrCreateDisease(conceptUuId: string, conceptName: string): Promise<PGDiseaseInterface> {
 
     const diseaseFromDB = await prisma.disease.findFirst({
-        where: { conceptUuId: conceptUuId },
+        where: { conceptName: conceptName },
     });
     console.log("The Disease from DB is ")
     console.log(diseaseFromDB);

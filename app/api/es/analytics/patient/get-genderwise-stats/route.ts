@@ -1,10 +1,10 @@
-import "server-only";
-import { ValidateDateAndDivisionResponseInterface } from "@utils/interfaces/FormDataInterfaces";
-import { LatestGenderWiseStatsInterface } from "@utils/interfaces/PublicDashboardInterfaces";
-import { validateFormData } from "@utils/models/Validation";
-import { sendErrorMsg, sendSuccess } from "@utils/responseHandler";
-import { NextRequest } from "next/server";
 import { findDateAndDivisionwiseRegisteringFacilities } from "@utils/esQueries/patientIndex/aggQueriesForRegistrationStats";
+import { LatestGenderWiseStatsInterface } from "@utils/interfaces/Analytics/PublicDashboard/PublicDashboardInterfaces";
+import { ValidateDateAndDivisionResponseInterface } from "@utils/interfaces/DataModels/ApiRequestQueryParamInterfaces";
+import { validateFormData } from "@utils/models/Validation";
+import { sendErrorMsg, sendSuccess } from "@utils/responseHandlers/responseHandler";
+import { NextRequest } from "next/server";
+import "server-only";
 
 // export const dynamic = "force-dynamic";
 // export const revalidate = process.env.REVALIDATE_VAR;

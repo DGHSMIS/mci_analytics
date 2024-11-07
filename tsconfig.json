@@ -1,32 +1,55 @@
 {
   "compilerOptions": {
     "target": "es2022",
+    "module": "esnext",
+    "moduleResolution": "node",
     "lib": ["dom", "dom.iterable", "esnext"],
+    "removeComments": true,
     "allowJs": true,
     "skipLibCheck": true,
     "strict": true,
     "forceConsistentCasingInFileNames": true,
     "noEmit": true,
     "esModuleInterop": true,
-    "module": "esnext",
-    "moduleResolution": "node",
     "resolveJsonModule": true,
     "isolatedModules": true,
     "jsx": "preserve",
     "incremental": true,
     "baseUrl": ".",
     "paths": {
-      "@library/*": ["app/components/library/*"],
-      "@components/*": ["app/components/*"],
-      "@variables/*": ["app/styles/scss/*"],
-      "@store/*": ["app/store/*"],
-      "@public/*": ["public/*"],
-      "@utils/*": ["utils/*"],
-      "@api/*": ["app/api/*"],
-      "@charts/*": ["app/components/charts/*"],
-      "@providers/*": ["app/api/providers/*"],
-      "@admin/*": ["app/admin/*"],
-      "@app/*": ["app/*"]
+      "@library/*": [
+        "app/components/library/*"
+      ],
+      "@components/*": [
+        "app/components/*"
+      ],
+      "@variables/*": [
+        "app/styles/scss/*"
+      ],
+      "@store/*": [
+        "app/store/*"
+      ],
+      "@public/*": [
+        "public/*"
+      ],
+      "@utils/*": [
+        "utils/*"
+      ],
+      "@api/*": [
+        "app/api/*"
+      ],
+      "@charts/*": [
+        "app/components/charts/*"
+      ],
+      "@providers/*": [
+        "app/api/providers/*"
+      ],
+      "@admin/*": [
+        "app/admin/*"
+      ],
+      "@app/*": [
+        "app/*"
+      ]
     },
     "plugins": [
       {

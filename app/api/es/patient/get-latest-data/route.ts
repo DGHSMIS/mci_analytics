@@ -1,7 +1,7 @@
+import { esBaseClient } from "@api/providers/elasticsearch/ESBase";
 import { patientESIndex } from "@providers/elasticsearch/patientIndex/ESPatientIndex";
 import { checkIfMCIAdminOrApprover } from "@utils/lib/auth";
 import { NextRequest, NextResponse } from "next/server";
-import { esBaseClient } from "../../../providers/elasticsearch/ESBase";
 
 export const dynamic = "force-dynamic";
 // export const revalidate = process.env.REVALIDATE_VAR;

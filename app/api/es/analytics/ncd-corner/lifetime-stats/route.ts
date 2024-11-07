@@ -1,7 +1,12 @@
-import { ncdESIndex } from "@api/providers/elasticsearch/ncdIndex/ESPediatricNCDIndex";
 import { esBaseClient } from "@providers/elasticsearch/ESBase";
+import { ncdESIndex } from "@providers/elasticsearch/ncdIndex/ESPediatricNCDIndex";
 import { NextRequest, NextResponse } from "next/server";
 import "server-only";
+
+export const dynamic = "force-dynamic";
+export const revalidate = true;
+export const fetchCache = "force-no-store";
+export const dynamicParams = true;
 
 export async function GET(req: NextRequest) {
 

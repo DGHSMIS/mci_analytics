@@ -18,12 +18,12 @@ export const nikosh = localFont({
   
     src: [
       {
-        path: '../app/styles/fonts/Nikosh/Nikosh_400.ttf',
+        path: '../../app/styles/fonts/Nikosh/Nikosh_400.ttf',
         weight: '400',
         style: 'regular',
       },
       {
-        path: '../app/styles/fonts/Nikosh/NikoshLight_300.ttf',
+        path: '../../app/styles/fonts/Nikosh/NikoshLight_300.ttf',
         weight: '300',
         style: 'light',
       }

@@ -2,6 +2,7 @@
 
 import Button from "@library/Button";
 import MultipleDatePicker from "@library/form/DatePicker/MultipleDatePicker";
+import Label from "@library/form/Label";
 import { useStore } from "@store/store";
 import { getDaysBetweenDates, xMonthsAgo } from "@utils/utilityFunctions";
 import { addMonths } from "date-fns";
@@ -15,11 +16,15 @@ import React, { useEffect } from "react";
 export interface SearchDateRangeFilterProps {
   filterByDate?: (minDateString?: Date, maxDateString?: Date) => void;
   renderContext: number;
+  showLabel?: boolean;
+  label?: string;
 }
 
 export default function SearchDateRangeFilter({
   filterByDate,
   renderContext = 1,
+  showLabel = false,
+  label = "Filter Date Range",
 }: SearchDateRangeFilterProps) {
   const {
     demographyMinDate,
@@ -90,12 +95,25 @@ export default function SearchDateRangeFilter({
     }
   }, [[tempMinDate, tempMaxDate]]);
 
+  useEffect(() => {
+    if (renderContext == 3) {
+      setTempMinDate(ncdDataMinDate);
+      setTempMaxDate(ncdDataMaxDate);
+    }
+  }, [ncdDataMinDate, ncdDataMaxDate]);
+
+
   return (
 
     <div className="grid w-full grid-cols-1 items-start md:grid-cols-3 lg:gap-x-12 space-y-8 lg:space-y-0">
+      
+      {showLabel && <Label
+        text={label}
+        isRequired={false}
+        className="col-span-3"
+      />}
       <div className={`lg:mb-0 text-sm w-full col-span-2 md:col-span-2}`}>
-        {/* <div className="grid w-full grid-cols-3 items-start  md:grid-cols-3  lg:gap-x-12 lg:space-y-0">
-<div className={'lg:mb-0 text-sm col-span-2 w-full'}> */}
+      
         <MultipleDatePicker
           mode={"range"}
           dateField={
@@ -141,7 +159,7 @@ export default function SearchDateRangeFilter({
         />
       </div>
       {/* <div className="col-span-1 flex flex-grow flex-col justify-start pl-8"> */}
-      {(renderContext == 1 || renderContext == 2 || renderContext == 3 ) &&
+      {(renderContext == 1 || renderContext == 2 || renderContext == 3) &&
         <div className="col-span-1 flex flex-col md:flex-grow justify-start pl-0 md:pl-8">
           <Button
             size={"sm"}

@@ -3,7 +3,7 @@ import { ReferenceErrorLog } from "@components/fhir/ReferenceErrorLog";
 import { MCISpinner } from "@components/MCISpinner";
 import { getAPIResponse } from "@library/utils";
 import { useQuery } from "@tanstack/react-query";
-import HRISProviderInterface, { HRISProviderCodedIdentifier } from "@utils/interfaces/HRISProviderInterface";
+import HRISProviderInterface, { HRISProviderCodedIdentifier } from "@utils/interfaces/DataModels/HRISProviderInterface";
 import { getBaseUrl, getUrlFromName } from "@utils/lib/apiList";
 import { Reference } from "fhir/r3";
 import { memo } from "react";

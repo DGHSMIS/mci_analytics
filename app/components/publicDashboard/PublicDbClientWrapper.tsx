@@ -3,7 +3,7 @@ import SectionSkeletonLoader from "@components/publicDashboard/sections/DefaultS
 import { getAPIResponse, getRevalidationTime } from "@library/utils";
 import { useStore } from "@store/store";
 import { QueryClient, useQueryClient, useSuspenseQuery } from "@tanstack/react-query";
-import { FacilityTypeWiseStatsInterface } from "@utils/interfaces/Analytics/FacilityTypeWiseStatsInterface";
+import { FacilityTypeWiseStatsInterface } from "@utils/interfaces/Analytics/PublicDashboard/FacilityTypeWiseStatsInterface";
 import { getBaseUrl, getUrlFromName } from "@utils/lib/apiList";
 import { fetchDivisionWiseData } from "@utils/providers/pbdClientServiceProvider";
 import dynamic from "next/dynamic";

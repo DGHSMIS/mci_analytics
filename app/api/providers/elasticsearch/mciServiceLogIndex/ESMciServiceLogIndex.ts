@@ -1,5 +1,5 @@
 import { DebugElasticProvider, mciServiceLogIndexName } from "@providers/elasticsearch/constants";
-import { esBaseClient } from '@providers/elasticsearch/ESBase';
+import { esBaseClient } from 'app/api/providers/elasticsearch/ESBase';
 import { ESMciServiceLogIndexBody } from './ESMciServiceLogMapping';
 import { ESMciServiceLogInterface } from './interfaces/ESMciServiceLogInterface';
 

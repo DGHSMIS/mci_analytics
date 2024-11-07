@@ -1,8 +1,8 @@
 // Next.js API route support: https://nextjs.org/docs/api-routes/introduction
-import { CASSANDRA_PAGE_SIZE } from "@api/providers/cassandra/constants";
 import { cassandraClient } from "@providers/cassandra/cassandra";
-import { EncounterListItem } from "@utils/interfaces/Encounter/Encounter";
-import { FacilityInterface } from "@utils/interfaces/FacilityInterfaces";
+import { CASSANDRA_PAGE_SIZE } from "@providers/cassandra/constants";
+import { EncounterListItem } from "@utils/interfaces/DataModels/Encounter";
+import { FacilityInterface } from "@utils/interfaces/DataModels/FacilityInterfaces";
 import fetchAndCacheFacilityInfo from "@utils/providers/fetchAndCacheFacilityInfo";
 import { selectDistrictFromCode, selectDivisionFromCode, selectUpazilaFromCode, timeUUIDToDate } from "@utils/utilityFunctions";
 import { NextRequest, NextResponse } from "next/server";

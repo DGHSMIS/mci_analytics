@@ -1,5 +1,5 @@
-import { retrieveMinioImageAsBase64 } from '@providers/minio/MinioBase';
 import { checkIfMCIAdminOrApprover } from '@utils/lib/auth';
+import { retrieveMinioImageAsBase64 } from 'app/api/providers/minio/MinioBase';
 import { NextRequest, NextResponse } from "next/server";
 
 export async function GET(req: NextRequest) {

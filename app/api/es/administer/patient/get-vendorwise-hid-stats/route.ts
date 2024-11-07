@@ -1,7 +1,7 @@
-import { encounterIndexName } from "@api/providers/elasticsearch/constants";
-import { esBaseClient } from "@api/providers/elasticsearch/ESBase";
-import { patientESIndex } from "@api/providers/elasticsearch/patientIndex/ESPatientIndex";
-import { sendErrorMsg, sendSuccess } from "@utils/responseHandler";
+import { encounterIndexName } from "@providers/elasticsearch/constants";
+import { esBaseClient } from "@providers/elasticsearch/ESBase";
+import { patientESIndex } from "@providers/elasticsearch/patientIndex/ESPatientIndex";
+import { sendErrorMsg, sendSuccess } from "@utils/responseHandlers/responseHandler";
 import { xMonthsAgo } from "@utils/utilityFunctions";
 import { NextRequest } from "next/server";
 import "server-only";

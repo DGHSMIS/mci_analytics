@@ -1,8 +1,8 @@
-import React, { memo } from "react";
-import { cn } from "tailwind-cn";
+import { RankListProps } from "@components/globals/RankList/RankListProps";
 import dynamic from "next/dynamic";
+import { memo } from "react";
 import Skeleton from "react-loading-skeleton";
-import { RankListProps } from "@utils/interfaces/RankListProps";
+import { cn } from "tailwind-cn";
 
 const Icon = dynamic(() => import("@library/Icon"), {
   ssr: true,

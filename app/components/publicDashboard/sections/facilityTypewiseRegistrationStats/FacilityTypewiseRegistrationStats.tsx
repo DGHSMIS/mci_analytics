@@ -1,7 +1,7 @@
 import { CardIndicatorsProps } from "@components/globals/CardIndicator/CardIndicator";
 import SkeletonCardIndicator from "@components/globals/CardIndicator/SkeletonCardIndicator";
 import data from "@public/fake-data/DistrictWiseDataCount.json";
-import { FacilityTypeWiseStatsInterface } from "@utils/interfaces/Analytics/FacilityTypeWiseStatsInterface";
+import { FacilityTypeWiseStatsInterface } from "@utils/interfaces/Analytics/PublicDashboard/FacilityTypeWiseStatsInterface";
 import dynamic from "next/dynamic";
 import { memo } from "react";
 

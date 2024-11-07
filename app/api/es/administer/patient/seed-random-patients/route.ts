@@ -1,8 +1,8 @@
-import { CASSANDRA_PAGE_SIZE } from "@api/providers/cassandra/constants";
 import {
     cassandraClient,
     removeRowsFromDB
 } from "@providers/cassandra/cassandra";
+import { CASSANDRA_PAGE_SIZE } from "@providers/cassandra/constants";
 import {
     getRandomDistrictFromDivisionCode,
     getRandomlySelectedDivisionCode,

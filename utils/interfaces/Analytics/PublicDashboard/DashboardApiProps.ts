@@ -1,4 +1,4 @@
-import { AreaWiseRegistrationStatsProps } from "@utils/interfaces/LocalityInterfaces";
+import { AreaWiseRegistrationStatsProps } from "@utils/interfaces/DataModels/LocalityInterfaces";
 
 export interface DashboardApiProps {
   totalRegistration: number;

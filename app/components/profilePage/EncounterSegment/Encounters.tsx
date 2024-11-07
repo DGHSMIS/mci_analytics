@@ -5,9 +5,9 @@
  * website: https://aritsltd.com
  */
 "use client";
+import { EncounterListProps } from "@utils/interfaces/DataModels/Encounter";
 import dynamic from "next/dynamic";
-import React, { memo } from "react";
-import { EncounterListProps } from "@utils/interfaces/Encounter/Encounter";
+import { memo } from "react";
 
 const Alert = dynamic(() => import("@library/Alert"), {
   ssr: true,

@@ -10,7 +10,7 @@ import dynamic from "next/dynamic";
 import { memo } from "react";
 // import ModalBlank from "@library/ModalBlank";
 import { useQuery } from "@tanstack/react-query";
-import { EncounterListItem } from "@utils/interfaces/Encounter/Encounter";
+import { EncounterListItem } from "@utils/interfaces/DataModels/Encounter";
 
 interface EncounterDetailsProps {
   encounterId: string;

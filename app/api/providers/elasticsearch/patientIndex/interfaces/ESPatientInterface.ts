@@ -1,5 +1,5 @@
-import { FacilityAdminInterface } from "@utils/interfaces/FacilityAdminInterface";
-import { FacilityInterface } from "@utils/interfaces/FacilityInterfaces";
+import { FacilityAdminInterface } from "@utils/interfaces/DataModels/FacilityAdminInterface";
+import { FacilityInterface } from "@utils/interfaces/DataModels/FacilityInterfaces";
 
 export interface CreateAndUpdatedByPatientInterface {
     facility: FacilityInterface | null;

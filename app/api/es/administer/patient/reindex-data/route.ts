@@ -2,7 +2,7 @@ import { formatDateTime } from '@library/utils';
 import { dropAndGenerateIndex } from "@providers/elasticsearch/ESBase";
 import { indexAllPatientESData, patientESIndex } from "@providers/elasticsearch/patientIndex/ESPatientIndex";
 import { ESPatientIndexBody } from "@providers/elasticsearch/patientIndex/ESPatientMapping";
-import { sendErrorMsg, sendSuccess } from "@utils/responseHandler";
+import { sendErrorMsg, sendSuccess } from "@utils/responseHandlers/responseHandler";
 import { NextRequest } from "next/server";
 import "server-only";
 

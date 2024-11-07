@@ -1,10 +1,10 @@
 // Next.js API route support: https://nextjs.org/docs/api-routes/introduction
 import { esBaseClient } from "@providers/elasticsearch/ESBase";
 import { patientESIndex } from "@providers/elasticsearch/patientIndex/ESPatientIndex";
+import { ESPatientInterface } from '@providers/elasticsearch/patientIndex/interfaces/ESPatientInterface';
 import { retrieveMinioImageAsBase64 } from "@providers/minio/MinioBase";
 import { checkIfMCIAdminOrApprover } from "@utils/lib/auth";
 import { NextRequest, NextResponse } from "next/server";
-import { ESPatientInterface } from '../../../providers/elasticsearch/patientIndex/interfaces/ESPatientInterface';
 
 export const dynamic = "force-dynamic";
 const { REVALIDATE_VAR } = process.env;

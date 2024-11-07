@@ -5,7 +5,7 @@
  * @param input
  */
 
-import { AreaWiseRegistrationStatsProps } from "@utils/interfaces/LocalityInterfaces";
+import { AreaWiseRegistrationStatsProps } from "@utils/interfaces/DataModels/LocalityInterfaces";
 
 export interface AggregatedDivisionDistrictWiseData {
   id: number;

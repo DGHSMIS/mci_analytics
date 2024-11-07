@@ -3,7 +3,7 @@ import { ReferenceErrorLog } from "@components/fhir/ReferenceErrorLog";
 import { MCISpinner } from "@components/MCISpinner";
 import { getAPIResponse, getRevalidationTime } from "@library/utils";
 import { useQuery } from "@tanstack/react-query";
-import { districtCodes, divisionCodes } from "@utils/constants";
+import { districtCodes, divisionCodes } from "@utils/constantsInMemory";
 import { getBaseUrl } from "@utils/lib/apiList";
 import { Reference } from "fhir/r3";
 import React, { useMemo } from "react";

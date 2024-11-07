@@ -1,5 +1,5 @@
-import { ESPatientInterface } from "@api/providers/elasticsearch/patientIndex/interfaces/ESPatientInterface";
-import { EncounterListItem } from "@utils/interfaces/Encounter/Encounter";
+import { ESPatientInterface } from "@providers/elasticsearch/patientIndex/interfaces/ESPatientInterface";
+import { EncounterListItem } from "@utils/interfaces/DataModels/Encounter";
 import { Fhir } from "fhir";
 import { create } from "zustand";
 

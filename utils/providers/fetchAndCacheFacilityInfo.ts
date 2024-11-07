@@ -1,18 +1,18 @@
-import prisma from "@api/providers/prisma/prismaClient";
 import { errorFacilityData, fetchedFacilityArrayOfObjects } from "@providers/elasticsearch/patientIndex/ESPatientIndex";
-import { getFacilitySolutionTypeFromName } from "@utils/constants";
-import { FacilityInterface } from "@utils/interfaces/FacilityInterfaces";
+import prisma from "@providers/prisma/prismaClient";
+import { FacilityInterface } from "@utils/interfaces/DataModels/FacilityInterfaces";
 import { resolveFacilityDetailURLFromNameAndId } from "@utils/lib/apiList";
+import { getFacilitySolutionTypeFromName } from "@utils/utilityFunctions";
 
 /**
  * Fetches and caches facility information.
  * @param facilityId The ID of the facility to fetch.
  * @returns A promise that resolves to the facility data.
  */
-export default async function fetchAndCacheFacilityInfo(facilityId: number, showDebug:boolean = false): Promise<FacilityInterface> {
-  if(showDebug) console.log('No of Items cached:', fetchedFacilityArrayOfObjects.length);
+export default async function fetchAndCacheFacilityInfo(facilityId: number, showDebug: boolean = false): Promise<FacilityInterface> {
+  if (showDebug) console.log('No of Items cached:', fetchedFacilityArrayOfObjects.length);
 
-  if(showDebug) console.log('Facility ID is:', facilityId);
+  if (showDebug) console.log('Facility ID is:', facilityId);
   // Check for invalid facility ID
   if (Number.isNaN(facilityId)) {
     console.log('Facility ID Invalid');
@@ -20,19 +20,19 @@ export default async function fetchAndCacheFacilityInfo(facilityId: number, show
   }
   try {
     // Check cache for existing facility information
-    const foundItem = fetchedFacilityArrayOfObjects.find((item:FacilityInterface) => item.id === facilityId);
+    const foundItem = fetchedFacilityArrayOfObjects.find((item: FacilityInterface) => item.id === facilityId);
     if (foundItem) {
       // console.log("<<<< Facility Already Fetched >>>>");
       // console.log(foundItem);
       return await Promise.resolve(foundItem);
     }
   } catch (error) {
-    if(showDebug) console.error('Error fetching facility data:', error);
+    if (showDebug) console.error('Error fetching facility data:', error);
   }
 
   // Resolve URL for the API call
   const getFacilityURL = resolveFacilityDetailURLFromNameAndId("auth-get-facility-by-id", facilityId);
-  if(showDebug) console.log('Making Facility API Call to:', getFacilityURL);
+  if (showDebug) console.log('Making Facility API Call to:', getFacilityURL);
 
   try {
     const response = await fetch(getFacilityURL, {
@@ -62,26 +62,26 @@ export default async function fetchAndCacheFacilityInfo(facilityId: number, show
         ownership: facilityAllData.properties.ownership ?? "",
         orgType: facilityAllData.properties.org_type ?? "",
       };
-      
-      if(showDebug){
+
+      if (showDebug) {
         console.log("Prepared Facility Data:");
         console.log(facilityData);
       }
 
       // Add the newly fetched facility data to the cache
       fetchedFacilityArrayOfObjects.push(facilityData);
-       return await Promise.resolve(facilityData);
+      return await Promise.resolve(facilityData);
     } else {
-      if(showDebug) console.log('API call failed with status:', response.status);
+      if (showDebug) console.log('API call failed with status:', response.status);
       const apiErrorResult = { ...errorFacilityData, id: facilityId };
       fetchedFacilityArrayOfObjects.push(apiErrorResult);
-       return await Promise.resolve(apiErrorResult);
+      return await Promise.resolve(apiErrorResult);
     }
   } catch (error) {
-    if(showDebug) console.error('Error fetching facility data:', error);
+    if (showDebug) console.error('Error fetching facility data:', error);
     const apiErrorResult = { ...errorFacilityData, id: facilityId };
     fetchedFacilityArrayOfObjects.push(apiErrorResult);
-     return await Promise.resolve(apiErrorResult);
+    return await Promise.resolve(apiErrorResult);
   }
 }
 
@@ -94,30 +94,30 @@ export default async function fetchAndCacheFacilityInfo(facilityId: number, show
 export async function findOrCreateFacility(facilityCode: string): Promise<FacilityInterface> {
 
   const facilityFromDB = await prisma.facility.findFirst({
-      where: { code: facilityCode },
+    where: { code: facilityCode },
   });
   console.log("The Facility from DB is ")
   console.log(facilityFromDB);
   if (facilityFromDB !== null) {
-      return facilityFromDB;
+    return facilityFromDB;
   }
   const facilityData: FacilityInterface = await fetchAndCacheFacilityInfo(Number(facilityCode));
 
   const newFacility: FacilityInterface = await prisma.facility.create({
-      data: {
-          code: facilityCode,
-          name: facilityData.name,
-          divisionCode: facilityData.divisionCode,
-          districtCode: facilityData.districtCode,
-          upazilaCode: facilityData.upazilaCode,
-          catchment: facilityData.catchment,
-          careLevel: facilityData.careLevel,
-          address: facilityData.address,
-          solutionType: facilityData.solutionType,
-          ownership: facilityData.ownership,
-          orgType: facilityData.orgType,
-          createdAt: new Date(),
-      },
+    data: {
+      code: facilityCode,
+      name: facilityData.name,
+      divisionCode: facilityData.divisionCode,
+      districtCode: facilityData.districtCode,
+      upazilaCode: facilityData.upazilaCode,
+      catchment: facilityData.catchment,
+      careLevel: facilityData.careLevel,
+      address: facilityData.address,
+      solutionType: facilityData.solutionType,
+      ownership: facilityData.ownership,
+      orgType: facilityData.orgType,
+      createdAt: new Date(),
+    },
   });
 
   console.log('New Facility:', newFacility);

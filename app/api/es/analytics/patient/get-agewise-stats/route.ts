@@ -1,9 +1,9 @@
 import { esBaseClient } from "@providers/elasticsearch/ESBase";
 import { patientESIndex } from "@providers/elasticsearch/patientIndex/ESPatientIndex";
-import { ageRangeKeys } from "@utils/constants";
-import { ValidateDateAndDivisionResponseInterface } from "@utils/interfaces/FormDataInterfaces";
+import { ageRangeKeys } from "@utils/constantsInMemory";
+import { ValidateDateAndDivisionResponseInterface } from "@utils/interfaces/DataModels/ApiRequestQueryParamInterfaces";
 import { validateFormData } from "@utils/models/Validation";
-import { sendErrorMsg } from "@utils/responseHandler";
+import { sendErrorMsg } from "@utils/responseHandlers/responseHandler";
 import { setDateByYears } from "@utils/utilityFunctions";
 import { NextRequest, NextResponse } from "next/server";
 import "server-only";

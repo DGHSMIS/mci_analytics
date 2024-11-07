@@ -11,9 +11,9 @@ import { ConvertDivisionTreeCountToBarChartArray } from "@utils/converters/Conve
 import DivisionDistrictwiseDocCountToTableData, {
   AggregatedDivisionDistrictWiseData,
 } from "@utils/converters/DivisionDistrictwiseDocCountToTableData";
-import { AreaWiseRegistrationStatsProps } from "@utils/interfaces/LocalityInterfaces";
+import { AreaWiseRegistrationStatsProps } from "@utils/interfaces/DataModels/LocalityInterfaces";
 import { getBaseUrl, getUrlFromName } from "@utils/lib/apiList";
-import { tokens } from "@utils/ThemeToken";
+import { tokens } from "@utils/styles/ThemeToken";
 import { delay } from "lodash";
 import { MRT_ExpandedState } from "material-react-table";
 import dynamic from "next/dynamic";

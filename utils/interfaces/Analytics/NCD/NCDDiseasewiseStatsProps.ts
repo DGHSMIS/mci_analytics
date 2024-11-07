@@ -1,4 +1,9 @@
-import { NCDByAgeGroupProps, NCDDonutChartProps, NCDFollowUpReferralProps, NCDTimeSeriesChartProps, PatientCountByFacility } from "@utils/interfaces/NCD/NCDAggregatedStatsProps";
+import {
+    NCDByAgeGroupProps, NCDDonutChartProps,
+    NCDFollowUpReferralProps,
+    NCDTimeSeriesChartProps,
+    PatientCountByFacility
+} from "@utils/interfaces/Analytics/NCD/NCDAggregatedStatsProps";
 
 export interface NCDDiseasewiseStatsProps {
     totalPatients: string;

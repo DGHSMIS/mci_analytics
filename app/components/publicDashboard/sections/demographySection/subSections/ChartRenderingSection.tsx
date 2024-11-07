@@ -2,10 +2,10 @@
 
 import { MCISpinner } from "@components/MCISpinner";
 import { useStore } from "@store/store";
-import { mapData } from "@utils/constants";
-import { AreaWiseRegistrationStatsProps } from "@utils/interfaces/LocalityInterfaces";
+import { mapData } from "@utils/constantsInMemory";
+import { AreaWiseRegistrationStatsProps } from "@utils/interfaces/DataModels/LocalityInterfaces";
 import dynamic from "next/dynamic";
-import React, { memo } from "react";
+import { memo } from "react";
 
 const BangladeshChart = dynamic(() => import("@charts/Map/BangladeshChart"), {
   ssr: false,

@@ -1,8 +1,9 @@
+import { DropDownSingleItemProps } from "@library/form/DropDownSingle";
 import { addXDaysToDate, xMonthsAgo } from "@utils/utilityFunctions";
 
 import { create } from "zustand";
 
-//section 1:
+//Public Unaugmented Store
 export interface StoreStates {
   errorInAPI: boolean;
   apiCallInProgress: boolean;
@@ -13,6 +14,7 @@ export interface StoreStates {
   demographyMaxDate: Date;
   ncdDataMinDate: Date;
   ncdDataMaxDate: Date;
+  ncdAggregatedFacilityDDItems: DropDownSingleItemProps[]
   ncdAggregatedSelectedFacility: string;
   ncdDiseaseSelected: string;
   serviceOverviewMinDate: Date;
@@ -31,6 +33,7 @@ export const initialStoreStates: StoreStates = {
   demographyMaxDate: xMonthsAgo(0),
   ncdDataMinDate: xMonthsAgo(7),
   ncdDataMaxDate: addXDaysToDate(0),
+  ncdAggregatedFacilityDDItems: [],
   ncdAggregatedSelectedFacility: "",
   ncdDiseaseSelected: "",
   serviceOverviewMinDate: xMonthsAgo(2),
@@ -44,6 +47,7 @@ export interface StoreActions {
   setDemoGraphyMaxDate: (date: Date) => void;
   setNCDDataMinDate: (date: Date) => void;
   setNCDDataMaxDate: (date: Date) => void;
+  setNcdAggregatedFacilityDDItems: (facilityList: DropDownSingleItemProps[]) => void;
   setNcdAggregatedSelectedFacility: (facility: string) => void;
   setNcdDiseaseSelected: (disease: string) => void;
   setRequireAuth: (requireAuth: boolean) => void;
@@ -69,6 +73,7 @@ export const useStore = create<StoreStates & StoreActions>(
       set({ serviceOverviewMaxDate: date }),
     setDemoGraphyMinDate: (date: Date) => set({ demographyMinDate: date }),
     setDemoGraphyMaxDate: (date: Date) => set({ demographyMaxDate: date }),
+    setNcdAggregatedFacilityDDItems: (facilityList: DropDownSingleItemProps[]) => set({ncdAggregatedFacilityDDItems: facilityList}),
     setNcdAggregatedSelectedFacility: (facility: string) => set({ ncdAggregatedSelectedFacility: facility }),
     setNcdDiseaseSelected: (disease: string)=> set({ ncdDiseaseSelected: disease }),
     setNCDDataMinDate: (date: Date) => set({ ncdDataMinDate: date }),

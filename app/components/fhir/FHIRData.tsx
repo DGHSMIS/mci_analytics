@@ -5,7 +5,7 @@ import { ReferenceErrorLog } from "@components/fhir/ReferenceErrorLog";
 import { ObservationFormItemProps } from "@components/fhir/stu3/rendering/ObservationFormItem";
 import Tabs, { TabItemProps } from "@library/Tabs";
 import { useLoggedInStore } from "@store/useLoggedInStore";
-import { EncounterListItem } from "@utils/interfaces/Encounter/Encounter";
+import { EncounterListItem } from "@utils/interfaces/DataModels/Encounter";
 import { Fhir } from "fhir";
 import { ConditionTable } from "fhir-ui";
 import { Bundle, BundleEntry, Composition, CompositionSection, Condition, Encounter, MedicationRequest, Observation, Resource } from "fhir/r3";

@@ -1,8 +1,8 @@
-import { AreaWiseRegistrationStatsProps } from "@utils/interfaces/LocalityInterfaces";
-import React, { memo } from "react";
-import dynamic from "next/dynamic";
 import CustomSpinner from "@components/globals/loaders/CustomSpinner";
 import SectionSkeletonLoader from "@components/publicDashboard/sections/DefaultSectionTemplate/SectionSkeletonLoader";
+import { AreaWiseRegistrationStatsProps } from "@utils/interfaces/DataModels/LocalityInterfaces";
+import dynamic from "next/dynamic";
+import { memo } from "react";
 
 // import ChartRenderingSection from "@components/publicDashboard/sections/demographySection/subSections/ChartRenderingSection";
 

@@ -1,9 +1,9 @@
 "use client";
-import { ESPatientInterface } from "@api/providers/elasticsearch/patientIndex/interfaces/ESPatientInterface";
 import { getAPIResponse, getRevalidationTime } from "@library/utils";
+import { ESPatientInterface } from "@providers/elasticsearch/patientIndex/interfaces/ESPatientInterface";
 import { useLoggedInStore } from "@store/useLoggedInStore";
 import { useSuspenseQuery } from "@tanstack/react-query";
-import { EncounterListItem } from "@utils/interfaces/Encounter/Encounter";
+import { EncounterListItem } from "@utils/interfaces/DataModels/Encounter";
 import { getBaseUrl, getUrlFromName, resolveFacilityDetailURLFromNameAndId } from "@utils/lib/apiList";
 import { delay } from "lodash";
 import { signOut } from "next-auth/react";

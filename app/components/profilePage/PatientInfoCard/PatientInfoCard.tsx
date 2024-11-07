@@ -1,15 +1,15 @@
-import { ESPatientInterface } from "@api/providers/elasticsearch/patientIndex/interfaces/ESPatientInterface";
 import { MCISpinner } from "@components/MCISpinner";
 import Button from "@library/Button";
 import { IconProps } from "@library/Icon";
 import { downloadDataURIAsPNG, getAPIResponse, getRevalidationTime } from "@library/utils";
+import { ESPatientInterface } from "@providers/elasticsearch/patientIndex/interfaces/ESPatientInterface";
 import { useQuery } from "@tanstack/react-query";
 import { getBaseUrl, getUrlFromName } from "@utils/lib/apiList";
 import {
-  convertDateToReadableFormat,
-  convertGenderToReadableFormat,
-  selectBloodGroupFromCode,
-  selectMaritalStatusFromCode
+    convertDateToReadableFormat,
+    convertGenderToReadableFormat,
+    selectBloodGroupFromCode,
+    selectMaritalStatusFromCode
 } from "@utils/utilityFunctions";
 import dynamic from "next/dynamic";
 import { memo, useState } from "react";

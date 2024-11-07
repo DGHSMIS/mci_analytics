@@ -1,13 +1,13 @@
-import process from "process";
 import * as fakerjs from "@faker-js/faker";
-import { facilityList } from "@utils/constants";
 import bloodGroupCodes from "@utils/constants/BloodGroupCodes.json";
 import districtList from "@utils/constants/DistrictCodes.json";
 import educationLevelCodes from "@utils/constants/EducationLevels.json";
 import occupationCodes from "@utils/constants/OccupationCodes.json";
 import religionCodes from "@utils/constants/ReligionCodes.json";
 import upazilaCodes from "@utils/constants/UpazilaCodes.json";
+import { facilityList } from "@utils/constantsInMemory";
 import { resolveFacilityDetailURLFromNameAndId } from "@utils/lib/apiList";
+import process from "process";
 import { dateToUUID, xDaysAgo } from "utils/utilityFunctions";
 
 export const patientSeederInsertQuery = `INSERT INTO patient (health_id,active,address_line,area_mouja,assigned_by,bin_brn,blood_group,city_corporation_id,confidential,country_code,created_at,created_by,date_of_birth,date_of_death,disability,district_id,division_id,dob_type,edu_level,ethnicity,fathers_brn,fathers_given_name,fathers_name_bangla,fathers_nid,fathers_sur_name,fathers_uid,full_name_bangla,gender,given_name,hid_card_status,holding_number,household_code,marital_relations,marital_status,marriage_id,merged_with,mothers_brn,mothers_given_name,mothers_name_bangla,mothers_nid,mothers_sur_name,mothers_uid,national_id,nationality,occupation,pending_approvals,permanent_address_line,permanent_area_mouja,permanent_city_corporation_id,permanent_country_code,permanent_district_id,permanent_division_id,permanent_holding_number,permanent_post_code,permanent_post_office,permanent_rural_ward_id,permanent_street,permanent_union_or_urban_ward_id,permanent_upazila_id,permanent_village,phone_no,phone_number_area_code,phone_number_country_code,phone_number_extension,place_of_birth,post_code,post_office,primary_contact,primary_contact_no,primary_contact_number_area_code,primary_contact_number_country_code,primary_contact_number_extension,relations,religion,rural_ward_id,status,street,sur_name,uid,union_or_urban_ward_id,upazila_id,updated_at,updated_by,village) 

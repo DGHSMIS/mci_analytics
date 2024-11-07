@@ -1,20 +1,20 @@
-import { CreateAndUpdatedByEncounterInterface } from "@api/providers/elasticsearch/encounterIndex/interfaces/ESEncounterInterface";
-import { CreateAndUpdatedByPatientInterface, ESPatientInterface } from "@api/providers/elasticsearch/patientIndex/interfaces/ESPatientInterface";
 import { AddressProps } from "@components/profilePage/AddressBlock/AddressBlock";
+import { CreateAndUpdatedByEncounterInterface } from "@providers/elasticsearch/encounterIndex/interfaces/ESEncounterInterface";
+import { CreateAndUpdatedByPatientInterface, ESPatientInterface } from "@providers/elasticsearch/patientIndex/interfaces/ESPatientInterface";
 import {
-  bloodGroupCodes,
-  countryCodes,
-  disabilityCodes,
-  districtCodes,
-  divisionCodes,
-  educationLevels,
-  KNOWN_SAFE_HOST_IP_LIST,
-  maritalStatusCodes,
-  occupationCodes,
-  religionCodes,
-  upazilaCodes
-} from "@utils/constants";
-import { ESDateRangeSingleItemQueryInterface } from "@utils/interfaces/ESModelInterfaces";
+    bloodGroupCodes,
+    countryCodes,
+    disabilityCodes,
+    districtCodes,
+    divisionCodes,
+    educationLevels,
+    KNOWN_SAFE_HOST_IP_LIST,
+    maritalStatusCodes,
+    occupationCodes,
+    religionCodes,
+    upazilaCodes
+} from "@utils/constantsInMemory";
+import { ESDateRangeSingleItemQueryInterface } from "@utils/interfaces/DataModels/ESModelInterfaces";
 import { addDays, formatISO, set, subDays, subMinutes, subMonths, subYears } from "date-fns";
 import { NextRequest } from "next/server";
 import { v1 as uuidv1 } from "uuid";
@@ -525,4 +525,30 @@ export const blankCreatedAndUpdatedByPatientESObject: CreateAndUpdatedByPatientI
 export const blankCreatedAndUpdatedByEncounterESObject: CreateAndUpdatedByEncounterInterface = {
   facilityId: null,
   provider: null
-}
+};
+export const ncdDiseases: string[] = [
+  "Bronchial Asthma",
+  "Congenital Heart Diseases",
+  "Epilepsy",
+  "Type 1 Diabetes Mellitus",
+  "Thalassemia and iron deficiency anemia",
+  "Nephrotic Syndrome",
+];export const getFacilitySolutionTypeFromName = (
+  facilityNamePartialMatch: string
+) => {
+  if (facilityNamePartialMatch.includes("Directorate General of Health Services (DGHS)")) {
+    return "openSRP";
+  }
+  return "openMRS+";
+};
+
+export const isAaloClinic = (facilityCode: string) => {
+  const aaloClinicFacilityCodes = ["10034140", "10034141", "10034142", "10034144", "10034145", "10034146"];
+  for (const code of aaloClinicFacilityCodes) {
+    if (code == facilityCode) {
+      return true;
+    }
+  }
+  return false;
+};
+

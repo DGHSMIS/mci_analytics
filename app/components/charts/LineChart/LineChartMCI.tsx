@@ -2,7 +2,7 @@ import { AxisProps } from "@nivo/axes";
 import { Margin } from "@nivo/core";
 import { LegendProps } from "@nivo/legends";
 import { Point, PointTooltipProps, ResponsiveLine, Serie } from "@nivo/line";
-import { tokens } from "@utils/ThemeToken";
+import { tokens } from "@utils/styles/ThemeToken";
 import { timeFormat } from "d3-time-format";
 import { differenceInDays, format, parseISO } from "date-fns";
 import { memo, Suspense, useMemo } from "react";

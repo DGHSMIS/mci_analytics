@@ -1,8 +1,8 @@
+import { RankListProps } from "@components/globals/RankList/RankListProps";
 import { getEncountersByFacilities } from "@utils/esQueries/encounterIndex/aggQueriesForEncounterStats";
-import { ValidateDateAndDivisionResponseInterface } from "@utils/interfaces/FormDataInterfaces";
-import { RankListProps } from "@utils/interfaces/RankListProps";
+import { ValidateDateAndDivisionResponseInterface } from "@utils/interfaces/DataModels/ApiRequestQueryParamInterfaces";
 import { validateFormData } from "@utils/models/Validation";
-import { sendErrorMsg, sendSuccess } from "@utils/responseHandler";
+import { sendErrorMsg, sendSuccess } from "@utils/responseHandlers/responseHandler";
 import { NextRequest } from "next/server";
 import "server-only";
 

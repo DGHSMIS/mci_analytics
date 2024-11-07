@@ -1,6 +1,6 @@
 "use client";
 import { useLoggedInStore } from "@store/useLoggedInStore";
-import { EncounterListProps } from "@utils/interfaces/Encounter/Encounter";
+import { EncounterListProps } from "@utils/interfaces/DataModels/Encounter";
 import { convertDateToReadableFormat } from "@utils/utilityFunctions";
 import dynamic from "next/dynamic";
 import { memo } from "react";

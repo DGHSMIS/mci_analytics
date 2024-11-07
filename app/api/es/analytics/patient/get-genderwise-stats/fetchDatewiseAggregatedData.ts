@@ -1,7 +1,7 @@
 import { esBaseClient } from "@providers/elasticsearch/ESBase";
 import { patientESIndex } from "@providers/elasticsearch/patientIndex/ESPatientIndex";
-import { ESDateRangeSingleItemQueryInterface } from "@utils/interfaces/ESModelInterfaces";
-import { LatestGenderWiseStatsInterface } from "@utils/interfaces/PublicDashboardInterfaces";
+import { LatestGenderWiseStatsInterface } from "@utils/interfaces/Analytics/PublicDashboard/PublicDashboardInterfaces";
+import { ESDateRangeSingleItemQueryInterface } from "@utils/interfaces/DataModels/ESModelInterfaces";
 import { datesRangeGenerator } from "@utils/utilityFunctions";
 
 /**

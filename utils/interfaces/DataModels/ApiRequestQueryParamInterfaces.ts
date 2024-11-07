@@ -1,4 +1,4 @@
-import { DivisionInterface } from "@utils/interfaces/LocalityInterfaces";
+import { DivisionInterface } from "@utils/interfaces/DataModels/LocalityInterfaces";
 
 export interface DateRangeFormInterface {
   dateFrom?: string;
@@ -17,7 +17,6 @@ export interface ValidateDateAndDivisionResponseInterface {
   errors: string[];
   results?: ParsedFormDateAndDivisionInterface;
 }
-
 
 
 export interface ValidateDateAndFacilityResponseInterface {

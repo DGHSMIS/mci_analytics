@@ -1,12 +1,12 @@
+import { RankListProps } from "@components/globals/RankList/RankListProps";
 import { getAPIResponse, getRevalidationTime } from "@library/utils";
 import { Serie } from "@nivo/line";
 import { useStore } from "@store/store";
 import DateAggregationToLineChartSerieCollection from "@utils/converters/DateAggregationToLineChartSerieCollection";
-import { AreaWiseRegistrationStatsProps } from "@utils/interfaces/LocalityInterfaces";
-import { LatestGenderWiseStatsInterface } from "@utils/interfaces/PublicDashboardInterfaces";
+import { LatestGenderWiseStatsInterface } from "@utils/interfaces/Analytics/PublicDashboard/PublicDashboardInterfaces";
+import { AreaWiseRegistrationStatsProps } from "@utils/interfaces/DataModels/LocalityInterfaces";
 import { getBaseUrl, getUrlFromName } from "@utils/lib/apiList";
 import { signOut } from "next-auth/react";
-import { RankListProps } from "@utils/interfaces/RankListProps";
 
 /**
  * Retrieves division-wise registration statistics within a given date range.

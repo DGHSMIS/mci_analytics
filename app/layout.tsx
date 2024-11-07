@@ -2,8 +2,8 @@ import Providers from "app/providers";
 import { getServerSession } from "next-auth/next";
 import dynamic from "next/dynamic";
 import React from "react";
-import { inter, nikosh } from "utils/fonts";
 import { authOptions } from "utils/lib/auth";
+import { inter, nikosh } from "utils/styles/fonts";
 import "./styles/scss/globals.scss";
 
 const { healthCard, template } = {
@@ -53,7 +53,6 @@ export default async function RootLayout({
   children: React.ReactNode;
 }) {
   const session = await getServerSession(authOptions);
-
   return (
     <html lang="en" className={`${inter.className}`}>
       <body className="light">

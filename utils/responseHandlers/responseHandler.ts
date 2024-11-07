@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { getResponseHeaders } from './utilityFunctions';
+import { getResponseHeaders } from '../utilityFunctions';
 
 export const noCacheHeaderes: HeadersInit = getResponseHeaders(0);
 export const cacheHeaderes: HeadersInit = getResponseHeaders(1800);

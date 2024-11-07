@@ -1,13 +1,12 @@
-import { CASSANDRA_PAGE_SIZE } from "@api/providers/cassandra/constants";
-import { ESPatientInterface } from "@api/providers/elasticsearch/patientIndex/interfaces/ESPatientInterface";
 import { cassandraClient } from "@providers/cassandra/cassandra";
+import { CASSANDRA_PAGE_SIZE } from "@providers/cassandra/constants";
 import { DebugElasticProvider, ELASTIC_BATCH_SIZE, patientESIndexName } from "@providers/elasticsearch/constants";
 import { esBaseClient } from "@providers/elasticsearch/ESBase";
-import { isAaloClinic } from "@utils/constants";
+import { ESPatientInterface } from "@providers/elasticsearch/patientIndex/interfaces/ESPatientInterface";
 import { CDPatientInterface } from "@utils/interfaces/Cassandra/CDPatientInterface";
-import { FacilityInterface } from "@utils/interfaces/FacilityInterfaces";
+import { FacilityInterface } from "@utils/interfaces/DataModels/FacilityInterfaces";
 import fetchAndCacheFacilityInfo from "@utils/providers/fetchAndCacheFacilityInfo";
-import { blankCreatedAndUpdatedByPatientESObject, timeUUIDToDate } from "@utils/utilityFunctions";
+import { blankCreatedAndUpdatedByPatientESObject, isAaloClinic, timeUUIDToDate } from "@utils/utilityFunctions";
 import { stringify } from "uuid";
 
 // Elasticsearch index name

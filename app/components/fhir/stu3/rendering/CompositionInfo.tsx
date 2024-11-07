@@ -1,7 +1,7 @@
 import { MCISpinner } from "@components/MCISpinner";
 import { getAPIResponse } from "@library/utils";
 import { useQuery } from "@tanstack/react-query";
-import PatientInfoInterface from "@utils/interfaces/PatientInfoInterfaces";
+import PatientInfoInterface from "@utils/interfaces/DataModels/PatientInfoInterfaces";
 import { getBaseUrl, getUrlFromName } from "@utils/lib/apiList";
 import { calculateAge, convertDateToReadableFormat, convertGenderToReadableFormat } from "@utils/utilityFunctions";
 import { Composition } from "fhir/r3";

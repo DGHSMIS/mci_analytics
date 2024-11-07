@@ -1,19 +1,19 @@
+"use client";
 import { MCISpinner } from "@components/MCISpinner";
 import { defaultBarLegend, defaultBottomAxisProps, defaultLeftAxisProps, defaultOtherProps } from "@components/charts/BarChart/BarChartDefaultProps";
-import { TooltipBarChartProps } from "@components/charts/BarChart/TooltipBarChart";
 import { ChartThemeDef } from "@components/charts/ChartThemeDef";
-import SearchDateRangeFilter from "@components/publicDashboard/sectionFilterSegment/SearchDateRangeFilter";
-import DropDownMulti from "@library/form/DropDownMulti";
-import FormItemResponseProps from "@library/form/FormItemResponseProps";
+import NCDAggFacilityFilterDD from "@components/ncdPublicDashboard/ncdAggregatedDataSection/NCDAggFacilityFilterDD";
 import { AxisProps } from "@nivo/axes";
 import { BarLegendProps } from "@nivo/bar";
-import { tokens } from "@utils/ThemeToken";
-import { ncdDiseases } from "@utils/constants";
-import { NCDAggregatedStatsProps } from "@utils/interfaces/NCD/NCDAggregatedStatsProps";
+import { NCDAggregatedStatsProps } from "@utils/interfaces/Analytics/NCD/NCDAggregatedStatsProps";
+import { tokens } from "@utils/styles/ThemeToken";
+import { ncdDiseases } from "@utils/utilityFunctions";
 import dynamic from "next/dynamic";
 import { memo, Suspense, useMemo } from "react";
-import { cn } from "tailwind-cn";
-
+const SearchDateRangeFilter = dynamic(
+    () => import("@components/publicDashboard/sectionFilterSegment/SearchDateRangeFilter"), {
+    ssr: true,
+})
 
 const BarChartMCI = dynamic(
     () => import("@charts/BarChart/BarChartMCI"), {
@@ -28,24 +28,13 @@ const DonutChartMCI = dynamic(
     () => import("@charts/DonutChart/DonutChartMCI"), {
     ssr: true,
 })
-const TooltipBarChart = dynamic(
-    () => import("@charts/BarChart/TooltipBarChart"), {
-    ssr: true,
-})
 
-const tooltipProps = (item: any): TooltipBarChartProps => {
-    return {
-        line1Label: "Age Groups: ",
-        line1Value: item.indexValue,
-        line2Label: "Count:",
-        line2Value: item.value,
-    };
-};
+
 
 export interface NCDAggregatedDataSectionProps {
     sectionData: NCDAggregatedStatsProps;
 }
-function  NCDAggregatedDataSection({
+function NCDAggregatedDataSection({
     sectionData
 }: NCDAggregatedDataSectionProps) {
     const barChartkeys = ncdDiseases;
@@ -80,32 +69,15 @@ function  NCDAggregatedDataSection({
     }, []);
 
     const colorsTheme: any = tokens();
-    return (<div className="relative h-full w-full items-start justify-center space-y-40 rounded-lg border border-slate-200 bg-white p-20 hover:border-primary-400  hover:shadow-xl">
-        <div className="mx-auto mt-16 grid max-w-7xl gap-20 sm:grid-cols-4 lg:h-36 lg:grid-cols-3 lg:gap-40 lg:pb-20">
-            <div
-                className={cn(
-                    "flex justify-end items-end lg:col-span-2 col-span-4"
-                )}
-            >
-                <SearchDateRangeFilter renderContext={3} />
-            </div>
-            <div>
-                <DropDownMulti size="sm" label="Filter by Facilities" items={[{
-                    "id": 1,
-                    "name": "Aalo Clinic,Karail",
-                    isChecked: false
-                }, {
-                    "id": 2,
-                    "name": "National Asthma Center",
-                    isChecked: false
-                }]} onChange={function (value: FormItemResponseProps): void {
-                    throw new Error("Function not implemented.");
-                }} />
+   
+    return (<div>
+    
+    <h3 key={2} className="mb-12 text-base font-semibold uppercase text-slate-600">
+                Aggregated NCD Stats
+            </h3>
+    <div className="relative h-full w-full items-start justify-center space-y-40 rounded-lg border border-slate-200 bg-white p-20 hover:border-primary-400  hover:shadow-xl ">
 
-            </div>
-        </div>
-
-
+        <NCDAggFacilityFilterDD />
 
         <div className="grid grid-cols-2  lg:grid-cols-4 gap-16 lg:space-x-0 px-24 align-middle">
 
@@ -147,48 +119,48 @@ function  NCDAggregatedDataSection({
 
                             }}
                         />
-                         {/* <BarChartMCI
+                        {/* <BarChartMCI
                             chartTitle="Vendor Stats"
                             originalData={[
                                 {
-                                    "vendor": "Crystal Tech. Bangladesh Ltd.",
-                                    "Total HIDs": 3394,
-                                    "Last 3 Months HIDs": 700,
+                                    "vendor": "mpower Social Enterprises",
+                                    "Total HIDs": 1367671,
+                                    "Last 3 Months HIDs": 2210,
+                                    "Encounters": 4,
+                                    "Total Deployments": 0
+                                },
+                                {
+                                    "vendor": "Crystal Tech. Bangladesh",
+                                    "Total HIDs": 87290,
+                                    "Last 3 Months HIDs": 26511,
                                     "Encounters": 140,
                                     "Total Deployments": 64
                                 },
-                                // {
-                                //     "vendor": "mpower Social Enterprises Ltd.",
-                                //     "Total HIDs": 0,
-                                //     "Last 3 Months HIDs": 0,
-                                //     "Encounters": 0,
-                                //     "Total Deployments": 0
-                                // },
                                 {
                                     "vendor": "Bindo Logic",
-                                    "Total HIDs": 719,
-                                    "Last 3 Months HIDs": 330,
+                                    "Total HIDs": 23328,
+                                    "Last 3 Months HIDs": 9307,
                                     "Encounters": 0,
                                     "Total Deployments": 11
                                 },
                                 {
-                                    "vendor": "CMED Health Limited",
-                                    "Total HIDs": 78,
-                                    "Last 3 Months HIDs": 0,
-                                    "Encounters": 73,
-                                    "Total Deployments": 6
-                                },
-                                {
-                                    "vendor": "Flora Telecom Ltd.",
-                                    "Total HIDs": 502,
-                                    "Last 3 Months HIDs": 148,
+                                    "vendor": "Flora Telecom",
+                                    "Total HIDs": 22562,
+                                    "Last 3 Months HIDs": 7525,
                                     "Encounters": 0,
                                     "Total Deployments": 6
                                 },
+                                {
+                                    "vendor": "CMED Health",
+                                    "Total HIDs": 4269,
+                                    "Last 3 Months HIDs": 525,
+                                    "Encounters": 77,
+                                    "Total Deployments": 6
+                                }
                                 // {
                                 //     "vendor": "Sterling Multi-Technologies Limited",
-                                //     "Total HIDs": 7,
-                                //     "Last 3 Months HIDs": 0,
+                                //     "Total HIDs": 194,
+                                //     "Last 3 Months HIDs": 70,
                                 //     "Encounters": 0,
                                 //     "Total Deployments": 1
                                 // },
@@ -236,8 +208,11 @@ function  NCDAggregatedDataSection({
                             // colors={(bar: any) => String(bar.data.color)}
                             axisLeft={{
                                 ...leftAxisProps,
-                                tickRotation: 0,
-                                legend: "HID Created",
+                                tickRotation: -10,
+                                truncateTickAt: 0.4,
+                                legendOffset: -100,
+                                tickValues: 4,
+                                legend: "",
                             }}
                             colors={{ scheme: "category10" }}
                             axisBottom={{ ...bottomAxisProps, tickRotation: -0, legend: "" }}
@@ -248,30 +223,34 @@ function  NCDAggregatedDataSection({
                                 layout: "vertical",
                                 margin: { top: 0, right: 200, bottom: 150, left: 200 },
                                 legend: "Facility",
+                                padding: 0.3,
+                                innerPadding: 0.3,
+                                indexScale: { type: 'band', round: true },
+                                valueScale: { type: "symlog" },
                                 theme: {
                                     axis: {
                                         ticks: {
                                             text: {
-                                                fontSize: 18, // Font size for axis ticks
-                                                fontWeight: 600, // Font weight for axis legend labels
+                                                fontSize: 14, // Font size for axis ticks
+                                                fontWeight: 500, // Font weight for axis legend labels
                                             }
                                         },
                                         legend: {
                                             text: {
-                                                fontSize: 18, // Font size for axis legend labels
-                                                fontWeight: 600, // Font weight for axis legend labels
+                                                fontSize: 16, // Font size for axis legend labels
+                                                fontWeight: 400, // Font weight for axis legend labels
                                             }
                                         }
                                     },
                                     labels: {
                                         text: {
-                                            fontSize: 18, // Font size for bar labels
-                                            fontWeight: 600, // Font weight for axis legend labels
+                                            fontSize: 16, // Font size for bar labels
+                                            fontWeight: 400, // Font weight for axis legend labels
                                         }
                                     },
                                     legends: {
                                         text: {
-                                            fontSize: 16, // Font size for legends
+                                            fontSize: 14, // Font size for legends
                                             fontWeight: 400, // Font weight for axis legend labels
                                         }
                                     }
@@ -422,7 +401,7 @@ function  NCDAggregatedDataSection({
 
         </div>
 
-    </div>)
+    </div></div>)
 };
 
 export default memo(NCDAggregatedDataSection);

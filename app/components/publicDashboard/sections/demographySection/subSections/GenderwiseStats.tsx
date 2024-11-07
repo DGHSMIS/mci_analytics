@@ -7,10 +7,10 @@ import ChartViewManagerComponent from "@components/publicDashboard/sectionFilter
 import { getAPIResponse, getRevalidationTime } from "@library/utils";
 import { Serie } from "@nivo/line";
 import { useStore } from "@store/store";
-import { divisionCodes } from "@utils/constants";
+import { divisionCodes } from "@utils/constantsInMemory";
 import DateAggregationToLineChartSerieCollection from "@utils/converters/DateAggregationToLineChartSerieCollection";
 import LineToPieChartSerieCollection from "@utils/converters/LineToPieChartSerieCollection";
-import { LatestGenderWiseStatsInterface } from "@utils/interfaces/PublicDashboardInterfaces";
+import { LatestGenderWiseStatsInterface } from "@utils/interfaces/Analytics/PublicDashboard/PublicDashboardInterfaces";
 import { getBaseUrl, getUrlFromName } from "@utils/lib/apiList";
 import { getObjectKeyFromValue } from "@utils/utilityFunctions";
 import { memo, Suspense, useEffect, useMemo, useState } from "react";

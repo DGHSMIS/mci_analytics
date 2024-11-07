@@ -1,11 +1,11 @@
-import { ESEncounterMapping } from "@api/providers/elasticsearch/encounterIndex/ESEncounterMapping";
-import { updateESIndexMapping } from "@api/providers/elasticsearch/ESBase";
-import { ESHealthRecordSummaryMapping } from "@api/providers/elasticsearch/healthRecordSummaryIndex/ESHealthRecordSummaryMapping";
-import { encounterIndexName, healthRecordESIndexName, patientESIndexName } from '@providers/elasticsearch/constants';
+import { ESEncounterMapping } from "@providers/elasticsearch/encounterIndex/ESEncounterMapping";
+import { updateESIndexMapping } from "@providers/elasticsearch/ESBase";
+import { ESHealthRecordSummaryMapping } from "@providers/elasticsearch/healthRecordSummaryIndex/ESHealthRecordSummaryMapping";
 import { patientESIndex } from "@providers/elasticsearch/patientIndex/ESPatientIndex";
 import { ESPatientMapping } from "@providers/elasticsearch/patientIndex/ESPatientMapping";
 import { checkIfAuthenticatedMCIUser } from "@utils/lib/auth";
-import { sendErrorMsg, sendSuccess } from "@utils/responseHandler";
+import { sendErrorMsg, sendSuccess } from "@utils/responseHandlers/responseHandler";
+import { encounterIndexName, healthRecordESIndexName, patientESIndexName } from 'app/api/providers/elasticsearch/constants';
 import { NextRequest } from "next/server";
 import "server-only";
 
