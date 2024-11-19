@@ -3,7 +3,6 @@ import { ncdIndexName } from "@providers/elasticsearch/constants";
 import { dropAndGenerateIndex } from "@providers/elasticsearch/ESBase";
 import { indexAllPediatricNCDDataInESData } from "@providers/elasticsearch/ncdIndex/ESPediatricNCDIndex";
 import { ESPediatricNCDIndexBody } from "@providers/elasticsearch/ncdIndex/ESPediatricNCDMapping";
-import { checkIfAuthenticatedMCIUser } from "@utils/lib/auth";
 import { sendErrorMsg, sendSuccess } from "@utils/responseHandlers/responseHandler";
 import { NextRequest } from "next/server";
 import "server-only";
@@ -30,11 +29,11 @@ const knownHostIPs = ['127.0.0.1', '::1'];
 export async function POST(req: NextRequest) {
   console.log(`Cleaning & reindexing ${ncdIndexName} index`);
     // Check Authorization & respond error if not verified
-    const isValidUserRequest = await checkIfAuthenticatedMCIUser(req);
+    // const isValidUserRequest = await checkIfAuthenticatedMCIUser(req);
 
-    if (isValidUserRequest !== null) {
-        return isValidUserRequest;
-    }
+    // if (isValidUserRequest !== null) {
+    //     return isValidUserRequest;
+    // }
 
   try {
     const pediatricNCDIndexRegenerated = await dropAndGenerateIndex(ncdIndexName, ESPediatricNCDIndexBody);
