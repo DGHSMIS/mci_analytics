@@ -51,14 +51,14 @@ export default memo(function Footer() {
               target="_blank"
               title={titleLabel}
               aria-label={titleLabel}
-              className="bg-[#189cfe]"
+              // className="bg-[#189cfe]"
             >
               <Image src={unicefLogo} alt={titleLabel} title={titleLabel}
-                className="block md:ml-0 p-12 w-[10rem] m-h-96 border-[1px] border-[#1cabe2] border-opacity-10 hover:transition-opacity hover:border-opacity-30 hover:shadow-sm rounded"
+                className="block md:ml-0 p-12 w-[10rem] m-h-96 border-[2px] border-[#1cabe2] border-opacity-10 hover:transition-opacity hover:border-opacity-30 hover:shadow-sm rounded"
                 width={200}
+                height={108}
                 blurDataURL={`${process.env.blurDataURL}`}
                 placeholder="blur"
-
               />
             </Link>
           </div>
@@ -100,22 +100,23 @@ export default memo(function Footer() {
             className="ml-28 mr-12 block w-40 md:ml-0 md:hidden"
           /> {footerLead} */}
           <div className="flex justify-center space-x-4 w-100 max-h-48 items-center mt-12">
-            <span className="text-xs">
+            <div className="text-xs">
               Supported by &nbsp;
-            </span>
+            </div>
           </div>
-          <div className="flex justify-center space-x-4 w-100 max-h-48 items-center mt-4">
+          <div className="flex justify-center space-x-4 w-100 max-h-48 items-center my-20">
             <Link
               href="https://www.unicef.org/"
               rel="nofollow"
               target="_blank"
               title={titleLabel}
               aria-label={titleLabel}
-              className="bg-[#189cfe]"
+              // className="bg-[#189cfe]"
             >
               <Image src={unicefLogo} alt={titleLabel} title={titleLabel}
                 className="hover:cursor-pointer hover:opacity-90 transition-opacity block md:ml-0 p-8 w-[8rem] m-h-40 border-[1px] border-[#1cabe2] border-opacity-10 hover:transition-opacity hover:border-opacity-30 hover:shadow-sm rounded"
                 width={100}
+                height={54}
                 blurDataURL={`${process.env.blurDataURL}`}
                 placeholder="blur"
               />

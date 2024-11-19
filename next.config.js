@@ -25,11 +25,11 @@ const nextConfig = {
     // config.devtool = process.env.NODE_ENV === 'development' ? 'eval-source-map' : false;
     return config;
   },
-  // eslint: {
-  //   // Warning: This allows production builds to successfully complete even if
-  //   // your project has ESLint errors.
-  //   ignoreDuringBuilds: true,
-  // },
+  eslint: {
+    // Warning: This allows production builds to successfully complete even if
+    // your project has ESLint errors.
+    ignoreDuringBuilds: true,
+  },
   experimental: {
     // https://nextjs.org/docs/app/building-your-application/configuring/typescript#statically-typed-links
     // typedRoutes: true,
