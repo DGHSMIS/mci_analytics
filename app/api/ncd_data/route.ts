@@ -11,7 +11,7 @@ import prisma from 'app/api/providers/prisma/prismaClient';
 import Error from 'next/error';
 import { NextRequest, NextResponse } from "next/server";
 
-const MAX_PATIENT_LIMIT = 5000;
+const MAX_PATIENT_LIMIT = 100;
 // TODO: Add Facility Verification via API Call to check if the facility exists in the Facility Registry
 //Generate Sample Data using the following at https://json-generator.com/#
 // [
@@ -82,71 +82,76 @@ async function processSubmittedData(preprocessedData: PGNCDPayloadLoggerInterfac
         let totalNewVisits = 0;
         for (const patientVisit of patientVisits) {
             console.log("The Patient Visit data is ", patientVisit);
-            //Validate if the facility code matches the patient visit facility code, otherwise this is invalid data
-            if (preprocessedData.facilityCode === patientVisit.facilityCode) {
-                //Check if the record already exists in the database (combination of visitId & facilityCode is unique)
-                const existingRecord = await prisma.patientVisit.findFirst({
-                    where: {
-                        visitId: patientVisit.visitId,
-                        facilityCode: preprocessedData.facilityCode
-                    },
-                });
+            if (patientVisit.visitId) {
+                //Validate if the facility code matches the patient visit facility code, otherwise this is invalid data
+                if (preprocessedData.facilityCode === patientVisit.facilityCode) {
+                    //Check if the record already exists in the database (combination of visitId & facilityCode is unique)
+                    const existingRecord = await prisma.patientVisit.findFirst({
+                        where: {
+                            visitId: patientVisit.visitId,
+                            facilityCode: preprocessedData.facilityCode
+                        },
+                    });
 
-                //No existing record found, so add it to the uniquePatientData array
-                if (!existingRecord && patientVisit.diseaseRef) {
+                    //No existing record found, so add it to the uniquePatientData array
+                    if (!existingRecord && patientVisit.diseaseRef) {
 
-                    const diseasesOnVisit: PGDiseasesOnVisit[] = [];
-                    // Fetch facility data and add it to the record
-                    // Now fetch the facility data from the Facility Registry
-                    const facilityData:FacilityInterface = await findOrCreateFacility(patientVisit.facilityCode);
-                    console.log("The Facility Data is ")
-                    console.log(facilityData);
-                    if (facilityData === null) {
+                        const diseasesOnVisit: PGDiseasesOnVisit[] = [];
+                        // Fetch facility data and add it to the record
+                        // Now fetch the facility data from the Facility Registry
+                        const facilityData: FacilityInterface = await findOrCreateFacility(patientVisit.facilityCode);
+                        console.log("The Facility Data is ")
+                        console.log(facilityData);
+                        if (facilityData === null) {
+                            skippedRecords.push(patientVisit);
+                        }
+                        console.log("The Facility Name is ")
+                        console.log(facilityData.name);
+                        console.log(patientVisit.facilityCode);
+                        console.log(patientVisit.facilityCode);
+                        //Provider can only add records for their own facility
+                        let patientVisitInfo: PGPatientVisitInterface = {
+                            patientId: patientVisit.patientId,
+                            patientName: patientVisit.patientName,
+                            healthId: patientVisit.healthId ?? "",
+                            visitId: patientVisit.visitId,
+                            dateOfVisit: new Date(patientVisit.dateOfVisit),
+                            dob: new Date(patientVisit.dob),
+                            gender: convertToFormattedGender(patientVisit.gender),
+                            facilityCode: patientVisit.facilityCode,
+                            serviceLocation: patientVisit.serviceLocation,
+                            isReferredToHigherFacility: patientVisit.isReferredToHigherFacility,
+                            isFollowUp: patientVisit.isFollowUp,
+                            createdAt: new Date(createdAt),
+                        }
+                        //Add the patientVisitInfo to the database
+                        let newVisitInDB = await prisma.patientVisit.create({
+                            data: patientVisitInfo,
+                        });
+                        //Now add the diseases that were detected on the patient visit
+                        for (const diseaseRef of patientVisit.diseaseRef) {
+                            //Check if the disease exists in the database, otherwise create it
+                            const diseaseData = await findOrCreateDisease(diseaseRef.conceptUuId, diseaseRef.conceptName ?? "");
+                            diseasesOnVisit.push({
+                                patientVisitId: newVisitInDB.id,
+                                conceptUuId: diseaseData.conceptUuId,
+                                patientSymptoms: diseaseRef.patientSymptoms,
+                                createdAt: new Date(createdAt),
+                            })
+                        }
+                        if (newVisitInDB.id != undefined) {
+                            let newDiseaseInDB = await prisma.diseasesOnVisit.createMany({
+                                data: diseasesOnVisit
+                            });
+                        }
+                        totalNewVisits++;
+
+                    } else {
+                        // Add the duplicate record details to skippedRecords
                         skippedRecords.push(patientVisit);
                     }
-                    console.log("The Facility Name is ")
-                    console.log(facilityData.name);
-                    console.log(patientVisit.facilityCode);
-                    console.log(patientVisit.facilityCode);
-                    //Provider can only add records for their own facility
-                    let patientVisitInfo: PGPatientVisitInterface = {
-                        patientId: patientVisit.patientId,
-                        patientName: patientVisit.patientName,
-                        healthId: patientVisit.healthId ?? "",
-                        visitId: patientVisit.visitId,
-                        dateOfVisit: new Date(patientVisit.dateOfVisit),
-                        dob: new Date(patientVisit.dob),
-                        gender: patientVisit.gender,
-                        facilityCode: patientVisit.facilityCode,
-                        serviceLocation: patientVisit.serviceLocation,
-                        isReferredToHigherFacility: patientVisit.isReferredToHigherFacility,
-                        isFollowUp: patientVisit.isFollowUp,
-                        createdAt: new Date(createdAt),
-                    }
-                    //Add the patientVisitInfo to the database
-                    let newVisitInDB = await prisma.patientVisit.create({
-                        data: patientVisitInfo,
-                    });  
-                    //Now add the diseases that were detected on the patient visit
-                    for (const diseaseRef of patientVisit.diseaseRef) {
-                        //Check if the disease exists in the database, otherwise create it
-                        const diseaseData = await findOrCreateDisease(diseaseRef.conceptUuId, diseaseRef.conceptName ?? "");
-                        diseasesOnVisit.push({
-                            patientVisitId: newVisitInDB.id,
-                            conceptUuId: diseaseData.conceptUuId,
-                            patientSymptoms: diseaseRef.patientSymptoms,
-                            createdAt: new Date(createdAt),
-                        })
-                    }
-                    if (newVisitInDB.id != undefined) {
-                        let newDiseaseInDB = await prisma.diseasesOnVisit.createMany({
-                            data: diseasesOnVisit
-                        });
-                    }
-                    totalNewVisits++;
-
                 } else {
-                    // Add the duplicate record details to skippedRecords
+                    // Add the record to skippedRecords if the facility code does not match
                     skippedRecords.push(patientVisit);
                 }
             } else {
@@ -199,6 +204,28 @@ async function processSubmittedData(preprocessedData: PGNCDPayloadLoggerInterfac
 
 }
 
+
+
+const convertToFormattedGender = (gender:string):'Male' | 'Female' | 'Other' => {
+    if(gender.toLowerCase() == 'male'){
+        return "Male";
+    }
+    else if(gender.toLowerCase() == 'female'){
+        return "Male";
+    }
+    else if(gender.toLowerCase() == 'female'){
+        return "Male";
+    }
+    else if(gender.toLowerCase() == 'm'){
+        return "Male";
+    }
+    else if(gender.toLowerCase() == 'f'){
+        return "Female"
+    }
+    else {
+        return "Other";
+    }
+}
 
 
 /**

@@ -7,6 +7,11 @@ import { getDateFromString, ncdDiseases, setDateByYears } from "@utils/utilityFu
 import { NextRequest, NextResponse } from "next/server";
 import "server-only";
 
+// export const dynamic = "force-dynamic";
+export const revalidate = process.env.NODE_ENV === "development" ? 0 : 7200;
+export const fetchCache = "auto";
+export const dynamicParams = false;
+
 export async function GET(req: NextRequest) {
     // Validate the incoming request parameters
     const { valid, errors, results }: ValidateDateAndFacilityResponseInterface =

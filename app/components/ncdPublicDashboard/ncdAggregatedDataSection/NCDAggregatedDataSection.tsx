@@ -79,7 +79,7 @@ function NCDAggregatedDataSection({
 
         <NCDAggFacilityFilterDD />
 
-        <div className="grid grid-cols-2  lg:grid-cols-4 gap-16 lg:space-x-0 px-24 align-middle">
+        <div className="grid grid-cols-2  lg:grid-cols-4 gap-16 lg:space-x-0 align-middle">
 
             <div className="w-full rounded-lg col-span-4 lg:col-span-4 mt-24">
                 <div className="h-[600px] w-full rounded-lg md:mt-24 md:pl-24">
@@ -123,7 +123,7 @@ function NCDAggregatedDataSection({
                             chartTitle="Vendor Stats"
                             originalData={[
                                 {
-                                    "vendor": "mpower Social Enterprises",
+                                    "vendor": "mpower Enterprises",
                                     "Total HIDs": 1367671,
                                     "Last 3 Months HIDs": 2210,
                                     "Encounters": 4,
@@ -135,6 +135,13 @@ function NCDAggregatedDataSection({
                                     "Last 3 Months HIDs": 26511,
                                     "Encounters": 140,
                                     "Total Deployments": 64
+                                },
+                                {
+                                    "vendor": "eGenaration Ltd",
+                                    "Total HIDs": 60803,
+                                    "Last 3 Months HIDs": 40713,
+                                    "Encounters": 0,
+                                    "Total Deployments": 11
                                 },
                                 {
                                     "vendor": "Bindo Logic",
@@ -208,7 +215,7 @@ function NCDAggregatedDataSection({
                             // colors={(bar: any) => String(bar.data.color)}
                             axisLeft={{
                                 ...leftAxisProps,
-                                tickRotation: -10,
+                                tickRotation: -20,
                                 truncateTickAt: 0.4,
                                 legendOffset: -100,
                                 tickValues: 4,
