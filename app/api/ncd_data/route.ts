@@ -276,7 +276,7 @@ async function payloadLogger(data: PGPatientVisitInterface[], providerUser: Auth
 async function findOrCreateDisease(conceptUuId: string, conceptName: string): Promise<PGDiseaseInterface> {
 
     const diseaseFromDB = await prisma.disease.findFirst({
-        where: { conceptName: conceptName },
+        where: { conceptName: conceptName.trim() },
     });
     console.log("The Disease from DB is ")
     console.log(diseaseFromDB);
@@ -286,8 +286,8 @@ async function findOrCreateDisease(conceptUuId: string, conceptName: string): Pr
 
     const newDisease: PGDiseaseInterface = await prisma.disease.create({
         data: {
-            conceptUuId: conceptUuId,
-            conceptName: conceptName,
+            conceptUuId: conceptUuId.trim(),
+            conceptName: conceptName.trim(),
         },
     });
 
