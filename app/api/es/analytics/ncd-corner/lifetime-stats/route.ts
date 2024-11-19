@@ -79,11 +79,18 @@ const getLifeTimeNCDStats = async (filterClauses: any[]) => {
         console.log("facility aggregations are ");
         console.log(result.aggregations);
         console.log(result.aggregations.serviceLocation.buckets);
-        const output = {
-            totalPatients: result.hits.total.value,
-            totalReferrals: result.aggregations.Referrals.doc_count,
-            totalFollowUps: result.aggregations.FollowUps.doc_count,
-            emergencyCounts: result.aggregations.serviceLocation.buckets[0].doc_count
+        console.log(result.hits.total.value);
+	console.log("Aggregations");
+	console.log(result.aggregations);
+	console.log(result.aggregations.Referrals ? result.aggregations.Referrals.doc_count : 0)
+	console.log("Aggregations 1");
+	console.log(result.aggregations.FollowUps ? result.aggregations.FollowUps.doc_count : 0)
+	console.log(result.aggregations.serviceLocation ? result.aggregations.serviceLocation.buckets.length > 0 ?  result.aggregations.serviceLocation.buckets[0].doc_count : 0 : 0);
+	const output = {
+            totalPatients: result.hits.total.value ?? 0,
+            totalReferrals: result.aggregations.Referrals ? result.aggregations.Referrals.doc_count : 0,
+            totalFollowUps: result.aggregations.FollowUps ? result.aggregations.FollowUps.doc_count : 0,
+            emergencyCounts: result.aggregations.serviceLocation ? result.aggregations.serviceLocation.buckets.length > 0 ?  result.aggregations.serviceLocation.buckets[0].doc_count : 0 : 0
         }
 
 
