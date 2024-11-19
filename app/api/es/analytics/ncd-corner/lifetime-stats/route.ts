@@ -90,7 +90,12 @@ const getLifeTimeNCDStats = async (filterClauses: any[]) => {
         return output;
     } catch (error) {
         console.error(error);
-        return [];
+        return {
+            totalPatients: 0,
+            totalReferrals: 0,
+            totalFollowUps: 0,
+            emergencyCounts: 0
+        }
     }
 };
 
