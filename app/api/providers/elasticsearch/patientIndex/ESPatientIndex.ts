@@ -7,6 +7,7 @@ import { CDPatientInterface } from "@utils/interfaces/Cassandra/CDPatientInterfa
 import { FacilityInterface } from "@utils/interfaces/DataModels/FacilityInterfaces";
 import fetchAndCacheFacilityInfo from "@utils/providers/fetchAndCacheFacilityInfo";
 import { blankCreatedAndUpdatedByPatientESObject, isAaloClinic, timeUUIDToDate } from "@utils/utilityFunctions";
+import pLimit from 'p-limit';
 import { stringify } from "uuid";
 
 // Elasticsearch index name
@@ -318,80 +319,94 @@ export async function insertOrUpdateSinglePatientToESIndex(healthId: String) {
 
 
 /**
- * Fetch ALL data from Cassandra database and Index it in Elasticsearch
- */
+* Fetch ALL data from Cassandra database and Index it in Elasticsearch
+*/
 export async function indexAllPatientESData() {
-  try {
-    indexCount = 0;
-    aloRegCount = 0;
-    errorCount = 0;
-    listOfErrorPatients = [];
-    const results: CDPatientInterface[] = [];
-    let i: number = 0;
+ try {
+   indexCount = 0;
+   aloRegCount = 0;
+   errorCount = 0;
+   listOfErrorPatients = [];
+   let i: number = 0;
+   const concurrencyLimit = 10; // Adjust the concurrency limit as needed
+   const limit = pLimit(concurrencyLimit);
 
-    // Define a function to process each page of results
-    const getAllPatientData = async (pageState: any, query: string = "SELECT * FROM patient") => {
-      if (DebugElasticProvider) console.log("Retrieving page with pageIndex", i);
-      const queryOptions = { prepare: true, fetchSize: CASSANDRA_PAGE_SIZE, pageState };
-      const result: any = await cassandraClient.execute(
-        `${query}`,
-        [],
-        queryOptions,
-      );
+   // Define a function to process each page of results
+   const getAllPatientData = async (
+     pageState: any,
+     query: string = "SELECT * FROM patient"
+   ) => {
+     if (DebugElasticProvider) console.log("Retrieving page with pageIndex", i);
+     const queryOptions = {
+       prepare: true,
+       fetchSize: CASSANDRA_PAGE_SIZE,
+       pageState,
+     };
+     const result: any = await cassandraClient.execute(
+       query,
+       [],
+       queryOptions
+     );
 
-      const rows: CDPatientInterface[] = result.rows;
-      // Process each row here...
-      if (DebugElasticProvider) console.log("Pushing page to allRows");
-      results.push(...rows);
-      i++;
+     const rows: CDPatientInterface[] = result.rows;
+     if (DebugElasticProvider) console.log("Processing page");
 
-      // Check if there are more pages
-      if (result.pageState) {
-        if (DebugElasticProvider) console.log("More pages to come" + result.pageState);
-        await getAllPatientData(result.pageState);
-      }
-    };
+     // Process the batch here using p-limit to control concurrency
+     const formattedDocsPromises = rows.map((patient) =>
+       limit(() => convertDataToPatientESFormat(patient, new Date()))
+     );
+     let formattedDocs = await Promise.all(formattedDocsPromises);
 
-    // Call the getAllPaginatedData function to start retrieving pages
-    await getAllPatientData(null);
+     // Filter out empty array responses from formattedDocs
+     formattedDocs = formattedDocs.filter((doc) => doc.length > 0);
 
-    // Index the data in batches
-    for (let i = 0; i < results.length; i += batchSize) {
-      const batch = results.slice(i, i + batchSize);
-      // Step 1: Format the data
-      const formattedDocsPromises = batch.map(async(patient) => await convertDataToPatientESFormat(patient, new Date()));
-      let formattedDocs = await Promise.all(formattedDocsPromises);
-      // Filter out empty array responses from formattedDocs
-      formattedDocs = formattedDocs.filter(doc => doc.length > 0);
+     // Flatten the array
+     const flattenedDocs = formattedDocs.reduce(
+       (acc, val) => acc.concat(val),
+       []
+     );
 
-      // Step 2: Flatten the array
-      const flattenedDocs = formattedDocs.reduce((acc, val) => acc.concat(val), []);
+     // Send the data to ES Index, ensuring there's something to index
+     if (flattenedDocs.length > 0) {
+       if (DebugElasticProvider) {
+         indexCount += flattenedDocs.length;
+       }
+       await esBaseClient.bulk({ index: patientESIndex, body: flattenedDocs });
+       
+       if (DebugElasticProvider)
+         console.log(
+           `Indexed ${flattenedDocs.length} documents in current batch`
+         );
+     }
 
-      // Step 3: Send the data to ES Index, ensuring there's something to index
-      if (flattenedDocs.length > 0) {
-        if (DebugElasticProvider) { indexCount += flattenedDocs.length; }
-        await esBaseClient.bulk({ index: patientESIndex, body: flattenedDocs });
-        if (DebugElasticProvider) console.log(`Indexed ${flattenedDocs.length} documents in current batch`);
-      }
-    }
-    if (DebugElasticProvider) {
-      console.log("List of Patients with Invalid JSON Object");
-      console.log(JSON.stringify(listOfErrorPatients));
-      console.log("Count of Invalid JSON Object");
-      console.log(listOfErrorPatients.length);
-      console.log("Total Indexed Documents");
-      console.log(indexCount);
-      console.log("Total Alo Registration Count");
-      console.log(aloRegCount);
-    }
-    // await esBaseClient.close();
-    return true;
-  } catch (error) {
-    console.error("Error in indexing all patient data", error);
-    // await esBaseClient.close();
-    return false;
-  }
+     i++;
 
+     // Check if there are more pages
+     if (result.pageState) {
+       if (DebugElasticProvider)
+         console.log("More pages to come: " + result.pageState);
+       await getAllPatientData(result.pageState);
+     }
+   };
+
+   // Start retrieving and processing pages
+   await getAllPatientData(null);
+
+   if (DebugElasticProvider) {
+     console.log("List of Patients with Invalid JSON Object");
+     console.log(JSON.stringify(listOfErrorPatients));
+     console.log("Count of Invalid JSON Object");
+     console.log(listOfErrorPatients.length);
+     console.log("Total Indexed Documents");
+     console.log(indexCount);
+     console.log("Total Alo Registration Count");
+     console.log(aloRegCount);
+   }
+   return true;
+ } catch (error) {
+   console.error("Error in indexing all patient data", error);
+   return false;
+ }
 }
 
 /**

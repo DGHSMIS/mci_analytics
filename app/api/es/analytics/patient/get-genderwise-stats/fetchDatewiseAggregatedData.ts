@@ -3,6 +3,10 @@ import { patientESIndex } from "@providers/elasticsearch/patientIndex/ESPatientI
 import { LatestGenderWiseStatsInterface } from "@utils/interfaces/Analytics/PublicDashboard/PublicDashboardInterfaces";
 import { ESDateRangeSingleItemQueryInterface } from "@utils/interfaces/DataModels/ESModelInterfaces";
 import { datesRangeGenerator } from "@utils/utilityFunctions";
+export const dynamic = "force-dynamic";
+export const revalidate = process.env.NODE_ENV === "development" ? 0 : 7200;
+export const fetchCache = "auto";
+export const dynamicParams = false;
 
 /**
  * Contructs the response Object Structure for the API

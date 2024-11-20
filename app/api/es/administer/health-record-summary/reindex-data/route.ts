@@ -1,9 +1,7 @@
 import { formatDateTime } from "@library/utils";
 import { healthRecordESIndexName } from "@providers/elasticsearch/constants";
-import { dropAndGenerateIndex } from "@providers/elasticsearch/ESBase";
 import { indexAllHealthRecordsESData } from "@providers/elasticsearch/healthRecordSummaryIndex/ESHealthRecordSummaryIndex";
 import { sendErrorMsg, sendSuccess } from "@utils/responseHandlers/responseHandler";
-import { ESHealthRecordSummaryIndexBody } from 'app/api/providers/elasticsearch/healthRecordSummaryIndex/ESHealthRecordSummaryMapping';
 import { NextRequest } from "next/server";
 import "server-only";
 
@@ -35,8 +33,8 @@ export async function POST(req: NextRequest) {
   console.log('Request is from the known host');
 
   try {
-    const healthRecordIndexRegenerated = await dropAndGenerateIndex(healthRecordESIndexName, ESHealthRecordSummaryIndexBody);
-
+    // const healthRecordIndexRegenerated = await dropAndGenerateIndex(healthRecordESIndexName, ESHealthRecordSummaryIndexBody);
+    const healthRecordIndexRegenerated = await Promise.resolve(true);
     if (healthRecordIndexRegenerated) {
       const isIndexAllHealthRecord = await indexAllHealthRecordsESData();
       if (isIndexAllHealthRecord) {
