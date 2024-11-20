@@ -4,10 +4,10 @@ import { DebugElasticProvider, ELASTIC_BATCH_SIZE, healthRecordESIndexName } fro
 import { CDPatientInterface } from "@utils/interfaces/Cassandra/CDPatientInterface";
 import { timeUUIDToDate } from "@utils/utilityFunctions";
 import { esBaseClient } from 'app/api/providers/elasticsearch/ESBase';
+import pLimit from 'p-limit';
 import { stringify } from "uuid";
 import { temporarilyHotFixJSONObject } from "../patientIndex/ESPatientIndex";
 import { ESHealthRecordSummaryInterface } from "./interfaces/ESHealthRecordSummaryInterface";
-
 
 let indexCount = 0;
 let errorCount = 0;
@@ -130,10 +130,83 @@ async function convertDataToHealthRecordSummaryESFormat(doc: CDPatientInterface)
   }
 }
 
+
+
 /**
  * Fetch ALL data from Cassandra database and Index it in Elasticsearch
  */
 export async function indexAllHealthRecordsESData() {
+  try {
+    indexCount = 0;
+    let i: number = 0;
+    const concurrencyLimit = 10; // Adjust the concurrency limit as needed
+    const limit = pLimit(concurrencyLimit);
+
+    // Define a function to process each page of results
+    const getAllPatientData = async (pageState: any, query: string = "SELECT * FROM patient") => {
+      console.log("Looping through the data - count " + i);
+      if (DebugElasticProvider) console.log("Retrieving page with pageIndex", i);
+      const queryOptions = { prepare: true, fetchSize: CASSANDRA_PAGE_SIZE, pageState };
+      const result: any = await cassandraClient.execute(
+        query,
+        [],
+        queryOptions,
+      );
+
+      const rows: CDPatientInterface[] = result.rows;
+      if (DebugElasticProvider) console.log("Processing page");
+
+      // Process the batch here using p-limit to control concurrency
+      const formattedDocsPromises = rows.map(patient =>
+        limit(() => convertDataToHealthRecordSummaryESFormat(patient))
+      );
+      let formattedDocs = await Promise.all(formattedDocsPromises);
+
+      // Filter out empty array responses from formattedDocs
+      formattedDocs = formattedDocs.filter(doc => doc.length > 0);
+
+      // Flatten the array
+      const flattenedDocs = formattedDocs.reduce((acc, val) => acc.concat(val), []);
+
+      // Send the data to ES Index, ensuring there's something to index
+      if (flattenedDocs.length > 0) {
+        if (DebugElasticProvider) { indexCount += flattenedDocs.length; }
+        await esBaseClient.bulk({ index: healthRecordESIndexName, body: flattenedDocs });
+        console.log(`Indexed ${flattenedDocs.length} documents in current batch`);
+        if (DebugElasticProvider) console.log(`Indexed ${flattenedDocs.length} documents in current batch`);
+      } else {
+        if (DebugElasticProvider) console.log("No data to index in current batch");
+      }
+
+      i++;
+
+      // Check if there are more pages
+      if (result.pageState) {
+        if (DebugElasticProvider) console.log("More pages to come: " + result.pageState);
+        await getAllPatientData(result.pageState);
+      } else {
+        if (DebugElasticProvider) console.log("No more pages to come");
+      }
+    };
+
+    // Start retrieving and processing pages
+    await getAllPatientData(null);
+    console.log("Total number of Health Records Indexed:", indexCount);
+    if (DebugElasticProvider) {
+      console.log("Total number of Health Records Indexed:", indexCount);
+    }
+    return true;
+  } catch (error) {
+    console.error("Error in indexing all patient data", error);
+    return false;
+  }
+}
+
+
+/**
+ * Fetch ALL data from Cassandra database and Index it in Elasticsearch
+ */
+export async function indexAllHealthRecordsESData2() {
   try {
     indexCount = 0;
     const results: CDPatientInterface[] = [];
