@@ -78,6 +78,7 @@
     "kerberos": "^2.1.0",
     "libphonenumber-js": "^1.11.4",
     "lodash": "^4.17.21",
+    "lru-cache": "^11.0.2",
     "material-react-table": "^1.15.1",
     "minio": "^8.0.1",
     "moment": "^2.30.1",

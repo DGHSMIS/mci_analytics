@@ -7,7 +7,7 @@ import { CDPatientInterface } from "@utils/interfaces/Cassandra/CDPatientInterfa
 import { FacilityInterface } from "@utils/interfaces/DataModels/FacilityInterfaces";
 import fetchAndCacheFacilityInfo from "@utils/providers/fetchAndCacheFacilityInfo";
 import { blankCreatedAndUpdatedByPatientESObject, isAaloClinic, timeUUIDToDate } from "@utils/utilityFunctions";
-import pLimit from 'p-limit';
+import pLimit from "p-limit";
 import { stringify } from "uuid";
 
 // Elasticsearch index name
@@ -15,7 +15,6 @@ export const patientESIndex = patientESIndexName;
 // Set the desired batch size for indexing
 const batchSize = ELASTIC_BATCH_SIZE;
 
-export let fetchedFacilityArrayOfObjects: FacilityInterface[] = [];
 
 export const errorFacilityData: FacilityInterface = {
   id: 0,
@@ -396,11 +395,11 @@ export async function indexAllPatientESData() {
      console.log("List of Patients with Invalid JSON Object");
      console.log(JSON.stringify(listOfErrorPatients));
      console.log("Count of Invalid JSON Object");
-     console.log(listOfErrorPatients.length);
+     console.log(listOfErrorPatients.length/2);
      console.log("Total Indexed Documents");
-     console.log(indexCount);
+     console.log(indexCount/2);
      console.log("Total Alo Registration Count");
-     console.log(aloRegCount);
+     console.log(aloRegCount/2);
    }
    return true;
  } catch (error) {

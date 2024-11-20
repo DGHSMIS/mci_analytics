@@ -4,6 +4,8 @@ import { indexAllHealthRecordsESData } from "@providers/elasticsearch/healthReco
 import { sendErrorMsg, sendSuccess } from "@utils/responseHandlers/responseHandler";
 import { NextRequest } from "next/server";
 import "server-only";
+import { dropAndGenerateIndex } from "@providers/elasticsearch/ESBase";
+import { ESHealthRecordSummaryIndexBody } from "@providers/elasticsearch/healthRecordSummaryIndex/ESHealthRecordSummaryMapping";
 
 export const dynamic = "force-dynamic";
 export const revalidate = true;
@@ -30,11 +32,29 @@ export async function POST(req: NextRequest) {
   // if (!validateKnowHostToAccessRoute(req)) {
   //   return sendErrorMsg('Forbidden: Request is not from the host serve', 403);
   // }
-  console.log('Request is from the known host');
 
+  const params: any = req.nextUrl.searchParams;
+  let clearIndex:boolean = false;
+  console.log("params");
+  console.log(params);
+  params.forEach((key: any, value: any) => {
+    console.log(value);
+    if (key=="clearIndex") {
+      if (typeof value==="boolean") {
+        clearIndex = value;
+      }
+    }
+  });
   try {
-    // const healthRecordIndexRegenerated = await dropAndGenerateIndex(healthRecordESIndexName, ESHealthRecordSummaryIndexBody);
-    const healthRecordIndexRegenerated = await Promise.resolve(true);
+    let healthRecordIndexRegenerated = false;
+    if(clearIndex){
+      console.log("Dropping & Regenerating Index");
+      healthRecordIndexRegenerated = await dropAndGenerateIndex(healthRecordESIndexName, ESHealthRecordSummaryIndexBody);
+    } else {
+      console.log("Regenerating Index without DROP");
+      healthRecordIndexRegenerated =  true;
+    }
+
     if (healthRecordIndexRegenerated) {
       const isIndexAllHealthRecord = await indexAllHealthRecordsESData();
       if (isIndexAllHealthRecord) {

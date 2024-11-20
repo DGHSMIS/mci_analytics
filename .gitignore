@@ -46,3 +46,5 @@ next-env.d.ts
 .env.production
 
 /bun.lockb
+/.idea/git_toolbox_blame.xml
+/.idea/material_theme_project_new.xml

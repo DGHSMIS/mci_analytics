@@ -1,33 +1,47 @@
-import { errorFacilityData, fetchedFacilityArrayOfObjects } from "@providers/elasticsearch/patientIndex/ESPatientIndex";
+import { errorFacilityData } from "@providers/elasticsearch/patientIndex/ESPatientIndex";
 import prisma from "@providers/prisma/prismaClient";
 import { FacilityInterface } from "@utils/interfaces/DataModels/FacilityInterfaces";
 import { resolveFacilityDetailURLFromNameAndId } from "@utils/lib/apiList";
 import { getFacilitySolutionTypeFromName } from "@utils/utilityFunctions";
+import { LRUCache } from "lru-cache";
+
+
+// Initialize the LRU cache with a maximum size and optional TTL (Time-to-Live)
+const facilityCache = new LRUCache<number | string, FacilityInterface>({
+  max: 1000, // Maximum number of facilities to cache
+  ttl: 12000 * 60 * 60, // Optional: 12 hour in milliseconds
+});
 
 /**
  * Fetches and caches facility information.
  * @param facilityId The ID of the facility to fetch.
+ * @param showDebug Optional: Show debug information.
  * @returns A promise that resolves to the facility data.
  */
-export default async function fetchAndCacheFacilityInfo(facilityId: number, showDebug: boolean = false): Promise<FacilityInterface> {
-  if (showDebug) console.log('No of Items cached:', fetchedFacilityArrayOfObjects.length);
 
+export default async function fetchAndCacheFacilityInfo(
+  facilityId: number | string,
+  showDebug: boolean = false
+): Promise<FacilityInterface> {
+  if (showDebug) console.log('Number of Items cached:', facilityCache.size);
   if (showDebug) console.log('Facility ID is:', facilityId);
+
   // Check for invalid facility ID
-  if (Number.isNaN(facilityId)) {
+  if (Number.isNaN(Number(facilityId))) {
     console.log('Facility ID Invalid');
     return errorFacilityData;
   }
+
+  // Attempt to retrieve from cache
   try {
-    // Check cache for existing facility information
-    const foundItem = fetchedFacilityArrayOfObjects.find((item: FacilityInterface) => item.id === facilityId);
-    if (foundItem) {
-      // console.log("<<<< Facility Already Fetched >>>>");
-      // console.log(foundItem);
-      return await Promise.resolve(foundItem);
+    const cachedFacility = facilityCache.get(facilityId);
+    if (cachedFacility !== undefined) {
+      if (showDebug) console.log('Facility found in cache:', cachedFacility);
+      return cachedFacility;
     }
   } catch (error) {
-    if (showDebug) console.error('Error fetching facility data:', error);
+    if (showDebug) console.error('Error accessing cache:', error);
+    // Depending on requirements, you might choose to return an error or continue fetching
   }
 
   // Resolve URL for the API call
@@ -46,7 +60,7 @@ export default async function fetchAndCacheFacilityInfo(facilityId: number, show
     });
 
     if (response.status === 200) {
-      // console.log('API call successful');
+      // API call successful
       const facilityAllData = await response.json();
       const facilityData: FacilityInterface = {
         id: facilityId,
@@ -61,6 +75,7 @@ export default async function fetchAndCacheFacilityInfo(facilityId: number, show
         careLevel: facilityAllData.properties.care_level ?? "",
         ownership: facilityAllData.properties.ownership ?? "",
         orgType: facilityAllData.properties.org_type ?? "",
+        hasApiError: false, // Optional: Indicate successful fetch
       };
 
       if (showDebug) {
@@ -69,22 +84,29 @@ export default async function fetchAndCacheFacilityInfo(facilityId: number, show
       }
 
       // Add the newly fetched facility data to the cache
-      fetchedFacilityArrayOfObjects.push(facilityData);
-      return await Promise.resolve(facilityData);
+      facilityCache.set(facilityId, facilityData);
+      return facilityData;
     } else {
       if (showDebug) console.log('API call failed with status:', response.status);
-      const apiErrorResult = { ...errorFacilityData, id: facilityId };
-      fetchedFacilityArrayOfObjects.push(apiErrorResult);
-      return await Promise.resolve(apiErrorResult);
+      const apiErrorResult: FacilityInterface = {
+        ...errorFacilityData,
+        id: facilityId,
+        hasApiError: true,
+      };
+      facilityCache.set(facilityId, apiErrorResult);
+      return apiErrorResult;
     }
   } catch (error) {
     if (showDebug) console.error('Error fetching facility data:', error);
-    const apiErrorResult = { ...errorFacilityData, id: facilityId };
-    fetchedFacilityArrayOfObjects.push(apiErrorResult);
-    return await Promise.resolve(apiErrorResult);
+    const apiErrorResult: FacilityInterface = {
+      ...errorFacilityData,
+      id: facilityId,
+      hasApiError: true,
+    };
+    facilityCache.set(facilityId, apiErrorResult);
+    return apiErrorResult;
   }
 }
-
 
 /**
  * Finds or creates a facility in the database.
