@@ -282,7 +282,7 @@ export async function checkIfAuthenticatedMCIUser(
           isMCIUser = true
         }
       });
-      if (isMCIAdmin && isMCIUser) {
+      if (isMCIAdmin || isMCIUser) {
         console.log("Returning Null");
         return Promise.resolve(null);
       } else {

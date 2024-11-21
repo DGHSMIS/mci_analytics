@@ -1,6 +1,6 @@
 "use client";
 import SectionSkeletonLoader from "@components/publicDashboard/sections/DefaultSectionTemplate/SectionSkeletonLoader";
-import { getAPIResponse } from "@library/utils";
+import { getAPIResponse, getRevalidationTime } from "@library/utils";
 import { useStore } from "@store/store";
 import { QueryClient, useQueryClient, useSuspenseQuery } from "@tanstack/react-query";
 import { FacilityTypeWiseStatsInterface } from "@utils/interfaces/Analytics/PublicDashboard/FacilityTypeWiseStatsInterface";
@@ -39,8 +39,7 @@ function useRegistrationStatsAPI(props: {
       "GET",
       null,
       false,
-      0
-      // getRevalidationTime(),
+      getRevalidationTime(),
     ),
     //https://tkdodo.eu/blog/react-query-data-transformations
     //Tranform data
@@ -78,8 +77,7 @@ function useEncounterStatsAPI(props: {
       "GET",
       null,
       false,
-      0
-      // getRevalidationTime(),
+      getRevalidationTime(),
     ),
     //https://tkdodo.eu/blog/react-query-data-transformations
     //Tranform data
