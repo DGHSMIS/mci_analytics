@@ -21,7 +21,7 @@ export async function middleware(req: NextRequest, res:NextResponse, event: Next
     if((req.nextUrl.pathname.startsWith('/admin')) || req.nextUrl.pathname.startsWith("/search-nid")){
       return NextResponse.redirect(new URL('/login', req.url));
     }
-    else if (req.nextUrl.pathname == "/" || req.nextUrl.pathname == "/ncd-corner" || req.nextUrl.pathname == "/ncd-corner2" || req.nextUrl.pathname == "/login" || req.nextUrl.pathname.startsWith("/generateImage")){
+    else if (req.nextUrl.pathname == "/" || req.nextUrl.pathname == "/ncd-corner" || req.nextUrl.pathname == "/login" || req.nextUrl.pathname.startsWith("/generateImage")){
       return NextResponse.next();
     }
   }

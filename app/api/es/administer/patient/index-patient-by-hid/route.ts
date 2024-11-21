@@ -1,8 +1,8 @@
+import { logApiRequest } from '@app/api/providers/elasticsearch/mciServiceLogIndex/ESMciServiceLogIndex';
 import { insertOrUpdateSinglePatientToHealthRecordESIndex } from "@providers/elasticsearch/healthRecordSummaryIndex/ESHealthRecordSummaryIndex";
 import { insertOrUpdateSinglePatientToESIndex, patientESIndex } from "@providers/elasticsearch/patientIndex/ESPatientIndex";
 import { checkIfAuthenticatedMCIUser } from "@utils/lib/auth";
 import { sendErrorMsg, sendSuccess } from "@utils/responseHandlers/responseHandler";
-import { logApiRequest } from 'app/api/providers/elasticsearch/mciServiceLogIndex/ESMciServiceLogIndex';
 import { NextRequest } from "next/server";
 import "server-only";
 
