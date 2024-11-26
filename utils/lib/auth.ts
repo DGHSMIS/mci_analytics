@@ -270,19 +270,20 @@ export async function checkIfAuthenticatedMCIUser(
     }
 
     if (isUserVerfied.group_names_formatted != null) {
-      let isMCIAdmin = false;
+      // let isMCIAdmin = false;
       let isMCIUser = false;
       isUserVerfied.group_names_formatted.forEach((group) => {
         // console.log("The group item is");
         // console.log(group);
-        if (group == "mci-admin") {
-          isMCIAdmin = true
-        }
+        // if (group == "mci-admin") {
+        //   isMCIAdmin = true
+        // }
         if (group == "mci-user") {
           isMCIUser = true
         }
       });
-      if (isMCIAdmin || isMCIUser) {
+      // if (isMCIAdmin || isMCIUser) {
+      if (isMCIUser) {
         console.log("Returning Null");
         return Promise.resolve(null);
       } else {
