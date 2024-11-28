@@ -63,6 +63,7 @@ export const mapData: Array<MapDataItem> = [
   ["bd-cg", parseInt(divisionGeoCodeList[1]) ?? "20"],
   ["bd-da", parseInt(divisionGeoCodeList[2]) ?? "30"],
   ["bd-kh", parseInt(divisionGeoCodeList[3]) ?? "40"],
+  ["bd-my", parseInt(divisionGeoCodeList[3]) ?? "45"],
   ["bd-rj", parseInt(divisionGeoCodeList[4]) ?? "50"],
   ["bd-rp", parseInt(divisionGeoCodeList[5]) ?? "55"],
   ["bd-sy", parseInt(divisionGeoCodeList[6]) ?? "60"],

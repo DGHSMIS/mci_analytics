@@ -1,4 +1,4 @@
-import mapDataBangladesh from "@public/map-data/bd-all.topo.json";
+import mapDataBangladesh from "@public/map-data/bd-div-1-topo.json";
 import { colorAxisStops, MapDataItem } from "./BangladeshChart";
 
 export interface GenerateBdMapOptionsProps {
@@ -99,6 +99,8 @@ const generateBdMapOptions = ({
       name: "Bangladesh",
       data: dataToPrint,
       cursor: "pointer",
+      borderColor: "#A0A0A0",
+      showInLegend: true,
       dataLabels: {
         enabled: true, // Enable by default
         format: "{point.name} ",
