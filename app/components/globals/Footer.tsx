@@ -7,10 +7,12 @@ export default memo(function Footer() {
   const currentYear = getYear(new Date());
 
   const misDGHSLogoTitle = process.env.NEXT_PUBLIC_DG_MIS_LOGO_TITLE ?? "";
-  const titleLabel = "UNICEF";
   const footerLead = "Management Information System,";
   const footerTail = "Directorate General of Health Services";
+  const misDGHSLogo = '/img/mis_logo.png';
+  const titleLabel = "UNICEF";
   const unicefLogo = '/img/unicef.png';
+  const unicefLink = "https://www.unicef.org/";
   return (
     <div className="border-t border-slate-100 py-16 text-center sm:py-32">
       {/* //! Desktop View */}
@@ -19,7 +21,7 @@ export default memo(function Footer() {
           <div className="text-center text-xs leading-none text-slate-500">
             <div className="flex justify-center items-center flex-col">
               <img
-                src="/img/mis_logo.png"
+                src={`${misDGHSLogo}`}
                 alt={misDGHSLogoTitle}
                 aria-label={misDGHSLogoTitle}
                 title={misDGHSLogoTitle}
@@ -38,7 +40,6 @@ export default memo(function Footer() {
           </div>
         </div>
         <p className="inline-block text-center text-xs leading-none text-slate-500">
-
           <div className="flex justify-center space-x-4 w-100 max-h-48 items-center mt-16">
             <span className="text-xs">
               Supported by &nbsp;
@@ -46,7 +47,7 @@ export default memo(function Footer() {
           </div>
           <div className="flex justify-center space-x-4 max-h-96 items-center mt-8">
             <Link
-              href="https://www.unicef.org/"
+              href={`${unicefLink}`}
               rel="nofollow"
               target="_blank"
               title={titleLabel}
@@ -69,7 +70,7 @@ export default memo(function Footer() {
         <div className="text-center text-xs leading-none text-slate-500">
           <div className="flex justify-center items-center flex-col">
             <img
-              src="/img/mis_logo.png"
+              src={`${misDGHSLogo}`}
               alt={misDGHSLogoTitle}
               aria-label={misDGHSLogoTitle}
               title={misDGHSLogoTitle}
@@ -106,7 +107,7 @@ export default memo(function Footer() {
           </div>
           <div className="flex justify-center space-x-4 w-100 max-h-48 items-center my-20">
             <Link
-              href="https://www.unicef.org/"
+              href={`${unicefLink}`}
               rel="nofollow"
               target="_blank"
               title={titleLabel}

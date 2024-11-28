@@ -1,3 +1,4 @@
+import { getRevalidationTime } from "@library/utils";
 import { esBaseClient } from "@providers/elasticsearch/ESBase";
 import { patientESIndex } from "@providers/elasticsearch/patientIndex/ESPatientIndex";
 import { districtCodes, divisionCodes } from "@utils/constantsInMemory";
@@ -8,12 +9,10 @@ import { cacheHeaderes, noCacheHeaderes, sendErrorMsg } from "@utils/responseHan
 import { NextRequest, NextResponse } from "next/server";
 import "server-only";
 
-// export const dynamic = "force-dynamic";
-// export const revalidate = process.env.REVALIDATE_VAR;
-// export const fetchCache = "auto";
-// export const dynamicParams = true;
-// export const revalidate = true;
-// export const fetchCache = "force-no-store";
+
+// In-memory cache for storing results with timestamps (cache expires after 5 minutes)
+const cache = new Map<string, { data: any; timestamp: number }>();
+const CACHE_TTL = getRevalidationTime(true) * 1000; // Cache expiry time in milliseconds (get long query time)
 
 /**
  * Get the count of documents matching the given division and district ids
@@ -27,8 +26,40 @@ export async function GET(req: NextRequest) {
   if (!valid || !results) {
     return sendErrorMsg(String(errors));
   }
+
+  // Format to YYYY-MM-DD
+  // Extract only the date (YYYY-MM-DD) from dateFrom and dateTo
+  const dateFrom = new Date(results.dateFrom);
+  const dateTo = new Date(results.dateTo);
+
+  // Format to YYYY-MM-DD
+  const dateFromStr = dateFrom.toISOString().split('T')[0];
+  const dateToStr = dateTo.toISOString().split('T')[0];
+  const dateNow = Date.now();
+  // Generate a cache key based on the date range
+  const cacheKey = `${dateFromStr}_${dateToStr}`;
+
+  console.log("The cache key is ", cacheKey);
+
+
+  // Check if the response is cached and not expired
+  const cached = cache.get(cacheKey);
+  if (cached && dateNow - cached.timestamp < CACHE_TTL) {
+    console.log("Cache hit for", cacheKey);  // Log the cache hit for debugging
+    return NextResponse.json(cached.data, {
+      status: 200,
+      headers:
+        process.env.NODE_ENV === "development" ? noCacheHeaderes : cacheHeaderes,
+    });
+  }
+
+  // If not cached or expired, fetch the data from Elasticsearch
   const response: AreaWiseRegistrationStatsProps =
     await getDivDistrictRegistrationStats(results.dateFrom, results.dateTo);
+
+  // Store the response in the cache with a timestamp
+  cache.set(cacheKey, { data: response, timestamp: dateNow });
+  console.log("Cache MISS for", cacheKey);
   return NextResponse.json(response, {
     status: 200,
     headers:

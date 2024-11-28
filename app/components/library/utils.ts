@@ -326,9 +326,13 @@ export const parseDateStringToDateObject = (dateString: string) => {
 };
 
 
-export const getRevalidationTime = () => {
+export const getRevalidationTime = (getLongQueueTime:boolean=false) => {
   // return 0;
-  return parseInt(process.env.NEXT_PUBLIC_API_REVALIDATE_TIME ?? '100');
+  if(!getLongQueueTime){
+    return parseInt(process.env.NEXT_PUBLIC_API_REVALIDATE_TIME ?? '300');
+  } else{
+    return parseInt(process.env.NEXT_PUBLIC_API_REVALIDATE_LONG_QUEUE_TIME ?? '300');
+  }
 };
 
 // Create an array of string[] from a comma separated string

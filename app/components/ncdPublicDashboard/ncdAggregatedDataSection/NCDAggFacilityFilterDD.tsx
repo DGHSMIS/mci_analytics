@@ -4,7 +4,7 @@ import SearchDateRangeFilter from "@components/publicDashboard/sectionFilterSegm
 import Button from "@library/Button";
 import DropDownSingle from "@library/form/DropDownSingle";
 import { useStore } from "@store/store";
-import { memo, Suspense, useEffect, useState } from "react";
+import { memo, Suspense, useState } from "react";
 import { cn } from "tailwind-cn";
 
 
@@ -13,13 +13,13 @@ function NCDAggFacilityFilterDD() {
     const { ncdAggregatedFacilityDDItems, ncdAggregatedSelectedFacility, setNcdAggregatedSelectedFacility } = useStore();
 
     const [selectedItemIndex, setSelectedItemIndex] = useState<number | null>(null);
-    useEffect(() => {
-        console.log("The NCDAggFacilityFilterDD UseEffect val");
-        console.log(ncdAggregatedSelectedFacility);
-        console.log("selectedItemIndex");
-        console.log(selectedItemIndex);
+    // useEffect(() => {
+    //     console.log("The NCDAggFacilityFilterDD UseEffect val");
+    //     console.log(ncdAggregatedSelectedFacility);
+    //     console.log("selectedItemIndex");
+    //     console.log(selectedItemIndex);
 
-    }, [ncdAggregatedSelectedFacility])
+    // }, [ncdAggregatedSelectedFacility])
 
 
     return (<Suspense fallback={<MCISpinner />} key="ada">
@@ -44,9 +44,9 @@ function NCDAggFacilityFilterDD() {
                                 let isFound = false;
                                 ncdAggregatedFacilityDDItems.forEach((item) => {
                                     if (item.name.split(" - ")[0] == e.data.name.split(" - ")[0] && !isFound) {
-                                        if (selectedItemIndex !== (item.id -1)) {
+                                        if (selectedItemIndex !== (item.id - 1)) {
                                             setNcdAggregatedSelectedFacility(e.data.name.split(" - ")[0]);
-                                            setSelectedItemIndex(item.id -1);
+                                            setSelectedItemIndex(item.id - 1);
                                             isFound = true;
                                         }
                                     }

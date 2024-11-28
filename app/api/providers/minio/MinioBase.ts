@@ -1,13 +1,11 @@
-import * as Minio from 'minio'
-import * as fs from 'fs';
-import { min } from 'lodash';
+import * as Minio from 'minio';
 const minioClient = new Minio.Client({
     endPoint: String(process.env.MINIO_IP),
     port: parseInt(process.env.MINIO_PORT || '9000'),
     useSSL: false,
     accessKey: String(process.env.MINIO_USERNAME),
     secretKey: String(process.env.MINIO_PASSWORD)
-  })
+})
 
 export default minioClient;
 

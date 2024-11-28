@@ -16,6 +16,7 @@ export interface StoreStates {
   ncdDataMaxDate: Date;
   ncdAggregatedFacilityDDItems: DropDownSingleItemProps[]
   ncdAggregatedSelectedFacility: string;
+  ncdDiseaseDDItems: DropDownSingleItemProps[];
   ncdDiseaseSelected: string;
   serviceOverviewMinDate: Date;
   serviceOverviewMaxDate: Date;
@@ -35,6 +36,7 @@ export const initialStoreStates: StoreStates = {
   ncdDataMaxDate: addXDaysToDate(0),
   ncdAggregatedFacilityDDItems: [],
   ncdAggregatedSelectedFacility: "",
+  ncdDiseaseDDItems: [],
   ncdDiseaseSelected: "",
   serviceOverviewMinDate: xMonthsAgo(2),
   serviceOverviewMaxDate: xMonthsAgo(0),
@@ -49,6 +51,7 @@ export interface StoreActions {
   setNCDDataMaxDate: (date: Date) => void;
   setNcdAggregatedFacilityDDItems: (facilityList: DropDownSingleItemProps[]) => void;
   setNcdAggregatedSelectedFacility: (facility: string) => void;
+  setNcdDiseaseDDItems: (dieseaseList: DropDownSingleItemProps[]) => void;
   setNcdDiseaseSelected: (disease: string) => void;
   setRequireAuth: (requireAuth: boolean) => void;
   setErrorInAPI: (hasError: boolean) => void;
@@ -75,6 +78,7 @@ export const useStore = create<StoreStates & StoreActions>(
     setDemoGraphyMaxDate: (date: Date) => set({ demographyMaxDate: date }),
     setNcdAggregatedFacilityDDItems: (facilityList: DropDownSingleItemProps[]) => set({ncdAggregatedFacilityDDItems: facilityList}),
     setNcdAggregatedSelectedFacility: (facility: string) => set({ ncdAggregatedSelectedFacility: facility }),
+    setNcdDiseaseDDItems: (dieseaseList: DropDownSingleItemProps[]) => set({ ncdDiseaseDDItems: dieseaseList }),
     setNcdDiseaseSelected: (disease: string)=> set({ ncdDiseaseSelected: disease }),
     setNCDDataMinDate: (date: Date) => set({ ncdDataMinDate: date }),
     setNCDDataMaxDate: (date: Date) => set({ ncdDataMaxDate: date }),

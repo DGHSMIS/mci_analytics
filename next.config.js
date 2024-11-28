@@ -1,7 +1,7 @@
 /** @type {import('next').NextConfig} */
 const path = require("path");
 const apiUrl = process.env.NEXT_PUBLIC_API_URL + "/";
-const fhirServerBaseURL = process.env.FREESHR_API_BASEURL ;
+const fhirServerBaseURL = process.env.FREESHR_API_BASEURL;
 const fhirServerRelativePath = process.env.FREESHR_API_FHIR_PATH;
 
 
@@ -28,7 +28,7 @@ const nextConfig = {
   eslint: {
     // Warning: This allows production builds to successfully complete even if
     // your project has ESLint errors.
-    ignoreDuringBuilds: true,
+    // ignoreDuringBuilds: true,
   },
   experimental: {
     // https://nextjs.org/docs/app/building-your-application/configuring/typescript#statically-typed-links
@@ -51,7 +51,7 @@ const nextConfig = {
       "jspdf",
       "material-react-table",
       "@tinymce/tinymce-react",
-      "fhir-react" ],
+      "fhir-react"],
     // https://nextjs.org/docs/app/api-reference/functions/server-actions
     webVitalsAttribution: process.env.NODE_ENV === "production" ? [] : ['CLS', 'LCP']
   },
@@ -125,14 +125,14 @@ const nextConfig = {
         },
         {
           source: "/fhir/:path*",
-          destination: `${fhirServerBaseURL+fhirServerRelativePath}/:path*`,
+          destination: `${fhirServerBaseURL + fhirServerRelativePath}/:path*`,
         },
       ],
     };
   },
 };
 // Using Bundle Analyzer to check & Optimize Next.js Applications
- // module.exports = nextConfig;
+// module.exports = nextConfig;
 //Provides a cleaner API for enabling and
 // configuring plugins for next.js because the default
 // way next.js suggests to enable and configure plugins

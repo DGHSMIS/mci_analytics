@@ -1,12 +1,12 @@
 import process from "process";
 
 // Debug Mode
-export const DebugElasticProvider = true;
+export const DebugElasticProvider = String(process.env.NODE_ENV) == "development" ? true : false;
 
 //Elasticsearch Constants
-export const requestTimeoutInMS = 6000000; //10 Minutes
-export const maxCompressedResponseSize = 1000000000;
-export const ELASTICSEARCH_HOST = String(process.env.ELASTIC_IP).split(",") || "http://localhost:9200";
+export const requestTimeoutInMS = 30 * 1000; //30 Seconds
+export const maxCompressedResponseSize = 50 * 1024 * 1024;// 50 MB
+export const ELASTICSEARCH_HOST = String(process.env.ELASTIC_IP).split(",") || "http://127.0.0.1:9200";
 export const ELASTIC_BATCH_SIZE = Number(process.env.ELASTIC_BATCH_SIZE) || 500;
 export const ELASTIC_USER = String(process.env.ELASTIC_USER) || "";
 export const ELASTIC_PASSWORD = String(process.env.ELASTIC_PASSWORD) || "";

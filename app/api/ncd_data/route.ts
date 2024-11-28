@@ -10,8 +10,11 @@ import { insertOrUpdateNCDDataByCreatedTimeToESIndex } from 'app/api/providers/e
 import prisma from 'app/api/providers/prisma/prismaClient';
 import Error from 'next/error';
 import { NextRequest, NextResponse } from "next/server";
+import process from "process";
 
-const MAX_PATIENT_LIMIT = 100;
+
+const MAX_PATIENT_LIMIT = parseInt(process.env.NEXT_PUBLIC_API_NCD_QUEUE_SIZE ?? "") ?? 1000;
+
 // TODO: Add Facility Verification via API Call to check if the facility exists in the Facility Registry
 //Generate Sample Data using the following at https://json-generator.com/#
 // [

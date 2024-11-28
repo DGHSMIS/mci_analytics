@@ -29,7 +29,7 @@ const Navbar = dynamic(() => import("@components/globals/Navbar"), {
 });
 
 const Footer = dynamic(() => import("@components/globals/Footer"), {
-  ssr: true,
+  ssr: false,
 });
 
 export const metadata = {

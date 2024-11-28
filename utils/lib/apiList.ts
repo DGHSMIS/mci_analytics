@@ -94,6 +94,10 @@ const apiList: ApiUrlInterface[] = [
   {
     name: "get-ncd-disease-stats",
     urlPath: "/api/es/analytics/ncd-corner/diseasewise-stats",
+  },
+  {
+    name: "get-ncd-disease-list",
+    urlPath: "/api/ncd_data/disease-list",
   }
 ];
 /**
