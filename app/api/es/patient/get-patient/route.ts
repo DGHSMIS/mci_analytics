@@ -1,4 +1,5 @@
 // Next.js API route support: https://nextjs.org/docs/api-routes/introduction
+import { getRevalidationTime } from "@library/utils";
 import { esBaseClient } from "@providers/elasticsearch/ESBase";
 import { patientESIndex } from "@providers/elasticsearch/patientIndex/ESPatientIndex";
 import { ESPatientInterface } from '@providers/elasticsearch/patientIndex/interfaces/ESPatientInterface';
@@ -7,8 +8,8 @@ import { checkIfMCIAdminOrApprover } from "@utils/lib/auth";
 import { NextRequest, NextResponse } from "next/server";
 
 export const dynamic = "force-dynamic";
-const { REVALIDATE_VAR } = process.env;
-export const revalidate = REVALIDATE_VAR ?? 600;
+
+export const revalidate = getRevalidationTime() ?? 600;
 export const fetchCache = "auto";
 export const dynamicParams = true;
 // export const revalidate = true;

@@ -1,4 +1,5 @@
 import { RankListProps } from "@components/globals/RankList/RankListProps";
+import { getRevalidationTime } from "@library/utils";
 import { getEncountersByFacilities } from "@utils/esQueries/encounterIndex/aggQueriesForEncounterStats";
 import { ValidateDateAndDivisionResponseInterface } from "@utils/interfaces/DataModels/ApiRequestQueryParamInterfaces";
 import { validateFormData } from "@utils/models/Validation";
@@ -7,7 +8,7 @@ import { NextRequest } from "next/server";
 import "server-only";
 
 // export const dynamic = "force-dynamic";
-export const revalidate = process.env.NODE_ENV === "development" ? 0 : 7200;
+export const revalidate = process.env.NODE_ENV === "development" ? 0 : getRevalidationTime(true);
 export const fetchCache = "auto";
 export const dynamicParams = false;
 

@@ -1,5 +1,6 @@
 import { loginAuthenticationHeaders } from "@utils/constantsInMemory";
 import AuthResponseInterface from "@utils/interfaces/Authentication/AuthResponseInterface";
+import { sendErrorMsg } from "@utils/responseHandlers/responseHandler";
 import CredentialsProvider from "next-auth/providers/credentials";
 import { NextResponse } from "next/server";
 import process from "process";
@@ -158,9 +159,22 @@ export async function verifyToken(token: string) {
     body: null,
     next: { revalidate: 0 },
   };
-
-  const userInfo = await fetch(`${process.env.NEXT_PUBLIC_AUTH_BASE_URL + getUrlFromName("auth-verify-url") + token}`, apiHeader);
-  // console.log(userInfo);
+  console.log("URL to verify token");
+  console.log(
+    `${process.env.NEXT_PUBLIC_AUTH_BASE_URL +
+    getUrlFromName("auth-verify-url") +
+    token
+    }`
+  );
+  const userInfo = await fetch(
+    `${process.env.NEXT_PUBLIC_AUTH_BASE_URL +
+    getUrlFromName("auth-verify-url") +
+    token
+    }`,
+    apiHeader
+  );
+  console.log("Verify Token Response");
+  console.log(userInfo);
   if (userInfo.status == 200) {
     const userData: any = await userInfo.json();
     return userData;
@@ -181,56 +195,59 @@ export async function verifyToken(token: string) {
 export async function checkIfMCIAdminOrApprover(
   req: Request
 ): Promise<NextResponse | null> {
+  const errorMsg = "Unauthorized";
+  const errorStatus = 401;
   //Get Authorization Headers
   const authorization = req.headers.get("authorization");
-  // console.log("Checking Authorization headers");
-  // console.log(authorization);
+  console.log("Checking Authorization headers");
+  console.log(authorization);
   if (!authorization) {
     console.log("Auth Token is null");
-    return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
+    return sendErrorMsg(errorMsg, errorStatus);
   }
   //Verifying the validity of the token
-  const isUserVerfied: AuthResponseInterface | null = await verifyToken(authorization);
+  const isUserVerfied: AuthResponseInterface | null = await verifyToken(
+    authorization
+  );
   //If token is not valid, return 401
   if (isUserVerfied == null) {
     console.log("Auth Token is null");
-    return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
+    return sendErrorMsg(errorMsg, errorStatus);
   } else {
-    // console.log("Does user have groups?");
-    // console.log(isUserVerfied);
+    console.log("Does user have groups?");
+    console.log(isUserVerfied);
 
     if (isUserVerfied.group_names_formatted != null) {
       let isMCIAdmin = false;
       let isMCIUser = false;
       isUserVerfied.group_names_formatted.forEach((group) => {
-        // console.log("The group item is");
-        // console.log(group);
+        console.log("The group item is");
+        console.log(group);
         if (group == "mci-admin") {
-          isMCIAdmin = true
+          isMCIAdmin = true;
         }
         if (group == "mci-user") {
-          isMCIUser = true
+          isMCIUser = true;
         }
       });
       if (isMCIAdmin && isMCIUser) {
         console.log("Returning Null");
 
         return null;
-      }
-      else {
+      } else {
         console.log("Returning Unauthorized 2");
-        return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
+        return sendErrorMsg(errorMsg, errorStatus);
       }
     }
   }
   console.log("Returning Unauthorized 3");
-  return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
+  return sendErrorMsg(errorMsg, errorStatus);
 }
 
 /**
  * HRIS Authentication for MCI User/Admin
- * @param req 
- * @returns 
+ * @param req
+ * @returns
  */
 export async function checkIfAuthenticatedMCIUser(
   req: Request
@@ -239,70 +256,73 @@ export async function checkIfAuthenticatedMCIUser(
   const accessToken = req.headers.get("X-Auth-Token");
   const clientId = req.headers.get("client-id");
   const email = req.headers.get("email");
-  // console.log("Checking Authorization headers");
-  // console.log(accessToken);
+  const errorMsg = "Unauthorized";
+  const errorStatus = 401;
+  console.log("Checking Authorization headers");
+  console.log(accessToken);
 
   if (!accessToken || !email || !clientId) {
     console.log("Invalid Headers");
-    return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
+    return sendErrorMsg(errorMsg, errorStatus);
   }
-
+  console.log("Headers are valid");
   //Verifying the validity of the token
-  const isUserVerfied: AuthResponseInterface | null = await verifyToken(accessToken);
-  //If token is not valid, return 401
+  const isUserVerfied: AuthResponseInterface | null = await verifyToken(
+    accessToken
+  );
+  console.log("Is User Verified");
+  console.log(isUserVerfied);
+  //If token is not valid, return errorStatus
   if (isUserVerfied == null) {
     console.log("Auth Token is null");
-    return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
+    return sendErrorMsg(errorMsg, errorStatus);
   } else {
     // console.log("Does user have groups?");
     // console.log(isUserVerfied);
     //validate email
     if (isUserVerfied?.email == null) {
-      return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
+      return sendErrorMsg(errorMsg, errorStatus);
     } else if (isUserVerfied?.email != email) {
-      return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
+      return sendErrorMsg(errorMsg, errorStatus);
     }
     //Validate Client ID
     if (isUserVerfied.id == null) {
-      return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
+      return sendErrorMsg(errorMsg, errorStatus);
     } else if (isUserVerfied.id != parseInt(clientId)) {
-      return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
+      return sendErrorMsg(errorMsg, errorStatus);
     }
 
     if (isUserVerfied.group_names_formatted != null) {
-      // let isMCIAdmin = false;
+      let isMCIAdmin = false;
       let isMCIUser = false;
       isUserVerfied.group_names_formatted.forEach((group) => {
-        // console.log("The group item is");
-        // console.log(group);
-        // if (group == "mci-admin") {
-        //   isMCIAdmin = true
-        // }
+        console.log("The group item is");
+        console.log(group);
+        if (group == "mci-admin") {
+          isMCIAdmin = true;
+        }
         if (group == "mci-user") {
-          isMCIUser = true
+          isMCIUser = true;
         }
       });
       // if (isMCIAdmin || isMCIUser) {
-      if (isMCIUser) {
+      if (isMCIAdmin || isMCIUser) {
         console.log("Returning Null");
         return Promise.resolve(null);
       } else {
         // console.log("User does not have sufficient permissions");
-        return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
+        return sendErrorMsg(errorMsg, errorStatus);
       }
     }
   }
-  // console.log("Returning Unauthorized 3");
-  return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
+  return sendErrorMsg(errorMsg, errorStatus);
 }
-
-
 
 /**
  * HRIS Authentication for MCI User/Admin
  * Validate if the requester is a SHR User
- * @param req 
- * @returns 
+ * @param req
+ * @returns
  */
 export async function checkIfAuthenticatedProvider(
   req: Request
@@ -314,33 +334,34 @@ export async function checkIfAuthenticatedProvider(
   console.log(accessToken);
   console.log(clientId);
   const authObject: AuthResponseInterface = {
-    status: "unauthorized"
-  }
+    status: "unauthorized",
+  };
   if (!accessToken || !clientId) {
     return authObject;
   }
   //Verifying the validity of the token
-  const isUserVerfied: AuthResponseInterface | null = await verifyToken(accessToken);
+  const isUserVerfied: AuthResponseInterface | null = await verifyToken(
+    accessToken
+  );
 
   //If token is not valid, return 401
   if (isUserVerfied == null) {
     return authObject;
   } else {
-
     //Validate Client ID
     if (isUserVerfied.id == null) {
       return authObject;
     } else if (isUserVerfied.id != parseInt(clientId)) {
       return authObject;
     }
-    
+
     if (isUserVerfied.group_names_formatted != null) {
       let isSHRUser = false;
       isUserVerfied.group_names_formatted.forEach((group) => {
         console.log("The group item is");
         console.log(group);
         if (group == "shr-user") {
-          isSHRUser = true
+          isSHRUser = true;
         }
       });
       if (isSHRUser) {

@@ -1,3 +1,4 @@
+import { getRevalidationTime } from "@library/utils";
 import { healthRecordESIndexName } from "@providers/elasticsearch/constants";
 import { esBaseClient } from "@providers/elasticsearch/ESBase";
 import { FacilityTypeWiseStatsInterface } from "@utils/interfaces/Analytics/PublicDashboard/FacilityTypeWiseStatsInterface";
@@ -7,7 +8,7 @@ import { NextResponse } from "next/server";
 import "server-only";
 
 // export const dynamic = "force-dynamic";
-export const revalidate = process.env.NODE_ENV === "development" ? 0 : 7200;
+export const revalidate = process.env.NODE_ENV === "development" ? 0 : getRevalidationTime(true);
 export const fetchCache = "auto";
 export const dynamicParams = false;
 
