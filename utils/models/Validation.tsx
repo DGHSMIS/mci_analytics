@@ -471,6 +471,7 @@ export async function validateFormDataForNCD(
     return {
       valid: false,
       errors: ["Invalid form data provided. Please try again."],
+      results: {},
     };
   }
 
