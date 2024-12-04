@@ -157,7 +157,7 @@ export async function verifyToken(token: string) {
     method: `GET`,
     headers: headers,
     body: null,
-    next: { revalidate: 0 },
+    next: { revalidate: 300 },
   };
   console.log("URL to verify token");
   console.log(
