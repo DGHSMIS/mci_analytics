@@ -1,5 +1,5 @@
 import { DropDownSingleItemProps } from "@library/form/DropDownSingle";
-import { addXDaysToDate, xMonthsAgo } from "@utils/utilityFunctions";
+import { addXDaysToDate, xDaysAgo, xMonthsAgo } from "@utils/utilityFunctions";
 
 import { create } from "zustand";
 
@@ -30,16 +30,16 @@ export const initialStoreStates: StoreStates = {
   requireAuth: false,
   selectedDivision: [],
   dashboardDemographicViewState: 0,
-  demographyMinDate: xMonthsAgo(2),
-  demographyMaxDate: xMonthsAgo(0),
+  demographyMinDate: xDaysAgo(6),
+  demographyMaxDate: xDaysAgo(0),
   ncdDataMinDate: xMonthsAgo(7),
   ncdDataMaxDate: addXDaysToDate(0),
   ncdAggregatedFacilityDDItems: [],
   ncdAggregatedSelectedFacility: "",
   ncdDiseaseDDItems: [],
   ncdDiseaseSelected: "",
-  serviceOverviewMinDate: xMonthsAgo(2),
-  serviceOverviewMaxDate: xMonthsAgo(0),
+  serviceOverviewMinDate: xDaysAgo(6),
+  serviceOverviewMaxDate: xDaysAgo(0),
   serviceOverviewApiCallInProgress: false,
   renderType: "RSC"
 };

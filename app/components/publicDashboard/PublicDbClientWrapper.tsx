@@ -108,9 +108,15 @@ function useDivisionWiseDataAPI(props: {
   maxDate: Date;
   regStatsData: FacilityTypeWiseStatsInterface;
 }) {
+
+  const normalizeDate = (date:Date) => {
+    const d = new Date(date);
+    d.setHours(0, 0, 0, 0); // Set time to 00:00:00.000
+    return d.toISOString(); // Return as ISO string
+  };
   /* @ts-ignore */
   return useSuspenseQuery({
-    queryKey: ["getDivisionWiseData", props.queryClient, props.minDate, props.maxDate],
+    queryKey: ["getDivisionWiseData", props.queryClient, normalizeDate(props.minDate), normalizeDate(props.maxDate)],
     queryFn: async () => await fetchDivisionWiseData(
       props.minDate,
       props.maxDate,

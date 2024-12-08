@@ -59,22 +59,28 @@ export default function DivisionRegistrationListAndBarChart({
   //Data from initial render is passed as props ONLY
   const isFirstRender = useRef(true);
   const renderCounter = useRef(0);
-  // const memorizeInitialData = useMemo(() => {
-  //   return divisionWiseRegistrationCount;
-  // }, [divisionWiseRegistrationCount]);
+  const memorizeInitialData = useMemo(() => {
+    return divisionWiseRegistrationCount;
+  }, [divisionWiseRegistrationCount]);
 
   const [renderableData, setRenderableData] =
-    useState<AreaWiseRegistrationStatsProps>(divisionWiseRegistrationCount);
+    useState<AreaWiseRegistrationStatsProps>(memorizeInitialData);
   /**
    * Setup Component States
    */
-
+  const [isDataChanged, setIsDataChanged] = useState<boolean>(false);
   const [tableData, setTableData] = useState<any[]>();
   const [tableExpanded, setTableExpanded] = useState<MRT_ExpandedState>({});
   const [tableKey, setTableKey] = useState(0);
   const [isTableView, setIsTableView] = useState<boolean>(false);
   const [barViewState, setBarViewState] = useState<number>(0);
 
+
+
+  useEffect(() => {
+    setRenderableData(memorizeInitialData);
+
+  }, [memorizeInitialData]);
   /**
    * Memo Function to Get the Bar Chart Data via a transformer
    */
@@ -103,27 +109,27 @@ export default function DivisionRegistrationListAndBarChart({
 
   const colorsTheme: any = tokens();
   //
-  useEffect(() => {
-    if (isFirstRender.current) {
-      console.log("Date Changed New Renderer");
-      console.log("Render Counter: " + renderCounter.current);
-      console.log("Min Date: " + demographyMinDate);
-      console.log("Max Date: " + demographyMaxDate);
-    } else {
-      console.log("Date Changed Old Renderer");
-      console.log("Render Counter: " + renderCounter.current);
-      console.log("Min Date: " + demographyMinDate);
-      console.log("Max Date: " + demographyMaxDate);
-        console.log("Render Counter " + renderCounter.current);
-      if (renderCounter.current >= 1) {
-        console.log("Render Counter > 1" + renderCounter.current);
-        console.log("apiCallProgress " + apiCallInProgress);
-        if (!apiCallInProgress) {
-          void fetchFilterdDivisionWiseData();
-        }
-      }
-    }
-  }, [demographyMinDate, demographyMaxDate]);
+  // useEffect(() => {
+  //   if (isFirstRender.current) {
+  //     console.log("Date Changed New Renderer");
+  //     console.log("Render Counter: " + renderCounter.current);
+  //     console.log("Min Date: " + demographyMinDate);
+  //     console.log("Max Date: " + demographyMaxDate);
+  //   } else {
+  //     console.log("Date Changed Old Renderer");
+  //     console.log("Render Counter: " + renderCounter.current);
+  //     console.log("Min Date: " + demographyMinDate);
+  //     console.log("Max Date: " + demographyMaxDate);
+  //       console.log("Render Counter " + renderCounter.current);
+  //     if (renderCounter.current >= 1) {
+  //       console.log("Render Counter > 1" + renderCounter.current);
+  //       console.log("apiCallProgress " + apiCallInProgress);
+  //       if (!apiCallInProgress) {
+  //         void fetchFilterdDivisionWiseData();
+  //       }
+  //     }
+  //   }
+  // }, [demographyMinDate, demographyMaxDate]);
 
   useEffect(() => {
     //Setting this to false after the first render
@@ -146,27 +152,27 @@ export default function DivisionRegistrationListAndBarChart({
       setErrorInAPI(false);
       await delay(async() => {
         console.log("Fake Delau");
-    try {
-      console.log("fetchDivisionWiseData from Client Component");
-      const fetchTimeFilteredDataX = await getAPIResponse(
-        getBaseUrl(),
-        getUrlFromName("get-areawise-count-stats") + "?dateFrom=" + demographyMinDate.toISOString() + "&dateTo=" + demographyMaxDate.toISOString(),
-        "",
-        "GET",
-        null,
-        false,
-        getRevalidationTime(),
-      );
-      console.log("fetchDivisionWiseData");
-      console.log(fetchTimeFilteredDataX);
-      setApiCallInProgress(false);
-      setErrorInAPI(false);
-      setRenderableData(fetchTimeFilteredDataX);
-    } catch (e) {
-      setApiCallInProgress(false);
-      setErrorInAPI(true);
-    }
-      }, 500);
+        try {
+          console.log("fetchDivisionWiseData from Client Component");
+          const fetchTimeFilteredDataX = await getAPIResponse(
+            getBaseUrl(),
+            getUrlFromName("get-areawise-count-stats") + "?dateFrom=" + demographyMinDate.toISOString() + "&dateTo=" + demographyMaxDate.toISOString(),
+            "",
+            "GET",
+            null,
+            false,
+            getRevalidationTime(),
+          );
+          console.log("fetchDivisionWiseData");
+          console.log(fetchTimeFilteredDataX);
+          setApiCallInProgress(false);
+          setErrorInAPI(false);
+          setRenderableData(fetchTimeFilteredDataX);
+        } catch (e) {
+          setApiCallInProgress(false);
+          setErrorInAPI(true);
+        }
+      }, 50);
   }
 
   const { leftAxisProps, bottomAxisProps, otherPropVals } = useMemo(() => {

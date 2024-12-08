@@ -6,23 +6,6 @@ import { authOptions } from "utils/lib/auth";
 import { inter, nikosh } from "utils/styles/fonts";
 import "./styles/scss/globals.scss";
 
-const { healthCard, template } = {
-  healthCard: {
-    health_id: '98000911712',
-    nameBn: 'মোঃ সাজেদুল ইসলাম',
-    address: 'মুশুরিয়া, এলাসিন, দেলদুয়ার, টাঙ্গাইল, ঢাকা',
-    dob: '05/06/1993',
-    genderBn: 'পুরুষ',
-    fatherNameBn: 'মোঃ শামছুল হক',
-    motherNameBn: 'নাজমা বেগম',
-    bloodGroup: '',
-    dateProvided: '22/10/2023',
-    qrCode: null,
-    barCode: null
-  },
-  template: "/img/templates/nid_temp.png"
-};
-
 
 const Navbar = dynamic(() => import("@components/globals/Navbar"), {
   ssr: true,

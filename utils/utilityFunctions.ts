@@ -2,17 +2,17 @@ import { AddressProps } from "@components/profilePage/AddressBlock/AddressBlock"
 import { CreateAndUpdatedByEncounterInterface } from "@providers/elasticsearch/encounterIndex/interfaces/ESEncounterInterface";
 import { CreateAndUpdatedByPatientInterface, ESPatientInterface } from "@providers/elasticsearch/patientIndex/interfaces/ESPatientInterface";
 import {
-    bloodGroupCodes,
-    countryCodes,
-    disabilityCodes,
-    districtCodes,
-    divisionCodes,
-    educationLevels,
-    KNOWN_SAFE_HOST_IP_LIST,
-    maritalStatusCodes,
-    occupationCodes,
-    religionCodes,
-    upazilaCodes
+  bloodGroupCodes,
+  countryCodes,
+  disabilityCodes,
+  districtCodes,
+  divisionCodes,
+  educationLevels,
+  KNOWN_SAFE_HOST_IP_LIST,
+  maritalStatusCodes,
+  occupationCodes,
+  religionCodes,
+  upazilaCodes
 } from "@utils/constantsInMemory";
 import { ESDateRangeSingleItemQueryInterface } from "@utils/interfaces/DataModels/ESModelInterfaces";
 import { addDays, formatISO, set, subDays, subMinutes, subMonths, subYears } from "date-fns";

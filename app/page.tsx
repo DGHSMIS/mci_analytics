@@ -10,7 +10,6 @@
 import PublicDbClientWrapper from "@components/publicDashboard/PublicDbClientWrapper";
 import { initialStoreStates } from "@store/store";
 import StoreInitializer from "@store/StoreInitializer";
-import { xDaysAgo } from "@utils/utilityFunctions";
 import dynamic from "next/dynamic";
 import { Metadata } from "next/types";
 
@@ -34,7 +33,8 @@ export const metadata: Metadata = {
 export default async function page() {
   return (
     <main className="mt-40 flex w-full flex-col justify-center space-y-48 px-24 2xl:container bg-transparent border-none">
-      <StoreInitializer {...initialStoreStates} serviceOverviewMaxDate={xDaysAgo(0)} serviceOverviewMinDate={xDaysAgo(6)} demographyMaxDate={xDaysAgo(0)} demographyMinDate={xDaysAgo(6)}/>
+      {/* <StoreInitializer {...initialStoreStates} serviceOverviewMaxDate={xDaysAgo(0)} serviceOverviewMinDate={xDaysAgo(6)} demographyMaxDate={xDaysAgo(0)} demographyMinDate={xDaysAgo(6)}/> */}
+      <StoreInitializer {...initialStoreStates}/>
       <PageHeader title={pageTitle} titleSize="sm"></PageHeader>
       <PublicDbClientWrapper section1Title={section1Title} section2Title={section2Title} section3Title={section3Title} section4Title={section4Title}/>
     </main>

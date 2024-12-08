@@ -1,3 +1,4 @@
+import { getRevalidationTime } from "@library/utils";
 import { loginAuthenticationHeaders } from "@utils/constantsInMemory";
 import AuthResponseInterface from "@utils/interfaces/Authentication/AuthResponseInterface";
 import { sendErrorMsg } from "@utils/responseHandlers/responseHandler";
@@ -144,10 +145,7 @@ export const authOptions: any = {
  * @returns
  */
 export async function verifyToken(token: string) {
-  const verifyTokenHeaders = {
-    method: "GET",
-    headers: loginAuthenticationHeaders,
-  };
+ 
   const headers: Record<string, string> = {
     "X-Auth-Token": `${process.env.NEXT_X_LOGIN_AUTH_TOKEN ?? ""}`,
     "client-id": `${process.env.NEXT_LOGIN_AUTH_CLIENT_ID ?? ""}`,
@@ -157,7 +155,7 @@ export async function verifyToken(token: string) {
     method: `GET`,
     headers: headers,
     body: null,
-    next: { revalidate: 300 },
+    next: { revalidate: getRevalidationTime() },
   };
   console.log("URL to verify token");
   console.log(
