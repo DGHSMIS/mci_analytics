@@ -79,13 +79,19 @@ export async function POST(req: NextRequest) {
 async function processSubmittedData(preprocessedData: PGNCDPayloadLoggerInterface, createdAt: string) {
     try {
         const patientVisits: PGPatientVisitInterface[] = JSON.parse(preprocessedData.payload);
-
+        console.log("Processing Submitted Data 1");
         // Filter out duplicates by checking for existing records
         const skippedRecords = [];
         let totalNewVisits = 0;
         for (const patientVisit of patientVisits) {
             console.log("The Patient Visit data is ", patientVisit);
             if (patientVisit.visitId) {
+                console.log("The preprocessedData is");
+                console.log(preprocessedData);
+
+                console.log("--------------")
+                console.log("The Patient Visit is")
+                console.log(patientVisit);
                 //Validate if the facility code matches the patient visit facility code, otherwise this is invalid data
                 if (preprocessedData.facilityCode === patientVisit.facilityCode) {
                     //Check if the record already exists in the database (combination of visitId & facilityCode is unique)

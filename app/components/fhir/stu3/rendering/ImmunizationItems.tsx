@@ -42,10 +42,12 @@ const ImmunizationItems = memo(function ImmunizationItems({ immunizationItems }:
                 }
                 return (
                   <>
-                  <div className={cn('col-span-12 text-sm text-slate-500 capitalize border-b py-8')}><span className={cn('inline-block font-semibold mr-4')}>{1}.</span> Date:  {immunization.date ? immunization.date : "Not found"}</div>
-                  <div className={cn('col-span-12 text-sm text-slate-500 capitalize border-b py-8')}><span className={cn('inline-block font-semibold mr-4')}>{2}.</span> Status:  {immunization.status}</div>
-                    <div className={cn('col-span-12 text-sm text-slate-500 capitalize border-b py-8')}><span className={cn('inline-block font-semibold mr-4')}>{2}.</span> Vaccine Code:  {immunization.vaccineCode.text ?? immunization.vaccineCode.text}</div>
-                  <div className={cn('col-span-12 text-sm text-slate-500 capitalize border-b py-8')}><span className={cn('inline-block font-semibold mr-4')}>{3}.</span> Dose Quantity:  {doseQuantity} {doseCode}</div>
+                  <div className={cn('col-span-12 text-sm text-slate-500 capitalize border-b py-8')}><span className={cn('inline-block font-semibold mr-4')}>{index+1}.</span>
+                  Vaccine Code:  {immunization.vaccineCode.text ?? immunization.vaccineCode.text} <br />
+                  Dose Quantity:  {doseQuantity} {doseCode} <br />
+                  Date:  {immunization.date ? immunization.date : "Not found"} <br />
+                  Status:  {immunization.status} <br /> 
+                  </div>
                   </>
                 )
               })}
