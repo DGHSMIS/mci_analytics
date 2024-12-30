@@ -94,9 +94,9 @@ const fetchFacilityDetails = async (facilityDetails: string): Promise<any> => {
   const response = await fetch(facilityDetails, {
     method: "GET",
     headers: {
-      "X-Auth-Token": String(process.env.NEXT_X_FACILITY_AUTH_TOKEN) || "",
-      "client-id": String(process.env.NEXT_X_FACILITY_CLIENT_ID) || "",
-      "FROM": String(process.env.FREESHR_API_USERNAME)
+      "X-Auth-Token": "2049dcf7aa3db5bc1c56776ec6686ecac401f068ab3e082fdd8a4d1749b2ef21",
+      "client-id": "187707"
+      // "FROM": String(process.env.FREESHR_API_USERNAME)
     }
   });
 

@@ -8,7 +8,7 @@ import { useLoggedInStore } from "@store/useLoggedInStore";
 import { EncounterListItem } from "@utils/interfaces/DataModels/Encounter";
 import { Fhir } from "fhir";
 import { ConditionTable } from "fhir-ui";
-import { Bundle, BundleEntry, Composition, CompositionSection, Condition, Encounter, MedicationRequest, Observation, Resource } from "fhir/r3";
+import { Bundle, BundleEntry, Composition, CompositionSection, Condition, Encounter, Immunization, MedicationRequest, Observation, Resource } from "fhir/r3";
 import dynamic from "next/dynamic";
 import { memo, useEffect, useState } from "react";
 
@@ -33,6 +33,11 @@ const ObservationInfo = dynamic(() => import("@components/fhir/stu3/rendering/Ob
 });
 
 const MedicationRequestFormItem = dynamic(() => import("@components/fhir/stu3/rendering/MedicationRequestFormItem"), {
+  ssr: true,
+});
+
+
+const ImmunizationItems = dynamic(() => import("@components/fhir/stu3/rendering/ImmunizationItems"), {
   ssr: true,
 });
 
@@ -62,13 +67,13 @@ const tabItemsNew: TabItemProps[] = [
     icon: "medical-circle",
     isDisabled: false,
   },
-  // {
-  //   name: "Care Plan",
-  //   count: "",
-  //   current: false,
-  //   icon: "map-01",
-  //   isDisabled: false,
-  // },
+  {
+    name: "Immunization",
+    count: "",
+    current: false,
+    icon: "check-heart",
+    isDisabled: false,
+  },
 ];
 
 export default memo(function FHIRData({ json, encounter }: FHIRDataProps) {
@@ -133,6 +138,7 @@ const RenderFhirEncounterUI = memo(function RenderFhirEncounterUI({ fhirResource
   const composition: Composition[] = [];
   const encounter: Encounter[] = [];
   const medicationRequest: MedicationRequest[] = [];
+  const immunization: Immunization[] = [];
   const condtions: Condition[] = [];
 
   let title = "";
@@ -168,6 +174,10 @@ const RenderFhirEncounterUI = memo(function RenderFhirEncounterUI({ fhirResource
         if (item.resource.resourceType === "Condition") {
           conditions.push(item.resource);
         }
+        if (item.resource.resourceType === "Immunization") {
+          immunization.push(item.resource as Immunization);
+        }
+
       }
     }
     // providerInfo = encounter.participant ? encounter.participant[0].individual?.reference ?? "":"";
@@ -233,6 +243,8 @@ const RenderFhirEncounterUI = memo(function RenderFhirEncounterUI({ fhirResource
             {tabItemToShow == 1 && <ObservationInfo items={ObservationsItems} obsHeader={obsHeader}/>}
             {/* Medications */}
             {tabItemToShow == 2 && <MedicationRequestFormItem medicationRequests={medicationRequest} />}
+            {/* Immunization */}
+            {tabItemToShow == 3 && <ImmunizationItems immunizationItems={immunization} />}
           </>
         </EncounterTabSectionWrapper>
 

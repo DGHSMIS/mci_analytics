@@ -43,7 +43,6 @@ const nextConfig = {
     // typedRoutes: true,
     //https://nextjs.org/docs/app/api-reference/next-config-js/optimizePackageImports
     optimizePackageImports: [
-      "@elastic/elasticsearch",
       "highcharts",
       "highcharts-react-official",
       "@nivo/axes",
@@ -52,14 +51,9 @@ const nextConfig = {
       "@nivo/legends",
       "@nivo/line",
       "@nivo/pie",
-      "@mui/icons-material",
-      "xlsx",
-      "d3-time-format",
-      "highcharts",
-      "jspdf",
       "material-react-table",
-      "@tinymce/tinymce-react",
-      "fhir-react"],
+      "fhir-react"
+    ],
     // https://nextjs.org/docs/app/api-reference/functions/server-actions
     webVitalsAttribution: process.env.NODE_ENV === "production" ? [] : ['CLS', 'LCP']
   },

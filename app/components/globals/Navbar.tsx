@@ -161,9 +161,9 @@ const Navbar = memo(function Navbar({
                         <span className="mt-2 block text-sm font-semibold leading-4 tracking-tight md:mt-0 md:text-base">
                           Directorate General of Health Services
                         </span>
-                        <span className="block text-xs text-slate-500 md:mt-0">
+                        {/* <span className="block text-xs text-slate-500 md:mt-0">
                           People&apos;s Republic of Bangladesh.
-                        </span>
+                        </span> */}
                       </div>
                     </div>
                   </Link>
