@@ -33,11 +33,37 @@ export async function POST(req: NextRequest) {
   //   return sendErrorMsg('Forbidden: Request is not from the host serve', 403);
   // }
   // console.log('Request is from the known host');
+  const params: any = req.nextUrl.searchParams;
+  let clearIndex: boolean = false;
+  console.log("params");
+  console.log(params);
+  params.forEach((key: any, value: any) => {
+    console.log(value);
+    if (key=="clearIndex") {
+      if (typeof value==="boolean") {
+        clearIndex = value;
+      }
+    }
+  });
+  //This route is only accessible from the known hosts
+  // if(!validateKnowHostToAccessRoute(req)){
+  //   return sendErrorMsg('Forbidden: Request is not from the host serve', 403);
+  // }
+  console.log("Request is from the known host");
 
   try {
-    const encounterIndexRegenerated = await dropAndGenerateIndex(encounterIndexName, ESEncounterIndexBody);
 
-    if (encounterIndexRegenerated) {
+    let startEncounterIndexGeneration = false;
+        if (clearIndex) {
+          console.log(`Cleaning & reindexing ${encounterIndexName} index`);
+          startEncounterIndexGeneration = await dropAndGenerateIndex(encounterIndexName, ESEncounterIndexBody);
+        } else {
+          console.log(`Reindexing ${encounterIndexName} index without a fresh clean`);
+          startEncounterIndexGeneration = true;
+        }
+    
+
+    if (startEncounterIndexGeneration) {
       const isIndexAllEncounterRecords = await indexAllEncountersInESData();
       if (isIndexAllEncounterRecords) {
         return sendSuccess({ message: `${encounterIndexName} index has been reindexed successfully at ${formatDateTime(new Date().toISOString())}` }, 200);
