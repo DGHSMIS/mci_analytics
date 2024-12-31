@@ -21,7 +21,8 @@ export default memo(function ProviderAndFacilityInfoProps({ composition, encount
   const facilityReferences = encounter.serviceProvider;
   const ProviderInfo: JSX.Element[] = [];
   const FacilityInfo: JSX.Element[] = [];
-
+  console.log("The provider references are - " + providerReferences);
+  console.log("The facility references are - " + facilityReferences);
   const getHRISHeaders = () => {
     return {
       "X-Auth-Token": process.env.NEXT_X_LOGIN_AUTH_TOKEN || "",
@@ -30,10 +31,14 @@ export default memo(function ProviderAndFacilityInfoProps({ composition, encount
   }
 
   if (!providerReferences) {
+    console.log("No provider references provided");
     ProviderInfo.push(<ReferenceErrorLog error="No Provider References Provided" />);
   } else {
+    console.log("Provider references provided");
     //Loop through the Composition reference and find the provider information
     providerReferences.forEach((reference: Reference) => {
+      console.log("loop provider references - ");
+      console.log(reference)
       if (!reference.reference) {
         ProviderInfo.push(<ReferenceErrorLog error="No Reference Provided" />);
         return;
@@ -47,17 +52,20 @@ export default memo(function ProviderAndFacilityInfoProps({ composition, encount
       const providerURL = new URL(url);
 
       let errorMessage = "";
-
+      console.log("The provider url is - " + providerURL);
       if (providerURL.protocol !== "https") {
+        console.log("Not https");
         providerURL.protocol = "https";
         errorMessage = "URL must be https. Please update the URL and try again. Will be included in the validator. URL Provided was: " + url;
       }
 
       if (!providerURL.hostname.toString().includes(String(process.env.NEXT_PUBLIC_AUTH_BASE_URL))) {
+        console.log("Not the correct domain");
         errorMessage = errorMessage + " URL must be pointed to the correct domain at " + String(process.env.NEXT_PUBLIC_AUTH_BASE_URL) + ". Please update the URL and try again. URL Provided was: " + url;
       }
 
       if (providerURL.hostname.toString().includes(String(process.env.NEXT_PUBLIC_DOMAIN_IP_CHECKER))) {
+        console.log("Contains IP");
         errorMessage = errorMessage + " URL must not contain " + String(process.env.NEXT_PUBLIC_DOMAIN_IP_CHECKER) + ". Please update the URL and try again. URL Provided was: " + url;
       }
 
@@ -78,7 +86,10 @@ export default memo(function ProviderAndFacilityInfoProps({ composition, encount
       });
 
       const providerInfo = data ? data.body as HRISProviderInterface : undefined;
+      console.log("The provider info from API - ");
+      console.log(providerInfo);
       if (!isPending && (isError || providerInfo == undefined)) {
+        console.log("Error fetching provider information. Please check the URL and try again.");
         errorMessage = errorMessage + " Error fetching provider information. Please check the URL and try again.";
       } else {
         console.log("The provider info is - ");

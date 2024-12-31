@@ -25,6 +25,7 @@ const ImmunizationItems = memo(function ImmunizationItems({ immunizationItems }:
         {
           immunizationItems.length == 0 ? <FHIREmptySection textToDisplay="No medications were found" /> :
             <div className='grid grid-cols-12 border-bottom border-slate-300 py-12'>
+              <div className={cn('col-span-12 text-sm text-slate-500 capitalize border-b-2 py-8')}></div>
               {immunizationItems.map((immunization, index) => {
                 console.log(immunization);
                 console.log(immunization.vaccineCode.text);
@@ -32,30 +33,29 @@ const ImmunizationItems = memo(function ImmunizationItems({ immunizationItems }:
 
                 let doseQuantity = "";
                 let doseCode = "";
-                if(immunization.doseQuantity){
-                    if(immunization.doseQuantity.value){
-                        doseQuantity = String(immunization.doseQuantity.value);
-                    } 
-                    if(immunization.doseQuantity.code){
-                        doseCode = immunization.doseQuantity.code;
-                    }
+                if (immunization.doseQuantity) {
+                  if (immunization.doseQuantity.value) {
+                    doseQuantity = String(immunization.doseQuantity.value);
+                  }
+                  if (immunization.doseQuantity.code) {
+                    doseCode = immunization.doseQuantity.code;
+                  }
                 }
                 return (
                   <>
-                  <div className={cn('col-span-12 text-sm text-slate-500 capitalize border-b py-8')}><span className={cn('inline-block font-semibold mr-4')}>{index+1}.</span>
-                  Vaccine Code:  {immunization.vaccineCode.text ?? immunization.vaccineCode.text} <br />
-                  Dose Quantity:  {doseQuantity} {doseCode} <br />
-                  Date:  {immunization.date ? immunization.date : "Not found"} <br />
-                  Status:  {immunization.status} <br /> 
-                  </div>
+                    <div className={cn('col-span-12 text-sm text-slate-500 capitalize border-b-2 py-8')}><span className={cn('inline-block font-semibold mr-4')}>{index + 1}.</span>
+                      <b>{immunization.vaccineCode.text ?? immunization.vaccineCode.text}</b>{immunization.date ? " on " + immunization.date : "Not found"}<br />
+                      Dose:  {doseQuantity} {doseCode} <br />
+                      Status:  {immunization.status} <br />
+                    </div>
                   </>
                 )
               })}
-            </div>
+            </div >
         }
 
       </>
-    </EncounterSectionWrapper>
+    </EncounterSectionWrapper >
   );
 })
 

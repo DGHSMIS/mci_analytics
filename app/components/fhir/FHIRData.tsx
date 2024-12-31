@@ -49,7 +49,7 @@ const tabItemsNew: TabItemProps[] = [
   {
     name: "Summary",
     count: "",
-    current: true,
+    current: false,
     icon: "annotation-info",
     isDisabled: false,
   },
@@ -70,7 +70,7 @@ const tabItemsNew: TabItemProps[] = [
   {
     name: "Immunization",
     count: "",
-    current: false,
+    current: true,
     icon: "check-heart",
     isDisabled: false,
   },

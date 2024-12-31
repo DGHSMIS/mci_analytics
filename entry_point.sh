@@ -1,5 +1,6 @@
 #!/bin/sh
-bun run prisma:migrate:prod && \
-bun run prisma:generate:prod && \
-bun run build && \
-bun run start
+cd /app
+pnpm run prisma:migrate:prod
+pnpm run prisma:generate:prod
+pnpm run build
+pnpm start

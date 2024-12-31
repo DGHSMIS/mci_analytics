@@ -27,16 +27,16 @@ export async function GET(req: NextRequest) {
     });
   }
 
-  if(!url.includes(String(process.env.NEXT_PUBLIC_AUTH_BASE_URL))) {
-    return NextResponse.json({
-      status: 400,
-      message: "Invalid Base URL",
-      headers: {
-        "content-type": "application/json",
-        "Cache-Control": "max-age=0, s-maxage=0, stale-while-revalidate=0",
-      },
-    });
-  }
+  // if(!url.includes(String(process.env.NEXT_PUBLIC_AUTH_BASE_URL))) {
+  //   return NextResponse.json({
+  //     status: 400,
+  //     message: "Invalid Base URL",
+  //     headers: {
+  //       "content-type": "application/json",
+  //       "Cache-Control": "max-age=0, s-maxage=0, stale-while-revalidate=0",
+  //     },
+  //   });
+  // }
   const apiHeader = {
     method: "GET",
     headers: loginAuthenticationHeaders,
