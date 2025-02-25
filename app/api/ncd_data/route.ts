@@ -289,6 +289,8 @@ async function findOrCreateDisease(conceptUuId: string, conceptName: string): Pr
     });
     console.log("The Disease from DB is ")
     console.log(diseaseFromDB);
+    console.log(conceptName);
+    console.log(conceptUuId);
     if (diseaseFromDB !== null) {
         return diseaseFromDB;
     }

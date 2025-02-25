@@ -1,5 +1,5 @@
 import { RankItemProps, RankListProps } from "@components/globals/RankList/RankListProps";
-import { getEncountersByFacilities } from "@utils/esQueries/encounterIndex/aggQueriesForEncounterStats";
+import { getEncountersByFacilities, sumRankItemTotals } from "@utils/esQueries/encounterIndex/aggQueriesForEncounterStats";
 import {
   fetchTopPatientRegisteringFacilities,
   findAgeRangewiseHighestRegisteringFacilities,
@@ -105,6 +105,11 @@ async function fetchTopPatientRegFacsAndTransformToRankListItem(
   const esIndexResponse = await fetchTopPatientRegisteringFacilities(daysFrom, dateTo);
   console.log("esIndexResponseesIndexResponse");
   console.log(esIndexResponse.body);
+  const responseToRankList = await transformResponseToRankList(
+    esIndexResponse.body as TopRegFacilityRespInterface,
+  );
+
+  
 
   const finalResults: RankListProps = {
     listTitle: "Top HID Providers",
@@ -114,14 +119,14 @@ async function fetchTopPatientRegFacsAndTransformToRankListItem(
     listHeader: {
       id: "#ID",
       name: "Facility Name",
-      total: "Total Reg.",
+      total: "Count",
     },
-    listData: await transformResponseToRankList(
-      esIndexResponse.body as TopRegFacilityRespInterface,
-    ),
+    listTotal: sumRankItemTotals(responseToRankList),
+    listData: responseToRankList,
   };
   return finalResults;
 }
+
 
 /**
  * Transform the response to Rank List Item
@@ -213,6 +218,7 @@ async function getGenderwiseTopXFacilitiesAndTransformToRankListItem(
       name: "Facility Name",
       total: "Total Reg.",
     },
+    listTotal: sumRankItemTotals(results),
     listData: results,
   };
   return genderwiseFacilityList;

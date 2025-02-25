@@ -1,12 +1,12 @@
 .git
-.next
+# .next
 .idea
 .vscode
 .run
-.pnpm-store
-# bun.lockb
+# .pnpm-store
+bun.lockb
 node_modules
-pnpm-lock.yaml
+# pnpm-lock.yaml
 .env.local
 .env.development
 README.md

@@ -99,7 +99,7 @@ export async function getEncountersByFacilities(dateFrom:string="2023-08-25T03:3
   const esIndexResponse = await fetchEncountersByFacility(dateFrom, dateTo, totalResults);
 
   const resultBucket: TopEncounterFacilityRespInterface = esIndexResponse.body as TopEncounterFacilityRespInterface;
-
+  const responseToRankList = await transformResponseToRankList(resultBucket);
   const finalResults: RankListProps = {
       listTitle: "Top Clinical Record Provider",
       titleIconColor: "#004D3A",
@@ -110,7 +110,8 @@ export async function getEncountersByFacilities(dateFrom:string="2023-08-25T03:3
           name: "Facility Name",
           total: "Total Reg.",
       },
-      listData: await transformResponseToRankList(resultBucket)
+      listTotal: sumRankItemTotals(responseToRankList),
+      listData: responseToRankList
   };
 
   return finalResults;
@@ -143,3 +144,19 @@ const transformResponseToRankList = async (
           ),
   );
 };
+
+
+/**
+ * Provide Aggregated total count Data in the list
+ * @param items 
+ * @returns 
+ */
+export function sumRankItemTotals(items: RankItemProps[]): number {
+  // Reduce the array, converting each `total` into a number
+  const totalSum = items.reduce((acc, curr) => {
+    return acc + Number(curr.total);
+  }, 0);
+
+  // Return the sum as a string
+  return totalSum;
+}

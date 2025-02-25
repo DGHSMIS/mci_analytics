@@ -20,8 +20,17 @@ async function getAllAvailableNodes(): Promise<string[]> {
 
   for (const node of ELASTICSEARCH_HOST) {
     try {
+      console.log("The node is ", node);
+      console.log("The user is ", ELASTIC_USER);
+      console.log("The password is ", ELASTIC_PASSWORD);
       // Create a temporary client to ping the node
-      const tempClient = new Client({ nodes: [node] });
+      const tempClient = new Client({ 
+        nodes: [node],         
+        auth: {
+          username: ELASTIC_USER,
+          password: ELASTIC_PASSWORD
+        } 
+      });
       
       // Ping the node
       await tempClient.ping();

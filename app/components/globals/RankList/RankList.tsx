@@ -17,15 +17,17 @@ export default memo(function RankList({
                                    titleIconColor,
                                    listHeader,
                                    listData,
+                                   listTotal
                                  }: RankListProps) {
   console.log("The listData value is: ");
   console.log(listData);
   return (
     <>
       <ul className="flex w-full flex-col rounded bg-white text-xs">
-        <li className="flex items-center justify-start space-x-8 text-base font-semibold text-primary-600 py-4">
+        <li className="flex items-center justify-start space-x-8 text-base font-semibold text-primary-600 py-4 w-[100%]">
           <Icon iconName={titleIcon} iconColor={titleIconColor} iconSize="16" />
           <h6 className={cn("text-sm font-semibold truncate", titleColor)}>{listTitle}</h6>
+          <div className={cn("text-sm font-semibold")}>({listTotal ? listTotal.toLocaleString() : 0})</div>
         </li>
         <li key="header-item" className="flex justify-content-center space-x-8 flex-col text-xs font-bold bg-slate-200  text-slate-600">
           <div className="grid w-full cursor-pointer grid-cols-4 items-left bg-slate-200  text-slate-600 p-12">

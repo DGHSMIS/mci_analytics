@@ -12,5 +12,6 @@ export interface RankListProps {
   titleIcon: IconProps["iconName"];
   titleIconColor: string;
   listHeader: RankItemProps;
+  listTotal?: number;
   listData: RankItemProps[];
 }
