@@ -6,6 +6,7 @@ import { QueryClient, useQueryClient, useSuspenseQuery } from "@tanstack/react-q
 import { FacilityTypeWiseStatsInterface } from "@utils/interfaces/Analytics/PublicDashboard/FacilityTypeWiseStatsInterface";
 import { getBaseUrl, getUrlFromName } from "@utils/lib/apiList";
 import { fetchDivisionWiseData } from "@utils/providers/pbdClientServiceProvider";
+import { xDaysAgo } from "@utils/utilityFunctions";
 import dynamic from "next/dynamic";
 import { memo } from "react";
 import SkeletonFacilityTypewiseRegistrationStats from "./sections/facilityTypewiseRegistrationStats/SkeletonFacilityTypewiseRegistrationStats";
@@ -159,6 +160,7 @@ export default memo(function PublicDbClientWrapper({
     demographyMinDate,
     demographyMaxDate,
   } = useStore();
+
 
   const queryClient = useQueryClient();
   const defaultQueryOptions = queryClient.getDefaultOptions();

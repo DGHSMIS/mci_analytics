@@ -12,6 +12,9 @@ export async function fetchTopPatientRegisteringFacilities(
   daysFrom: string,
   dateTo: string,
   totalResults: number = 15,
+  divisionId?: number,
+  districtId?: number,
+  upazillaId?: number
 ) {
   const getRange: ESDateRangeSingleItemQueryInterface[] = datesRangeGenerator(
     daysFrom,

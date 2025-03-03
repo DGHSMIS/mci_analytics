@@ -102,7 +102,7 @@ async function fetchTopPatientRegFacsAndTransformToRankListItem(
   totalResults: number = 10,
 ) {
 
-  const esIndexResponse = await fetchTopPatientRegisteringFacilities(daysFrom, dateTo);
+  const esIndexResponse = await fetchTopPatientRegisteringFacilities(daysFrom, dateTo, 100);
   console.log("esIndexResponseesIndexResponse");
   console.log(esIndexResponse.body);
   const responseToRankList = await transformResponseToRankList(
