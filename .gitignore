@@ -48,4 +48,4 @@ next-env.d.ts
 /bun.lockb
 /.idea/git_toolbox_blame.xml
 /.idea/material_theme_project_new.xml
-/app/prisma/*
+app/prisma/*
