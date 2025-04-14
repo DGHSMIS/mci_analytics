@@ -5,6 +5,7 @@ import { create } from "zustand";
 
 export interface LoggedInStoreStates {
   patientId: string | null;
+  clientId: string | null;
   showEncounterData: boolean;
   selectedEncounter: EncounterListItem | null;
   patient: ESPatientInterface | null;
@@ -13,6 +14,7 @@ export interface LoggedInStoreStates {
 
 export const initialLoggedInStoreStates: LoggedInStoreStates = {
   patientId: null,
+  clientId: null,
   showEncounterData: false,
   selectedEncounter: null,
   patient: null,
@@ -24,6 +26,7 @@ export interface LoggedInStoreActions {
   setSelectedEncounter: (encounter: EncounterListItem|null) => void;
   setPatient: (patient: ESPatientInterface|null) => void;
   setPatientId: (patientId: string|null) => void;
+  setClientId: (patientId: string|null) => void;
   setFhirData: (data: Fhir) => void;
 }
 // Primary store without selectors
@@ -39,6 +42,7 @@ export const useLoggedInStore = create<
       set({ selectedEncounter: selectedEncounter }),
     setPatient: (patient: ESPatientInterface|null) => set({ patient: patient }),
     setPatientId: (patientId: string | null) => set({ patientId: patientId }),
+    setClientId: (clientId: string | null) => set({ clientId: clientId }),
     setFhirData: (data) => set({ fhirData: data }),
   })
 );

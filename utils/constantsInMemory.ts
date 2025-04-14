@@ -1,4 +1,4 @@
-import prisma from "@api/providers/prisma/prismaClient";
+import prismaPostGresClient from "@api/providers/prisma/postgres/prismaPostGresClient";
 import { MapDataItem } from "@components/charts/Map/BangladeshChart";
 import { DropDownSingleItemProps } from "@library/form/DropDownSingle";
 import bloodGroupList from "@utils/constants/BloodGroupCodes.json";
@@ -147,7 +147,7 @@ export const ncdFacilityListDropdown = async (): Promise<DropDownSingleItemProps
   console.log("Array state before fetching");
   console.log(facilityDropDownItems);
   console.log("Fetching from DB");
-  const facilityFromNCDDB: FacilityInterface[] = await prisma.facility.findMany({
+  const facilityFromNCDDB: FacilityInterface[] = await prismaPostGresClient.facility.findMany({
     where: {
       id: {
         gte: 0

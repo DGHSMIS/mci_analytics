@@ -11,14 +11,15 @@
     "lint": "next lint",
     "clean": "rm -rf node_modules && rm -rf .next && bun i",
     "format": "npx prettier --write .",
-    "prisma:migrate:dev": "dotenv -e .env.development -- prisma migrate dev --schema=app/api/providers/prisma/schema.prisma",
-    "prisma:migrate:prod": "dotenv -e .env.production -- prisma migrate deploy --schema=app/api/providers/prisma/schema.prisma",
-    "prisma:generate:dev": "dotenv -e .env.development -- prisma generate --schema=app/api/providers/prisma/schema.prisma",
-    "prisma:generate:prod": "dotenv -e .env.production -- prisma generate --schema=app/api/providers/prisma/schema.prisma",
-    "prisma:studio:dev": "dotenv -e .env.development -- prisma studio --schema=app/api/providers/prisma/schema.prisma"
+    "prisma:generate:nid_proxy_dev": "dotenv -e .env.development -- prisma db pull --schema=app/api/providers/prisma/mysql/schema.prisma && dotenv -e .env.development -- prisma generate --schema=app/api/providers/prisma/mysql/schema.prisma",
+    "prisma:migrate:dev": "dotenv -e .env.development -- prisma migrate dev --schema=app/api/providers/prisma/postgres/schema.prisma",
+    "prisma:migrate:prod": "dotenv -e .env.production -- prisma migrate deploy --schema=app/api/providers/prisma/postgres/schema.prisma",
+    "prisma:generate:dev": "dotenv -e .env.development -- prisma generate --schema=app/api/providers/prisma/postgres/schema.prisma",
+    "prisma:generate:prod": "dotenv -e .env.production -- prisma generate --schema=app/api/providers/prisma/postgres/schema.prisma",
+    "prisma:studio:dev": "dotenv -e .env.development -- prisma studio --schema=app/api/providers/prisma/postgres/schema.prisma"
   },
   "prisma": {
-    "seed": "dotenv -e .env.development -- tsx app/api/providers/prisma/seed.ts"
+    "seed": "dotenv -e .env.development -- tsx app/api/providers/prisma/postgres/seed.ts"
   },
   "browserslist": [
     "last 2 versions",

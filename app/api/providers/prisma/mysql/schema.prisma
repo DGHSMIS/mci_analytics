@@ -1,0 +1,35 @@
+generator client {
+  provider = "prisma-client-js"
+  output   = "../../../../prisma/generated/mysql"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("MYSQL_NID_PROXY_DATABASE_URL")
+}
+
+model settings {
+  key   String @id @db.VarChar(128)
+  value String @db.Text
+}
+
+model verification_info {
+  id               BigInt   @id @default(autoincrement())
+  client_id        String   @db.VarChar(50)
+  performer_id     String   @db.VarChar(50)
+  nid_requested    String?  @db.VarChar(20)
+  nid_10_digit     String?  @db.VarChar(20)
+  nid_17_digit     String?  @db.VarChar(20)
+  nid_photo        String?  @db.VarChar(255)
+  brn              String?  @db.VarChar(20)
+  dob              String?  @db.VarChar(30)
+  mobile           String?  @db.VarChar(15)
+  info_hash        String   @db.VarChar(40)
+  token            String   @db.VarChar(4000)
+  received_at      DateTime @default(now()) @db.Timestamp(0)
+  generated_at     DateTime @default(now()) @db.Timestamp(0)
+  time_took_ms     Int?
+  aes_key_salt     String?  @db.VarChar(50)
+  request_doc_type String   @default("") @db.VarChar(20)
+  @@map("verification_info") // Maps the Prisma model to the actual table name in MySQL
+}

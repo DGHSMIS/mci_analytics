@@ -1,5 +1,3 @@
-
-
 export interface ESPediatricNCDInterface {
     id: string;
     visit_id: string;

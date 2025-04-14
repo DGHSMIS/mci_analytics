@@ -1,13 +1,13 @@
-import { PGDiseaseInterface } from '@api/providers/prisma/models/PGDiseaseInterface';
-import { PGDiseasesOnVisit } from '@api/providers/prisma/models/PGDiseasesOnVisit';
-import { PGNCDPayloadLoggerInterface } from '@api/providers/prisma/models/PGNCDPayloadLoggerInterface';
-import { PGPatientVisitInterface } from '@api/providers/prisma/models/PGPatientVisitInterface';
+import { PGDiseaseInterface } from '@api/providers/prisma/postgres/models/PGDiseaseInterface';
+import { PGDiseasesOnVisit } from '@api/providers/prisma/postgres/models/PGDiseasesOnVisit';
+import { PGNCDPayloadLoggerInterface } from '@api/providers/prisma/postgres/models/PGNCDPayloadLoggerInterface';
+import { PGPatientVisitInterface } from '@api/providers/prisma/postgres/models/PGPatientVisitInterface';
 import AuthResponseInterface from '@utils/interfaces/Authentication/AuthResponseInterface';
 import { FacilityInterface } from '@utils/interfaces/DataModels/FacilityInterfaces';
 import { checkIfAuthenticatedProvider } from '@utils/lib/auth';
 import { findOrCreateFacility } from '@utils/providers/fetchAndCacheFacilityInfo';
 import { insertOrUpdateNCDDataByCreatedTimeToESIndex } from 'app/api/providers/elasticsearch/ncdIndex/ESPediatricNCDIndex';
-import prisma from 'app/api/providers/prisma/prismaClient';
+import prismaPostGresClient from '@api/providers/prisma/postgres/prismaPostGresClient';
 import Error from 'next/error';
 import { NextRequest, NextResponse } from "next/server";
 import process from "process";
@@ -95,7 +95,7 @@ async function processSubmittedData(preprocessedData: PGNCDPayloadLoggerInterfac
                 //Validate if the facility code matches the patient visit facility code, otherwise this is invalid data
                 if (preprocessedData.facilityCode === patientVisit.facilityCode) {
                     //Check if the record already exists in the database (combination of visitId & facilityCode is unique)
-                    const existingRecord = await prisma.patientVisit.findFirst({
+                    const existingRecord = await prismaPostGresClient.patientVisit.findFirst({
                         where: {
                             visitId: patientVisit.visitId,
                             facilityCode: preprocessedData.facilityCode
@@ -134,7 +134,7 @@ async function processSubmittedData(preprocessedData: PGNCDPayloadLoggerInterfac
                             createdAt: new Date(createdAt),
                         }
                         //Add the patientVisitInfo to the database
-                        let newVisitInDB = await prisma.patientVisit.create({
+                        let newVisitInDB = await prismaPostGresClient.patientVisit.create({
                             data: patientVisitInfo,
                         });
                         //Now add the diseases that were detected on the patient visit
@@ -149,7 +149,7 @@ async function processSubmittedData(preprocessedData: PGNCDPayloadLoggerInterfac
                             })
                         }
                         if (newVisitInDB.id != undefined) {
-                            let newDiseaseInDB = await prisma.diseasesOnVisit.createMany({
+                            let newDiseaseInDB = await prismaPostGresClient.diseasesOnVisit.createMany({
                                 data: diseasesOnVisit
                             });
                         }
@@ -176,7 +176,7 @@ async function processSubmittedData(preprocessedData: PGNCDPayloadLoggerInterfac
 
         // Insert Skipped Records to SkippedPayloadLogger table
         if (skippedRecords.length > 0) {
-            const skippedPayload = await prisma.skippedPayloadLogger.create({
+            const skippedPayload = await prismaPostGresClient.skippedPayloadLogger.create({
                 data: {
                     skippedItems: JSON.stringify(skippedRecords),
                     message: `Skipped ${skippedRecords.length} records due to duplicates or invalid facility data`,
@@ -198,7 +198,7 @@ async function processSubmittedData(preprocessedData: PGNCDPayloadLoggerInterfac
     } catch (error: any) {
 
         console.error('Error in processing submitted data:', error);
-        await prisma.skippedPayloadLogger.create({
+        await prismaPostGresClient.skippedPayloadLogger.create({
             data: {
                 skippedItems: "",
                 message: `Error Processing Preprocessed id: ${preprocessedData.providerId}. Exception thrown: ${error.message}`,
@@ -264,7 +264,7 @@ async function payloadLogger(data: PGPatientVisitInterface[], providerUser: Auth
         facilityCode: facilityCode,
         accessToken: String(providerUser.access_token),
     }
-    const newPayload = await prisma.nCDPayloadLogger.create({
+    const newPayload = await prismaPostGresClient.nCDPayloadLogger.create({
         data: loggableData
     });
 
@@ -284,7 +284,7 @@ async function payloadLogger(data: PGPatientVisitInterface[], providerUser: Auth
  */
 async function findOrCreateDisease(conceptUuId: string, conceptName: string): Promise<PGDiseaseInterface> {
 
-    const diseaseFromDB = await prisma.disease.findFirst({
+    const diseaseFromDB = await prismaPostGresClient.disease.findFirst({
         where: { conceptName: conceptName.trim() },
     });
     console.log("The Disease from DB is ")
@@ -295,7 +295,7 @@ async function findOrCreateDisease(conceptUuId: string, conceptName: string): Pr
         return diseaseFromDB;
     }
 
-    const newDisease: PGDiseaseInterface = await prisma.disease.create({
+    const newDisease: PGDiseaseInterface = await prismaPostGresClient.disease.create({
         data: {
             conceptUuId: conceptUuId.trim(),
             conceptName: conceptName.trim(),

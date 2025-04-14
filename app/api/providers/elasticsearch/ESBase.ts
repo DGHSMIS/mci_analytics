@@ -24,14 +24,14 @@ async function getAllAvailableNodes(): Promise<string[]> {
       console.log("The user is ", ELASTIC_USER);
       console.log("The password is ", ELASTIC_PASSWORD);
       // Create a temporary client to ping the node
-      const tempClient = new Client({ 
-        nodes: [node],         
+      const tempClient = new Client({
+        nodes: [node],
         auth: {
           username: ELASTIC_USER,
           password: ELASTIC_PASSWORD
-        } 
+        }
       });
-      
+
       // Ping the node
       await tempClient.ping();
 
@@ -92,8 +92,14 @@ async function getFastestRespondingESNode(): Promise<string> {
   for (const node of ELASTICSEARCH_HOST) {
     try {
       // Create a temporary client to ping the node
-      const tempClient = new Client({ nodes: [node] });
-      
+      const tempClient = new Client({
+        nodes: [node],
+        auth: {
+          username: ELASTIC_USER,
+          password: ELASTIC_PASSWORD,
+        }
+      });
+
       // Ping the current node to check if it is available
       await tempClient.ping();
 
@@ -117,7 +123,7 @@ async function getFastestRespondingESNode(): Promise<string> {
  * @param {string} esEndpoint - The Elasticsearch endpoint for which the auth header is generated.
  * @returns {Promise<{esUrl: string, authHeader: string}>} - A promise that resolves to an object containing the Elasticsearch URL and the basic authorization header.
  */
-export const getESAuthHeader = async (esEndpoint: string): Promise<{ esUrl: string; authHeader: string }> => {
+export const getESAuthHeader = async (esEndpoint: string): Promise<{ esUrl: string; authHeader: string; }> => {
   // Dynamically get the first available node
   const availableNode = await getFastestRespondingESNode();
 
@@ -126,7 +132,7 @@ export const getESAuthHeader = async (esEndpoint: string): Promise<{ esUrl: stri
     esUrl: `${availableNode}/${esEndpoint}`,
     authHeader: 'Basic ' + Buffer.from(ELASTIC_USER + ':' + ELASTIC_PASSWORD).toString('base64')
   };
-  
+
 };
 
 /**
@@ -282,8 +288,14 @@ export async function deleteESIndex(indexName: string, ignore_unavailable = true
 export async function dropAndGenerateIndex(esIndexName: string, esIndexBody: RequestBody) {
 
   try {
-    const isIndexDeleted = await deleteESIndex(esIndexName);
-    console.log(`Index deleted successfully - ${String(isIndexDeleted)}`);
+    // Delete the index if it exists, catch error and ignore if it doesn't
+    try {
+      const isIndexDeleted = await deleteESIndex(esIndexName);
+      console.log(`Index deleted successfully - ${String(isIndexDeleted)}`);
+    } catch (error) {
+      console.error("Error occurred while deleting index:", error);
+    }
+    console.log("Creating new index:", esIndexName);
     return await createESIndex(esIndexName, esIndexBody);
 
   } catch (error) {
@@ -298,7 +310,7 @@ export async function dropAndGenerateIndex(esIndexName: string, esIndexBody: Req
  * @param mappingBody
  * @returns boolean - true if mapping is updated successfully
  */
-export async function updateESIndexMapping(esIndexName: string, esIndexBody: RequestBody):Promise<boolean> {
+export async function updateESIndexMapping(esIndexName: string, esIndexBody: RequestBody): Promise<boolean> {
   const esAuthOptions: ESRequestOptions = await getESAuthHeader(esIndexName);
   console.log("Updating mapping for index:", esIndexName);
   try {
@@ -314,12 +326,12 @@ export async function updateESIndexMapping(esIndexName: string, esIndexBody: Req
     const data = await response.json();
     console.log("Hello 3");
     console.log(data);
-    
+
     if (!response.ok) {
       return Promise.resolve(false);
     }
 
-    
+
     console.log("Mapping updated successfully:", data);
     return Promise.resolve(true);
   } catch (error) {

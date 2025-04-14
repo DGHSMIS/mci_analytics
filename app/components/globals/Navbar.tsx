@@ -62,6 +62,10 @@ const navigation = {
       name: "Search Patient",
       href: "/admin/patient",
     },
+    {
+      name: "Verification Analytics",
+      href: "/admin/verification-analytics",
+    },
   ],
 };
 

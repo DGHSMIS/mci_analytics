@@ -1,5 +1,5 @@
-import { PrismaClient } from '@prisma/client';
-const prisma = new PrismaClient();
+import prismaPostGresClient from '@api/providers/prisma/postgres/prismaPostGresClient';
+
 
 async function main() {
   // List of diseases to seed
@@ -14,7 +14,7 @@ async function main() {
 
   // Seed diseases using upsert to avoid duplicates
   for (const disease of diseases) {
-    await prisma.disease.upsert({
+    await prismaPostGresClient.disease.upsert({
       where: { conceptUuId: disease.conceptUuId },
       update: {},
       create: {
@@ -29,10 +29,10 @@ async function main() {
 
 main()
   .then(async () => {
-    await prisma.$disconnect();
+    await prismaPostGresClient.$disconnect();
   })
   .catch(async (e) => {
     console.error(e);
-    await prisma.$disconnect();
+    await prismaPostGresClient.$disconnect();
     process.exit(1);
   });

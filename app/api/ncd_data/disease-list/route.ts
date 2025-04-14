@@ -1,5 +1,5 @@
 import { DropDownSingleItemProps } from "@library/form/DropDownSingle";
-import prisma from '@providers/prisma/prismaClient';
+import prismaPostGresClient from '@api/providers/prisma/postgres/prismaPostGresClient';
 import { sendSuccess } from "@utils/responseHandlers/responseHandler";
 import { NextRequest } from "next/server";
 
@@ -10,7 +10,7 @@ export const fetchCache = "auto";
 export const dynamicParams = false;
 
 export async function GET(req: NextRequest) {
-    const diseaseFromDB = await prisma.disease.findMany({
+    const diseaseFromDB = await prismaPostGresClient.disease.findMany({
         where: {
             id: {
                 gt: 0

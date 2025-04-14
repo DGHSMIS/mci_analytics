@@ -1,0 +1,1 @@
+** Mysql Prisma Connector used for fetching information for ID Verification Proxy Service [BRN & NID Verification] (Commonly known as NID Proxy)

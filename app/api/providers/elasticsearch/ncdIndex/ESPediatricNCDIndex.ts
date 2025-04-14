@@ -1,10 +1,10 @@
-import { PGDiseasesOnVisit } from "@api/providers/prisma/models/PGDiseasesOnVisit";
-import { PGPatientVisitInterface } from "@api/providers/prisma/models/PGPatientVisitInterface";
+import { PGDiseasesOnVisit } from "@api/providers/prisma/postgres/models/PGDiseasesOnVisit";
+import { PGPatientVisitInterface } from "@api/providers/prisma/postgres/models/PGPatientVisitInterface";
 import { DebugElasticProvider, ELASTIC_BATCH_SIZE, ncdIndexName } from "@providers/elasticsearch/constants";
 import { findOrCreateFacility } from "@utils/providers/fetchAndCacheFacilityInfo";
 import { selectDistrictFromCode, selectDivisionFromCode } from "@utils/utilityFunctions";
 import { esBaseClient } from 'app/api/providers/elasticsearch/ESBase';
-import prisma from 'app/api/providers/prisma/prismaClient';
+import prismaPostGresClient from '@api/providers/prisma/postgres/prismaPostGresClient';
 import { ESPediatricNCDIndexBody } from "./ESPediatricNCDMapping";
 import { ESPediatricNCDInterface } from "./interfaces/ESPediatricNCDInterface";
 
@@ -122,7 +122,7 @@ export async function indexAllPediatricNCDDataInESData() {
     // Define a function to process each page of results
     const getAllNCDData = async () => {
       if (DebugElasticProvider) console.log("Retrieving page with pageIndex", i);
-      const rows: any[] = await prisma.patientVisit.findMany({
+      const rows: any[] = await prismaPostGresClient.patientVisit.findMany({
         include: {
           dieasesOnVisit: {
             include:{
@@ -219,7 +219,7 @@ export async function insertOrUpdateNCDDataByCreatedTimeToESIndex(time: string) 
     
     const getAllNCDData = async () => {
       if (DebugElasticProvider) console.log("Retrieving page with pageIndex", i);
-      const rows: any[] = await prisma.patientVisit.findMany({
+      const rows: any[] = await prismaPostGresClient.patientVisit.findMany({
         include: {
           dieasesOnVisit: {
             include:{

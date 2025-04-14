@@ -1,5 +1,5 @@
 import { errorFacilityData } from "@providers/elasticsearch/patientIndex/ESPatientIndex";
-import prisma from "@providers/prisma/prismaClient";
+import prismaPostGres from "@api/providers/prisma/postgres/prismaPostGresClient";
 import { FacilityInterface } from "@utils/interfaces/DataModels/FacilityInterfaces";
 import { resolveFacilityDetailURLFromNameAndId } from "@utils/lib/apiList";
 import { getFacilitySolutionTypeFromName } from "@utils/utilityFunctions";
@@ -115,7 +115,7 @@ export default async function fetchAndCacheFacilityInfo(
  */
 export async function findOrCreateFacility(facilityCode: string): Promise<FacilityInterface> {
 
-  const facilityFromDB = await prisma.facility.findFirst({
+  const facilityFromDB = await prismaPostGres.facility.findFirst({
     where: { code: facilityCode },
   });
   console.log("The Facility from DB is ")
@@ -125,7 +125,7 @@ export async function findOrCreateFacility(facilityCode: string): Promise<Facili
   }
   const facilityData: FacilityInterface = await fetchAndCacheFacilityInfo(Number(facilityCode));
 
-  const newFacility: FacilityInterface = await prisma.facility.create({
+  const newFacility: FacilityInterface = await prismaPostGres.facility.create({
     data: {
       code: facilityCode,
       name: facilityData.name,
