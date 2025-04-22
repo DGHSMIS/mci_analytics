@@ -8,7 +8,7 @@ import { esBaseClient } from 'app/api/providers/elasticsearch/ESBase';
 export const indexName = nidProxyIndexName;
 let indexCount = 0;
 const batchSize = ELASTIC_BATCH_SIZE;
-const totalDataToFetchFromMYSQL = 100;
+const totalDataToFetchFromMYSQL = 500;
 /*
     * Function to index all NID Proxy data in Elasticsearch
     * @returns {Promise<boolean>} - Returns true if indexing is successful, false otherwise
@@ -125,14 +125,20 @@ async function getLastIndexedId(): Promise<bigint> {
       * @returns {Promise<boolean>} - Returns true if indexing is successful, false otherwise
   */
   export async function indexNewNIDProxyDataInESData(): Promise<boolean> {
+    console.log("Indexing new NID Proxy data in Elasticsearch...");
+    console.log("Batch size:", batchSize);
+    console.log("Total data to fetch from MySQL:", totalDataToFetchFromMYSQL);
     try {
       indexCount = 0;
       let pageIndex = 0;
   
       // 1. Get the highest (last) id from ES so we only index new rows from MySQL
       const lastIndexedId: bigint = await getLastIndexedId();
-  
+      console.log("****************************");
+      console.log("****************************");
       console.log(`Fetching MySQL data with id > ${lastIndexedId}`);
+      console.log("****************************");
+      console.log("****************************");
   
       while (true) {
         if (DebugElasticProvider) console.log("Retrieving page with pageIndex", pageIndex);
@@ -157,7 +163,7 @@ async function getLastIndexedId(): Promise<bigint> {
           ...row,
           id: row.id.toString(),
         }));
-  
+        
         console.log("Rows of NID Proxy Index data:", serializedRows.length);
   
         // 5. Process this page in batches of `batchSize`
