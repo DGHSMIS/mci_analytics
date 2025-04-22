@@ -40,6 +40,12 @@ const DropDownSingle = dynamic(() => import("@library/form/DropDownSingle"), {
   ssr: true,
 });
 
+// **1) Dynamic import of your chart component, client only**
+const LineChartMCI = dynamic(
+  () => import("@components/charts/LineChart/LineChartMCI"),
+  { ssr: false }
+);
+
 interface TopClient {
   client_id: number | string;
   count: number;
@@ -69,6 +75,10 @@ export default function VerificationAnalytics() {
     defaultStart,
     defaultEnd,
   ]);
+
+  // **2) Chart data state**
+  const [chartData, setChartData] = useState<any[]>([]);
+  const [loadingChart, setLoadingChart] = useState(false);
 
   // Aggregated counts
   const [aggregated, setAggregated] = useState<{ nid: number; brn: number }>({
@@ -126,6 +136,7 @@ export default function VerificationAnalytics() {
         console.error("Failed to load aggregated counts", err);
       }
     }
+
     fetchAggregated();
   }, [dateRange]);
 
@@ -152,7 +163,27 @@ export default function VerificationAnalytics() {
         setRenderTop(true);
       }
     }
+    async function fetchChart() {
+      setLoadingChart(true);
+      try {
+        const res = await fetch(
+          `/api/es/administer/nid_proxy/aggregated-top-10-verifiers` +
+            `?startdate=${dateRange[0]}` +
+            `&enddate=${dateRange[1]}` +
+            `&doc_type=${docTypeOptions[selectedDocIndex].name ?? "NID"}`
+        );
+        if (!res.ok) throw new Error(res.statusText);
+        const json = await res.json();
+        setChartData(json);
+      } catch (err) {
+        console.error("Failed to load chart data", err);
+        setChartData([]);
+      } finally {
+        setLoadingChart(false);
+      }
+    }
     fetchTopClients();
+    fetchChart();
   }, [dateRange, selectedDocIndex]);
 
   return (
@@ -230,8 +261,22 @@ export default function VerificationAnalytics() {
             />
           </div>
         </div>
+        {/* Segment 4: Line chart */}
+        <div className="my-8 flex w-full flex-col items-center justify-center space-y-8 md:flex-row md:space-x-8 md:space-y-0">
+          {loadingChart ? (
+            <MCISpinner />
+          ) : (
+            <div className="h-[320px] w-[80%]  rounded-lg">
+              <LineChartMCI
+                originalData={chartData}
+                chartTitle={`Top 10 ${docTypeOptions[selectedDocIndex].name} Verifiers (${dateRange[0]} → ${dateRange[1]})`}
+                useToolTip={true}
+              />
+            </div>
+          )}
+        </div>
 
-        {/* Segment 4: Top clients table */}
+        {/* Segment 5: Top clients table */}
         <div className="relative min-h-[300px]">
           {loadingTop ? (
             <MCISpinner />

@@ -56,7 +56,10 @@ export const authOptions: any = {
           const formData = new FormData();
           formData.append("email", credentials.email);
           formData.append("password", credentials.password);
-
+          console.log("loginAuthenticationHeaders");
+          console.log(loginAuthenticationHeaders);
+          console.log("formData");
+          console.log(formData);
           const apiHeader = {
             method: "POST",
             headers: loginAuthenticationHeaders,
@@ -82,6 +85,10 @@ export const authOptions: any = {
             }
             return null;
           } else {
+            console.log("verifyCreds status");
+            console.log(verifyCreds.status);
+            console.log("verifyCreds data");
+            console.log(verifyCreds);
             return null;
           }
         }

@@ -10,18 +10,32 @@ import { memo, Suspense, useMemo } from "react";
 interface LineChartProps {
   originalData: Serie[];
   chartTitle?: string;
+  useToolTip?: boolean;
 }
 const maxTicksInDesktop = 10;
 const maxTicketsInMobile = 5;
 const formatTime = timeFormat("%Y-%m-%d");
 
+// const toolTip = memo(function toolTip({ point }: PointTooltipProps) {
+//   return <PointerBox pointData={point} />;
+// });
+
+
 const toolTip = memo(function toolTip({ point }: PointTooltipProps) {
-  return <PointerBox pointData={point} />;
+  return (
+    <PointerBox
+      pointData={point}
+      row1Header="Client ID:"   // <-- show client ID
+      row2Header="Date:"
+      row3Header="Verifications:"
+    />
+  );
 });
 
 function LineChartMCI({
   originalData = [],
   chartTitle = "New Registrations",
+  useToolTip= false
 }: LineChartProps) {
   const windowWidth = window.innerWidth;
   const colors: any = tokens();
@@ -275,7 +289,7 @@ function LineChartMCI({
       pointBorderWidth={1}
       pointBorderColor={{ from: "serieColor" }}
       pointLabelYOffset={12}
-      // tooltip={toolTip as any}
+      tooltip={useToolTip ? toolTip as any : undefined}
       useMesh={true}
       legends={legendProps}
     />
