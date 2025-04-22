@@ -93,7 +93,7 @@ export async function indexAllNIDProxyDataInESData(): Promise<boolean> {
  * Helper function to fetch the highest indexed MySQL id from ES.
  * Returns 0 if no document is found.
  */
-async function getLastIndexedId(): Promise<bigint> {
+async function getLastIndexedId(): Promise<number> {
     try {
       const { body } = await esBaseClient.search({
         index: indexName,
@@ -110,12 +110,12 @@ async function getLastIndexedId(): Promise<bigint> {
       if (body.hits && body.hits.hits && body.hits.hits.length > 0) {
         const highestId = body.hits.hits[0]._source.id;
         console.log(`Highest indexed ES id: ${highestId}`);
-        return BigInt(highestId);
+        return highestId;
       }
-      return BigInt(0);
+      return 0;
     } catch (error) {
       console.error("Error fetching last indexed id from ES:", error);
-      return BigInt(0);
+      return 0;
     }
   }
   
@@ -133,7 +133,7 @@ async function getLastIndexedId(): Promise<bigint> {
       let pageIndex = 0;
   
       // 1. Get the highest (last) id from ES so we only index new rows from MySQL
-      const lastIndexedId: bigint = await getLastIndexedId();
+      const lastIndexedId: number = await getLastIndexedId();
       console.log("****************************");
       console.log("****************************");
       console.log(`Fetching MySQL data with id > ${lastIndexedId}`);
