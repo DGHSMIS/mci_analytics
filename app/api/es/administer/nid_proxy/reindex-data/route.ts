@@ -1,7 +1,6 @@
 import { nidProxyIndexName } from "@api/providers/elasticsearch/constants";
 import { dropAndGenerateIndex } from "@api/providers/elasticsearch/ESBase";
 import { ESNidProxyIndexBody } from "@api/providers/elasticsearch/nidProxyIndex/ESNidProxyMapping";
-import prismaMySQLClient from "@api/providers/prisma/mysql/prismaMySQLClient";
 import { sendErrorMsg, sendSuccess } from "@utils/responseHandlers/responseHandler";
 import { NextRequest, NextResponse } from "next/server";
 
