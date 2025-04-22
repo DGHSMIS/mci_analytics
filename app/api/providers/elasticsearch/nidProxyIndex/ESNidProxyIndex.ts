@@ -100,17 +100,23 @@ async function getLastIndexedId(): Promise<number> {
         size: 1,
         body: {
           sort: [
-            { id: { order: "desc" } }
+            { generated_at: { order: "desc" } }
           ],
-          _source: ["id"],
+          // only pull back the fields we need
+          _source: ["id", "generated_at"],
         },
       });
       
-      // Check if any hits are returned
       if (body.hits && body.hits.hits && body.hits.hits.length > 0) {
-        const highestId = body.hits.hits[0]._source.id;
+      const hit = body.hits.hits[0];
+      const highestId = hit?._source.id ?? 0;
+      // Check if any hits are returned
         console.log(`Highest indexed ES id: ${highestId}`);
-        return highestId;
+        if (Number.isNaN(highestId)) {
+          console.warn("ES returned a non‑numeric id:", hit._source.id);
+          return 0;
+        }
+        return Number(highestId);
       }
       return 0;
     } catch (error) {
