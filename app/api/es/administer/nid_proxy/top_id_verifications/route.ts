@@ -15,7 +15,7 @@ export async function GET(req: NextRequest) {
 
   // ——— 1) Date range validation ———
   const hasStart = url.searchParams.has("startdate");
-  const hasEnd   = url.searchParams.has("enddate");
+  const hasEnd = url.searchParams.has("enddate");
   if (hasStart !== hasEnd) {
     return sendErrorMsg(
       "Invalid date range: both startdate and enddate must be provided together."
@@ -33,11 +33,13 @@ export async function GET(req: NextRequest) {
       );
     }
     startDate = s;
-    endDate   = e;
+    endDate = e;
   } else {
     const today = new Date();
-    endDate   = today.toISOString().split("T")[0];
-    startDate = new Date(today.getTime() - 7 * 24 * 60 * 60 * 1000)
+    endDate = today.toISOString().split("T")[0];
+    startDate = new Date(
+      today.getTime() - 7 * 24 * 60 * 60 * 1000
+    )
       .toISOString()
       .split("T")[0];
   }
@@ -64,7 +66,7 @@ export async function GET(req: NextRequest) {
     );
   }
 
-  // ——— 5) Build ES query with dynamic doc_type ———
+  // ——— 5) Build ES query with dynamic doc_type + top_hits for client_name ———
   const body = {
     size: 0,
     query: {
@@ -81,12 +83,20 @@ export async function GET(req: NextRequest) {
           field: "client_id",
           size: limit,
           order: { _count: "desc" }
+        },
+        aggs: {
+          client_meta: {
+            top_hits: {
+              size: 1,
+              _source: ["client_name"]
+            }
+          }
         }
       }
     }
   };
 
-  // ——— 6) Execute & return ———
+  // ——— 6) Execute & return enriched response ———
   try {
     const resp = await esBaseClient.search({
       index: nidProxyIndexName,
@@ -94,10 +104,15 @@ export async function GET(req: NextRequest) {
     });
 
     const buckets = resp.body.aggregations.top_clients.buckets;
+
     const result = buckets.map((b: any) => {
       const rawId = b.key as string;
       const client_id = /^\d+$/.test(rawId) ? Number(rawId) : rawId;
-      return { client_id, count: b.doc_count };
+      const hit = b.client_meta.hits.hits[0];
+      const client_name = hit && hit._source?.client_name
+        ? hit._source.client_name
+        : String(client_id);
+      return { client_id, count: b.doc_count, client_name };
     });
 
     return NextResponse.json(result, { status: 200 });

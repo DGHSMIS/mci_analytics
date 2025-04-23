@@ -297,6 +297,7 @@ export default function VerificationAnalytics() {
                 )
               }
               columnHeadersLabel={[
+                { accessorKey: "client_name", header: "Facility" },
                 { accessorKey: "client_id", header: "Client ID" },
                 { accessorKey: "count", header: "Verification Count" },
               ]}

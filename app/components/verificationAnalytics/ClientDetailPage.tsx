@@ -4,7 +4,7 @@ import { useState, useEffect, useRef, useCallback, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import MaterialReactTable, { type MRT_ColumnDef } from "material-react-table";
 import { Serie } from "@nivo/line";
-import { MCISpinner } from "@components/MCISpinner";       // ← your chart component
+import { MCISpinner } from "@components/MCISpinner";
 import { VerificationInfoInterface } from "@api/providers/elasticsearch/nidProxyIndex/interfaces/ESNidProxyInterface";
 import { useLoggedInStore } from "@store/useLoggedInStore";
 import BackNavigator from "@components/globals/BackNavigator";
@@ -16,6 +16,7 @@ export default function ClientDetailPage() {
 
   const LIMIT = 25;
   const [items, setItems] = useState<VerificationInfoInterface[]>([]);
+  const [clientName, setClientName] = useState<string | null>(null);
   const [hasMore, setHasMore] = useState(true);
   const [loading, setLoading] = useState(false);
 
@@ -25,6 +26,7 @@ export default function ClientDetailPage() {
   const pageRef = useRef(0);
   const hasMoreRef = useRef(true);
   const loadingRef = useRef(false);
+  const nameSetRef = useRef(false);
   const sentinelRef = useRef<HTMLDivElement | null>(null);
 
   // --- infinite scroll fetch for table ---
@@ -40,6 +42,12 @@ export default function ClientDetailPage() {
       );
       if (!res.ok) throw new Error(res.statusText);
       const json: VerificationInfoInterface[] = await res.json();
+
+      // only capture once
+      if (!nameSetRef.current && json.length > 0) {
+        nameSetRef.current = true;
+        setClientName(json[0].client_name ?? String(clientId));
+      }
 
       setItems((prev) => [...prev, ...json]);
 
@@ -62,8 +70,10 @@ export default function ClientDetailPage() {
     pageRef.current = 0;
     hasMoreRef.current = true;
     loadingRef.current = false;
+    nameSetRef.current = false;
     setItems([]);
     setHasMore(true);
+    setClientName(null);
     fetchPage();
   }, [clientId, fetchPage]);
 
@@ -85,14 +95,8 @@ export default function ClientDetailPage() {
     const fetchChart = async () => {
       setChartLoading(true);
       try {
-        // you can wire these to date pickers or props instead
-        const startDate = "2024-06-05";
-        const endDate   = "2024-06-10";
-
         const res = await fetch(
           `/api/es/administer/nid_proxy/aggregated-clientwise-verifications/${clientId}`
-          //  +
-          // `?startdate=${startDate}&enddate=${endDate}`
         );
         if (!res.ok) throw new Error(res.statusText);
         const json: Serie[] = await res.json();
@@ -107,20 +111,21 @@ export default function ClientDetailPage() {
     fetchChart();
   }, [clientId]);
 
-  // --- table columns ---
+  // --- table columns (including client_name) ---
   const columns = useMemo<MRT_ColumnDef<VerificationInfoInterface>[]>(
     () => [
+      { accessorKey: "client_name", header: "Client Name" },
       {
         accessorKey: "generated_at",
         header: "Generated At",
         Cell: ({ cell }) => new Date(cell.getValue<string>()).toLocaleString(),
       },
       { accessorKey: "request_doc_type", header: "Doc Type" },
-      { accessorKey: "nid_requested",   header: "NID Requested" },
-      { accessorKey: "nid_10_digit",    header: "NID 10-digit"   },
-      { accessorKey: "nid_17_digit",    header: "NID 17-digit"   },
-      { accessorKey: "brn",             header: "BRN"            },
-      { accessorKey: "dob",             header: "Date of Birth"  },
+      { accessorKey: "nid_requested", header: "NID Requested" },
+      { accessorKey: "nid_10_digit", header: "NID 10-digit" },
+      { accessorKey: "nid_17_digit", header: "NID 17-digit" },
+      { accessorKey: "brn", header: "BRN" },
+      { accessorKey: "dob", header: "Date of Birth" },
     ],
     []
   );
@@ -130,7 +135,7 @@ export default function ClientDetailPage() {
       <div className="flex items-center space-x-4">
         <BackNavigator />
         <h1 className="text-xl font-semibold">
-          Client Verifications for {clientId}
+          Verifications for {clientName ?? clientId}
         </h1>
       </div>
 
