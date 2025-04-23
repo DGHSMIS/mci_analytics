@@ -3,6 +3,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { esBaseClient } from "@providers/elasticsearch/ESBase";
 import { nidProxyIndexName } from "@api/providers/elasticsearch/constants";
 import { sendErrorMsg } from "@utils/responseHandlers/responseHandler";
+import fetchAndCacheClientInfo from "@utils/providers/fetchAndCacheClientInfo";
 
 const DEFAULT_LIMIT = 50;
 const MAX_LIMIT = 1000;

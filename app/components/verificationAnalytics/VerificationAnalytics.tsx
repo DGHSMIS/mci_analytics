@@ -174,8 +174,10 @@ export default function VerificationAnalytics() {
         );
         if (!res.ok) throw new Error(res.statusText);
         const json = await res.json();
+        console.log("The chart data is -", json)
         setChartData(json);
       } catch (err) {
+        console.log("The chart data has error")
         console.error("Failed to load chart data", err);
         setChartData([]);
       } finally {
@@ -262,16 +264,18 @@ export default function VerificationAnalytics() {
           </div>
         </div>
         {/* Segment 4: Line chart */}
-        <div className="my-8 flex w-full flex-col items-center justify-center space-y-8 md:flex-row md:space-x-8 md:space-y-0">
+        <div className="my-8 flex w-full flex-col items-center space-y-8 md:flex-row md:space-x-8 md:space-y-0">
           {loadingChart ? (
             <MCISpinner />
           ) : (
-            <div className="h-[320px] w-[80%]  rounded-lg">
+            <div className="h-[400px] w-[100%] rounded-lg">
+              {chartData.length ?
               <LineChartMCI
                 originalData={chartData}
                 chartTitle={`Top 10 ${docTypeOptions[selectedDocIndex].name} Verifiers (${dateRange[0]} → ${dateRange[1]})`}
                 useToolTip={true}
               />
+              : <>No results in the given time range</>}
             </div>
           )}
         </div>

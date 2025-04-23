@@ -16,16 +16,11 @@ const maxTicksInDesktop = 10;
 const maxTicketsInMobile = 5;
 const formatTime = timeFormat("%Y-%m-%d");
 
-// const toolTip = memo(function toolTip({ point }: PointTooltipProps) {
-//   return <PointerBox pointData={point} />;
-// });
-
-
 const toolTip = memo(function toolTip({ point }: PointTooltipProps) {
   return (
     <PointerBox
       pointData={point}
-      row1Header="Client ID:"   // <-- show client ID
+      row1Header="Client ID:"
       row2Header="Date:"
       row3Header="Verifications:"
     />
@@ -35,128 +30,83 @@ const toolTip = memo(function toolTip({ point }: PointTooltipProps) {
 function LineChartMCI({
   originalData = [],
   chartTitle = "New Registrations",
-  useToolTip= false
+  useToolTip = false,
 }: LineChartProps) {
+  // 0) don't render if no data present
+  if (!originalData.length) {
+    return null;
+  }
+
   const windowWidth = window.innerWidth;
   const colors: any = tokens();
-  console.log("Original Data", originalData.length);
-  console.log(JSON.stringify(originalData));
-  // Get startDate and endDate
-  const { startDate, endDate } = useMemo(() => {
-    let startDate: Date | null = null;
-    let endDate: Date | null = null;
+
+  // 1) derive date range from series data
+  const { startDate, endDate } = useMemo<{ startDate: string; endDate: string }>(() => {
+    let minDate: Date | null = null;
+    let maxDate: Date | null = null;
     originalData.forEach((serie: Serie) => {
       serie.data.forEach((point: any) => {
-        const date = new Date(point.x);
-        if (!startDate || date < startDate) {
-          startDate = date;
-        }
-        if (!endDate || date > endDate) {
-          endDate = date;
-        }
+        const date = new Date(point.x as string);
+        if (!minDate || date < minDate) minDate = date;
+        if (!maxDate || date > maxDate) maxDate = date;
       });
     });
-
-    // Convert to YYYY-MM-DD format
-    const startDateStr = startDate
-      ? (startDate as Date).toISOString().split("T")[0]
-      : "";
-    const endDateStr = endDate
-      ? (endDate as Date).toISOString().split("T")[0]
-      : "";
-
-    return { startDate: startDateStr, endDate: endDateStr };
+    const startStr = minDate ? (minDate as Date).toISOString().split("T")[0] : "";
+    const endStr = maxDate ? (maxDate as Date).toISOString().split("T")[0] : "";
+    return { startDate: startStr, endDate: endStr };
   }, [originalData]);
 
-  console.log("Start Date", startDate);
-  console.log("End Date", endDate);
-
+  // 2) calculate days span and tick interval
   const totalDays = differenceInDays(parseISO(endDate), parseISO(startDate));
-  console.log("Total Days", totalDays);
-
   const daysPerTick =
     windowWidth > 400
       ? Math.round(totalDays / maxTicksInDesktop)
       : Math.round(totalDays / maxTicketsInMobile);
 
-  console.log("Days Per Tick", daysPerTick);
   const lineMargins: Margin =
     windowWidth > 400
       ? { top: 40, right: 40, bottom: 100, left: 64 }
-      : {
-          top: 40,
-          right: 40,
-          bottom: 200,
-          left: 60,
-        };
+      : { top: 40, right: 40, bottom: 200, left: 60 };
 
-  // Now you can use these dates to generate your tickValues
-  const tickValues = useMemo(() => {
-    console.log("Tick Values useMemo function");
-    const tickDays = daysPerTick; // or whatever value you want
-    console.log("Tick Days are -" + tickDays);
-    const oneDay = 24 * 60 * 60 * 1000; // hours*minutes*seconds*milliseconds
-    const oneCycle = tickDays * oneDay;
-
+  // 3) compute tick values array
+  const tickValues = useMemo<Date[]>(() => {
+    const oneDay = 24 * 60 * 60 * 1000;
+    const step = daysPerTick * oneDay;
+    const values: Date[] = [];
     let current = new Date(startDate);
-    const last = new Date(endDate);
-
-    const tickValues = [];
-
-    while (current <= last) {
-      tickValues.push(new Date(current));
-      current = new Date(+current + oneCycle);
+    const end = new Date(endDate);
+    while (current <= end) {
+      values.push(new Date(current));
+      current = new Date(current.getTime() + step);
     }
+    return values;
+  }, [startDate, endDate, daysPerTick]);
 
-    return tickValues;
-  }, [startDate, endDate]);
-
-  console.log("Tick Values", tickValues);
-
-  //! Left Axis
+  // 4) configure axes and legends
   const axisLeft: AxisProps =
     windowWidth > 400
-      ? {
-          tickSize: 4,
-          tickPadding: 8,
-          tickRotation: 0,
-          // tickValues: yTickValues, // added
-          // format: (value) => value,
-          legend: chartTitle,
-          legendOffset: -52,
-          legendPosition: "middle",
-        }
-      : {
-          tickSize: 10,
-          tickPadding: 0,
-          tickRotation: 90,
-          // tickValues: yTickValues, // added
-          // format: (value) => value,
-          legend: chartTitle,
-          legendOffset: -28,
-          legendPosition: "end",
-        };
+      ? { tickSize: 4, tickPadding: 8, tickRotation: 0, legend: chartTitle, legendOffset: -52, legendPosition: "middle" }
+      : { tickSize: 10, tickPadding: 0, tickRotation: 90, legend: chartTitle, legendOffset: -28, legendPosition: "end" };
 
-  //! Bottom Axis
   const axisBottom: AxisProps =
     windowWidth > 400
       ? {
           tickSize: 4,
           tickPadding: 20,
           tickRotation: 0,
-          format: (value) => formatTime(new Date(value)),
-          tickValues: `every ${daysPerTick ? daysPerTick : 10} day`,
-          legend: `Last ${totalDays ? totalDays : "X"} Days`,
+          format: (value) => formatTime(new Date(value as string)),
+          tickValues: `every ${daysPerTick} day`,
+          legend: `Last ${totalDays} Days`,
           legendOffset: 72,
           legendPosition: "middle",
         }
       : {
           tickSize: 4,
           tickPadding: 4,
-          tickRotation: 90, // rotate the labels by 45 degrees
-          tickValues: tickValues,
-          format: (value) => formatTime(new Date(value)),
-          legend: `Last ${totalDays} Days `,
+          tickRotation: 90,
+          tickValues,
+          format: (value) => formatTime(new Date(value as string)),
+          legend: `Last ${totalDays} Days`,
           legendOffset: 60,
           legendPosition: "middle",
         };
@@ -179,16 +129,7 @@ function LineChartMCI({
             symbolShape: "circle",
             symbolBorderColor: "rgba(0, 0, 0, .15)",
             symbolBorderWidth: 1,
-            // onClick: handleClickLegend,
-            effects: [
-              {
-                on: "hover",
-                style: {
-                  itemBackground: "rgba(0, 0, 0, .03)",
-                  itemOpacity: 1,
-                },
-              },
-            ],
+            effects: [{ on: "hover", style: { itemBackground: "rgba(0, 0, 0, .03)", itemOpacity: 1 } }],
           },
         ]
       : [
@@ -196,7 +137,6 @@ function LineChartMCI({
             anchor: "bottom-left",
             direction: "column",
             justify: false,
-            // translateX: -100,
             translateY: 175,
             itemsSpacing: 5,
             itemDirection: "left-to-right",
@@ -206,93 +146,46 @@ function LineChartMCI({
             symbolSize: 14,
             symbolShape: "circle",
             symbolBorderColor: "rgba(0, 0, 0, .5)",
-            // onClick: handleClickLegend,
-            effects: [
-              {
-                on: "hover",
-                style: {
-                  itemOpacity: 0.9,
-                },
-              },
-            ],
+            effects: [{ on: "hover", style: { itemOpacity: 0.9 } }],
           },
         ];
-  console.log("originalData");
+
   return (
-    <Suspense>
-    <ResponsiveLine
-      animate={true}
-      data={originalData}
-      theme={{
-        axis: {
-          domain: {
-            line: {
-              stroke: colors.secondary[900],
-            },
+    <Suspense fallback={null}>
+      <ResponsiveLine
+        data={originalData}
+        theme={{
+          axis: {
+            domain: { line: { stroke: colors.secondary[900] } },
+            legend: { text: { fill: colors.primary[900] } },
+            ticks: { line: { stroke: colors.primary[900], strokeWidth: 2 }, text: { fill: colors.primary[500] } },
           },
-          legend: {
-            text: {
-              fill: colors.primary[900],
-            },
-          },
-          ticks: {
-            line: {
-              stroke: colors.primary[900],
-              strokeWidth: 2,
-            },
-            text: {
-              fill: colors.primary[500],
-            },
-          },
-        },
-        legends: {
-          text: {
-            fill: colors.secondary[700],
-          },
-        },
-        tooltip: {
-          container: {
-            color: colors.slate,
-          },
-        },
-        background: colors.slate,
-      }}
-      lineWidth={2}
-      colors={{ scheme: "red_yellow_green" }}
-      margin={lineMargins}
-      // xFormat="time:%Y-%m-%d"
-      yFormat=" >-.2f"
-      xScale={{
-        type: "time",
-        format: "%Y-%m-%d",
-        precision: "day",
-      }}
-      yScale={{
-        type: "linear",
-        min: 0,
-        max: "auto",
-        stacked: false,
-        reverse: false,
-      }}
-      motionConfig="wobbly"
-      // areaBaselineValue={yScale.min}
-      enableArea={false}
-      enableGridX={true}
-      enableGridY={true}
-      curve="linear"
-      axisTop={null}
-      axisRight={null}
-      axisBottom={axisBottom}
-      axisLeft={axisLeft}
-      pointSize={windowWidth > 400 ? 8 : 4}
-      pointColor={{ theme: "background" }}
-      pointBorderWidth={1}
-      pointBorderColor={{ from: "serieColor" }}
-      pointLabelYOffset={12}
-      tooltip={useToolTip ? toolTip as any : undefined}
-      useMesh={true}
-      legends={legendProps}
-    />
+          legends: { text: { fill: colors.secondary[700] } },
+          tooltip: { container: { color: colors.slate } },
+          background: colors.slate,
+        }}
+        margin={lineMargins}
+        xScale={{ type: "time", format: "%Y-%m-%d", precision: "day" }}
+        yScale={{ type: "linear", min: 0, max: "auto", stacked: false }}
+        axisTop={null}
+        axisRight={null}
+        axisBottom={axisBottom}
+        axisLeft={axisLeft}
+        enableArea={false}
+        enableGridX
+        enableGridY
+        curve="linear"
+        lineWidth={2}
+        colors={{ scheme: "red_yellow_green" }}
+        pointSize={windowWidth > 400 ? 8 : 4}
+        pointColor={{ theme: "background" }}
+        pointBorderWidth={1}
+        pointBorderColor={{ from: "serieColor" }}
+        pointLabelYOffset={12}
+        tooltip={useToolTip ? (toolTip as any) : undefined}
+        useMesh
+        legends={legendProps}
+      />
     </Suspense>
   );
 }
@@ -312,31 +205,18 @@ export const PointerBox = memo(function PointerBox({
   row2Header = "Date:",
   row3Header = "Registrations:",
 }: PointerBoxProps) {
-  const date = new Date(pointData.data.x);
+  const date = new Date(pointData.data.x as string);
   const formattedDate = format(date, "do MMM, yy");
-  const count = pointData.data.y;
+  const count = pointData.data.y as number;
   let pointerText: string = pointData.id;
   if (pointerText.includes(".")) {
-    // console.log(pointerText);
-    //remove everything from the first dot onwards
     pointerText = pointerText.split(".")[0];
   }
   return (
-    <div
-      className={"rounded bg-slate-100 p-12 text-primary-900 backdrop:rounded"}
-    >
-      <div className="text-base">
-        <strong className="font-bold">{row1Header}</strong>{" "}
-        <span className="capitalize">{pointerText}</span>
-      </div>
-      <div className="text-base">
-        <strong className="font-bold">{row2Header}</strong>{" "}
-        <span className="capitalize">{formattedDate}</span>
-      </div>
-      <div className="text-base">
-        <strong className="font-bold">{row3Header}</strong>{" "}
-        <span className="capitalize">{count.toLocaleString("en-IN")}</span>
-      </div>
+    <div className="rounded bg-slate-100 p-12 text-primary-900 backdrop:rounded">
+      <div className="text-base"><strong className="font-bold">{row1Header}</strong><span className="capitalize"> {pointerText}</span></div>
+      <div className="text-base"><strong className="font-bold">{row2Header}</strong><span className="capitalize"> {formattedDate}</span></div>
+      <div className="text-base"><strong className="font-bold">{row3Header}</strong><span className="capitalize"> {count.toLocaleString("en-IN")}</span></div>
     </div>
   );
 });

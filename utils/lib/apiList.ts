@@ -56,6 +56,10 @@ const apiList: ApiUrlInterface[] = [
     urlPath: "/api/1.0/facilities/",
   },
   {
+    name: "auth-get-client-by-id",
+    urlPath: "/api/1.0/users/",
+  },
+  {
     name: "/get-patient-encounter/:id",
     urlPath: "/patients/:id/encounters",
   },
@@ -179,4 +183,27 @@ export function resolveFacilityDetailURLFromNameAndId(
   //   getAuthBaseUrl() + findUrl.urlPath + String(facilityId) + ".json"
   // );
   return getAuthBaseUrl() + findUrl.urlPath + String(facilityId) + ".json";
+}
+
+/**
+ * Returns the URL for the given API name.
+ * @param {string} name
+ * @param {number | string} facilityId
+ * @returns {string}
+ */
+export function resolveClientDetailURLFromNameAndId(
+  name: string,
+  clientId: number | string
+): string {
+  const findUrl: ApiUrlInterface | undefined = apiList.find(
+    (api) => api.name === name
+  );
+  if (!findUrl) {
+    return "";
+  }
+  // console.log("The url is");
+  // console.log(
+  //   getAuthBaseUrl() + findUrl.urlPath + String(facilityId) + ".json"
+  // );
+  return getAuthBaseUrl() + findUrl.urlPath + String(clientId);
 }
