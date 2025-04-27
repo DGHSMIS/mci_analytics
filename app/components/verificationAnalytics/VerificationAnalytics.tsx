@@ -51,9 +51,7 @@ export default function VerificationAnalytics() {
   // Default to last 5 days
   const today = new Date();
   const defaultEnd = today.toISOString().split("T")[0];
-  const defaultStart = new Date(
-    today.getTime() - 5 * 24 * 60 * 60 * 1000
-  )
+  const defaultStart = new Date(today.getTime() - 5 * 24 * 60 * 60 * 1000)
     .toISOString()
     .split("T")[0];
 
@@ -99,9 +97,12 @@ export default function VerificationAnalytics() {
     }
   };
 
-  // Handle dropdown changes
+  // Handle dropdown changes: clear old data immediately
   const handleDocTypeChange = (e: any) => {
-    setSelectedDocIndex(e.data.id);
+    const newIndex = e.data.id;
+    setSelectedDocIndex(newIndex);
+    setTopClients([]); // clear out old table
+    setChartData([]); // clear out old chart
   };
 
   // Fetch aggregated counts on dateRange change
@@ -129,9 +130,7 @@ export default function VerificationAnalytics() {
         const res = await fetch(
           `/api/es/administer/nid_proxy/top_id_verifications?` +
             `startdate=${dateRange[0]}&enddate=${dateRange[1]}` +
-            `&limit=50&doc_type=${
-              docTypeOptions[selectedDocIndex].name
-            }`
+            `&limit=50&doc_type=${docTypeOptions[selectedDocIndex].name}`
         );
         if (!res.ok) throw new Error(res.statusText);
         const json: TopClient[] = await res.json();
@@ -198,7 +197,6 @@ export default function VerificationAnalytics() {
             {...verificationIndicatorProps}
             variant="success"
             iconName="activity"
-            className="col-span-1"
             title="Total NID Verified"
             subTitle={aggregated.nid.toLocaleString()}
           />
@@ -206,7 +204,6 @@ export default function VerificationAnalytics() {
             {...verificationIndicatorProps}
             variant="success"
             iconName="activity"
-            className="col-span-1"
             title="Total BRN Verified"
             subTitle={aggregated.brn.toLocaleString()}
           />
@@ -220,13 +217,14 @@ export default function VerificationAnalytics() {
           <div className="w-auto">
             <h4 className="mb-12 text-sm font-semibold uppercase text-slate-600 flex justify-end">
               Filter by Date Range
-            </h4>          <DropDownSingle
-            label=""
-            items={docTypeOptions}
-            index={selectedDocIndex}
-            onChange={handleDocTypeChange}
-            isFilterable={false}
-          />
+            </h4>
+            <DropDownSingle
+              label=""
+              items={docTypeOptions}
+              index={selectedDocIndex}
+              onChange={handleDocTypeChange}
+              isFilterable={false}
+            />
           </div>
         </div>
 
