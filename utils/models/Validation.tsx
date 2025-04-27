@@ -394,9 +394,9 @@ export async function validateFormData(
         }
 
         // Check if difference between the two dates is more than 9 months
-        if (differenceInMonths(dateTo, dateFrom) > 9) {
+        if (differenceInMonths(dateTo, dateFrom) > 12) {
           errors.push(
-            "The difference between the two dates cannot be more than 9 months."
+            "The difference between the two dates cannot be more than 12 months."
           );
         }
       }
@@ -506,9 +506,9 @@ export async function validateFormDataForNCD(
         errors.push("dateFrom must be less than or equal to dateTo.");
       }
 
-      // Check if the difference between the two dates is more than 9 months
-      if (differenceInMonths(dateTo, dateFrom) > 9) {
-        errors.push("The difference between the two dates cannot be more than 9 months.");
+      // Check if the difference between the two dates is more than 12 months
+      if (differenceInMonths(dateTo, dateFrom) > 12) {
+        errors.push("The difference between the two dates cannot be more than 12 months.");
       }
     }
   } else {
