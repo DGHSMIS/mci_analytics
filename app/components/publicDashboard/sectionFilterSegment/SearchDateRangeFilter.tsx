@@ -1,17 +1,13 @@
 "use client";
 
 import Button from "@library/Button";
-import MultipleDatePicker from "@library/form/DatePicker/MultipleDatePicker";
+import DatePicker from "@library/form/DatePicker";
 import Label from "@library/form/Label";
 import { useStore } from "@store/store";
 import { getDaysBetweenDates, xMonthsAgo } from "@utils/utilityFunctions";
 import { addMonths } from "date-fns";
 import { delay } from "lodash";
-import React, { useEffect } from "react";
-
-// renderContext
-// 1 - Demography
-// 2 - Service Overview
+import React, { useEffect, useState } from "react";
 
 export interface SearchDateRangeFilterProps {
   filterByDate?: (minDateString?: Date, maxDateString?: Date) => void;
@@ -20,7 +16,7 @@ export interface SearchDateRangeFilterProps {
   label?: string;
 }
 
-export default function SearchDateRangeFilter({
+export default function SearchDateRangeFilterv2({
   filterByDate,
   renderContext = 1,
   showLabel = false,
@@ -42,164 +38,120 @@ export default function SearchDateRangeFilter({
   } = useStore();
 
   const getMinDate = (context: number) => {
-    if (context === 1) {
-      console.log("Demo Min Date");
-      console.log(demographyMinDate.toISOString());
-      return demographyMinDate;
-    }
-    else if (context === 2) {
-      console.log("Service Overview Min Date");
-      console.log(serviceOverviewMinDate.toISOString());
-      return serviceOverviewMinDate;
-    }
-    else if (context === 3) {
-      console.log("NCD Data Min Date");
-      console.log(ncdDataMinDate.toISOString());
-      return ncdDataMinDate;
-    }
+    if (context === 1) return demographyMinDate;
+    if (context === 2) return serviceOverviewMinDate;
+    if (context === 3) return ncdDataMinDate;
     return new Date();
   };
 
   const getMaxDate = (context: number) => {
-    if (context === 1) {
-      return demographyMaxDate;
-    }
-    else if (context === 2) {
-      return serviceOverviewMaxDate;
-    }
-    else if (context === 3) {
-      return ncdDataMaxDate;
-    }
+    if (context === 1) return demographyMaxDate;
+    if (context === 2) return serviceOverviewMaxDate;
+    if (context === 3) return ncdDataMaxDate;
     return xMonthsAgo(3);
   };
 
-  const [tempMinDate, setTempMinDate] = React.useState<Date>(
-    getMinDate(renderContext),
-  );
-  const [tempMaxDate, setTempMaxDate] = React.useState<Date>(
-    getMaxDate(renderContext),
-  );
+  const [tempMinDate, setTempMinDate] = useState<Date>(getMinDate(renderContext));
+  const [tempMaxDate, setTempMaxDate] = useState<Date>(getMaxDate(renderContext));
+  const maxRange = renderContext !== 3 ? 90 : 365;
 
-  const [allDates, setAllDates] = React.useState<Date[]>([]);
-  const dateReturnFormat = "yyyy-MM-dd";
-  const maxRange = renderContext != 3 ? 90 : 365;
+  // Sync temp dates if store updates (for context 3)
   useEffect(() => {
-    if (allDates.length == 2) {
-      if (allDates[0] !== tempMinDate || allDates[1] !== tempMaxDate) {
-        // setAllDates(getAllDatesBetween(tempMinDate, tempMaxDate));
-        setAllDates([tempMinDate, tempMaxDate]);
-      }
-    }
-    else {
-      setAllDates([getMinDate(renderContext), getMaxDate(renderContext)]);
-    }
-  }, [[tempMinDate, tempMaxDate]]);
-
-  useEffect(() => {
-    if (renderContext == 3) {
+    if (renderContext === 3) {
       setTempMinDate(ncdDataMinDate);
       setTempMaxDate(ncdDataMaxDate);
     }
-  }, [ncdDataMinDate, ncdDataMaxDate]);
+  }, [ncdDataMinDate, ncdDataMaxDate, renderContext]);
 
+  // Validate and sync date logic when selecting start/end date
+  const handleStartDateChange = (date: Date) => {
+    if (date > tempMaxDate) {
+      setTempMinDate(date);
+      setTempMaxDate(addMonths(date, 3));
+    } else {
+      const days = getDaysBetweenDates(date, tempMaxDate);
+      if (days > maxRange) {
+        setTempMinDate(date);
+        setTempMaxDate(addMonths(date, 3));
+      } else {
+        setTempMinDate(date);
+      }
+    }
+  };
+
+  const handleEndDateChange = (date: Date) => {
+    if (date < tempMinDate) {
+      setTempMinDate(addMonths(date, -3));
+      setTempMaxDate(date);
+    } else {
+      const days = getDaysBetweenDates(tempMinDate, date);
+      if (days > maxRange) {
+        setTempMaxDate(addMonths(tempMinDate, 3));
+      } else {
+        setTempMaxDate(date);
+      }
+    }
+  };
 
   return (
+    <div className="grid w-full grid-cols-1 items-start md:grid-col-1 lg:grid-cols-3 lg:gap-x-12 space-y-8 lg:space-y-0">
+      {showLabel && (
+        <Label text={label} isRequired={false} className="col-span-3" />
+      )}
 
-    <div className="grid w-full grid-cols-1 items-start md:grid-cols-3 lg:gap-x-12 space-y-8 lg:space-y-0">
-      
-      {showLabel && <Label
-        text={label}
-        isRequired={false}
-        className="col-span-3"
-      />}
-      <div className={`lg:mb-0 text-sm w-full col-span-2 md:col-span-2}`}>
-      
-        <MultipleDatePicker
-          mode={"range"}
-          dateField={
-            {
-              className: "h-36 pr-24",
-            }
-          }
-          footerCaption={"Select Date Range"}
-          fromDate={new Date("2023-01-01")}
-          toDate={new Date()}
-          dateBetweenConnector={"<=>"}
-          value={allDates}
-          dateReturnFormat={dateReturnFormat}
-          max={Infinity}
-          min={2}
-          showResetButton={false}
-          onChange={(e: string[] | null) => {
-            if (e) {
-              console.log("The date is not null");
-              console.log(e);
-              const dates: Date[] = [];
-              e.forEach((date: string | undefined) => {
-                if (date) {
-                  dates.push(new Date(date));
-                }
-              });
-              if (dates.length == 2) {
-                const days = getDaysBetweenDates(dates[0], dates[1]);
-                if (days > maxRange) {
-                  setTempMinDate(dates[0]);
-                  setTempMaxDate(addMonths(dates[0], 3));
-                } else {
-                  setTempMinDate(dates[0]);
-                  setTempMaxDate(dates[1]);
-                }
-              }
-            } else {
-              console.log("The date is null");
-              setTempMinDate(getMinDate(renderContext));
-              setTempMaxDate(getMaxDate(renderContext));
-            }
+      {/* Date Pickers Section */}
+      <div className="col-span-2 grid grid-cols-2 gap-8">
+        <DatePicker
+          label="Start Date"
+          className={'col-span-1'}
+          value={tempMinDate}
+          onChange={(date) => {
+            if (date) handleStartDateChange(date as Date);
           }}
+          maxDate={new Date()}
+          minDate={new Date("2023-01-01")}
+          size="md"
+        />
+        <DatePicker
+          label="End Date"
+          className={'col-span-1'}
+          value={tempMaxDate}
+          onChange={(date:any) => {
+            if (date) handleEndDateChange(date as Date);
+          }}
+          maxDate={new Date()}
+          minDate={new Date("2023-01-01")}
+          size="md"
         />
       </div>
-      {/* <div className="col-span-1 flex flex-grow flex-col justify-start pl-8"> */}
-      {(renderContext == 1 || renderContext == 2 || renderContext == 3) &&
-        <div className="col-span-1 flex flex-col md:flex-grow justify-start pl-0 md:pl-8">
+
+      {/* Filter Button */}
+      {(renderContext === 1 || renderContext === 2 || renderContext === 3) && (
+        <div className="col-span-1 flex flex-col md:flex-grow justify-start pl-0 lg:pt-24 w-full">
           <Button
-            size={"sm"}
-            className={"h-36 w-full lg:w-auto"}
+            size="sm"
+            className="h-36 w-full lg:w-auto"
             btnText="Filter by Date"
-            iconStrokeWidth={"1.5"}
+            iconStrokeWidth="1.5"
             clicked={async (event) => {
               event.preventDefault();
-              if (renderContext == 1) {
-                console.log("The render context is 1");
+              if (renderContext === 1) {
                 setDemoGraphyMinDate(tempMinDate);
                 setDemoGraphyMaxDate(tempMaxDate);
-                if (filterByDate) {
-                  delay(() => {
-                    filterByDate(tempMinDate, tempMaxDate);
-                  }, 200);
-                }
-              } else if (renderContext == 2) {
-                console.log("The render context is 2");
+              } else if (renderContext === 2) {
                 setServiceOverviewMinDate(tempMinDate);
                 setServiceOverviewMaxDate(tempMaxDate);
-                if (filterByDate) {
-                  delay(() => {
-                    filterByDate(tempMinDate, tempMaxDate);
-                  }, 200);
-                }
-              } else if (renderContext == 3) {
-                console.log("The render context is 3");
+              } else if (renderContext === 3) {
                 setNCDDataMinDate(tempMinDate);
                 setNCDDataMaxDate(tempMaxDate);
-                if (filterByDate) {
-                  delay(() => {
-                    filterByDate(tempMinDate, tempMaxDate);
-                  }, 200);
-                }
+              }
+              if (filterByDate) {
+                delay(() => filterByDate(tempMinDate, tempMaxDate), 200);
               }
             }}
           />
         </div>
-      }
+      )}
     </div>
   );
-};
+}

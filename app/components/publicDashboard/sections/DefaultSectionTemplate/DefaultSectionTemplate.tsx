@@ -37,17 +37,17 @@ export default memo(function DefaultSectionTemplate({
       <div className="relative min-h-[400px] w-full items-start justify-center space-y-40 rounded-lg border border-slate-200 bg-white p-20 hover:border-primary-400  hover:shadow-xl">
       {/* <div className="relative min-h-[890px] w-full items-start justify-center space-y-40 rounded-lg border border-slate-200 bg-white p-20 hover:border-primary-400  hover:shadow-xl"> */}
         {/* //! Filters */}
-        <div className="mx-auto mt-16 grid max-w-7xl gap-20 sm:grid-cols-3 lg:h-36 lg:grid-cols-3 lg:gap-40 lg:pb-20">
+        <div className="mx-auto mt-16 grid sm:grid-cols-1 lg:grid-cols-3 max-w-7xl gap-20 lg:h-36 lg:gap-40 lg:pb-20">
           <div
             className={cn(
               "flex justify-end items-end lg:col-span-2",
-              showDropdownSwitcher ? "col-span-3 md:col-span-2":"col-span-3",
+              showDropdownSwitcher ? "col-span-3 md:col-span-2 max-w-full":"col-span-3",
             )}
           >
             <SearchDateRangeFilter renderContext={renderContext} />
           </div>
           {showDropdownSwitcher && (
-            <div className="col-span-3 md:col-span-1 flex justify-start ">
+            <div className="flex justify-start col-span-3 md:col-span-2 lg:col-span-1 lg:pt-24 w-full">
               <DemographySwitcherDD />
             </div>
           )}
