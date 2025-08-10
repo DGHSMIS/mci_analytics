@@ -5,7 +5,7 @@ import { nidProxyIndexName } from "@api/providers/elasticsearch/constants";
 import { sendErrorMsg } from "@utils/responseHandlers/responseHandler";
 
 const ISO_DATE_REGEX = /^\d{4}-\d{2}-\d{2}$/;
-const DEFAULT_LIMIT = 50;
+const DEFAULT_LIMIT = 200;
 const MAX_LIMIT = 1000;
 const ALLOWED_DOC_TYPES = ["NID", "BRN"] as const;
 type DocType = typeof ALLOWED_DOC_TYPES[number];
