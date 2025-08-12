@@ -7,18 +7,32 @@ import { CardIndicatorsProps } from "@components/globals/CardIndicator/CardIndic
 import { DropDownSingleItemProps } from "@library/form/DropDownSingle";
 import { MCISpinner } from "@components/MCISpinner";
 
-// keep this as client-only; provide a loading fallback for the heavy chart
+// Client-only heavy/DOM-touching components
 const LineChartMCI = dynamic(
   () => import("@components/charts/LineChart/LineChartMCI"),
   { ssr: false, loading: () => <MCISpinner /> }
 );
+const PageHeader = dynamic(() => import("@library/PageHeader"), { ssr: false }) as any;
+const Alert = dynamic(() => import("@library/Alert"), { ssr: false });
+const MultipleDatePicker = dynamic(
+  () => import("@library/form/DatePicker/MultipleDatePicker"),
+  { ssr: false }
+);
+const DropDownSingle = dynamic(
+  () => import("@library/form/DropDownSingle"),
+  { ssr: false }
+);
 
-const PageHeader = dynamic(() => import("@library/PageHeader"), { ssr: true });
-const Alert = dynamic(() => import("@library/Alert"), { ssr: true });
-const MultipleDatePicker = dynamic(() => import("@library/form/DatePicker/MultipleDatePicker"), { ssr: true });
-const TablePagyCustom = dynamic(() => import("@components/table/TablePagyCustom"), { ssr: true });
-const CardIndicator = dynamic(() => import("@components/globals/CardIndicator/CardIndicator"), { ssr: true });
-const DropDownSingle = dynamic(() => import("@library/form/DropDownSingle"), { ssr: true });
+// Keep table SSR if it's safe on the server
+const TablePagyCustom = dynamic(
+  () => import("@components/table/TablePagyCustom"),
+  { ssr: true }
+);
+// If CardIndicator touches window at module scope, flip to ssr:false
+const CardIndicator = dynamic(
+  () => import("@components/globals/CardIndicator/CardIndicator"),
+  { ssr: false }
+);
 
 interface TopClient {
   client_id: number | string;
@@ -46,13 +60,20 @@ export default function VerificationAnalytics() {
 
   // compute defaults once
   const todayRef = useRef(new Date());
-  const defaultEnd = useMemo(() => todayRef.current.toISOString().split("T")[0], []);
+  const defaultEnd = useMemo(
+    () => todayRef.current.toISOString().split("T")[0],
+    []
+  );
   const defaultStart = useMemo(() => {
     const t = new Date(todayRef.current.getTime() - 5 * 24 * 60 * 60 * 1000);
     return t.toISOString().split("T")[0];
   }, []);
 
-  const [dateRange, setDateRange] = useState<[string, string]>([defaultStart, defaultEnd]);
+  const [dateRange, setDateRange] = useState<[string, string]>([
+    defaultStart,
+    defaultEnd,
+  ]);
+
   const memoDateRangeDates = useMemo(
     () => [new Date(dateRange[0]), new Date(dateRange[1])],
     [dateRange[0], dateRange[1]]
@@ -67,25 +88,44 @@ export default function VerificationAnalytics() {
   const [chartData, setChartData] = useState<any[]>([]);
   const [loadingChart, setLoadingChart] = useState(false);
 
-  const [aggregated, setAggregated] = useState<{ nid: number; brn: number }>({ nid: 0, brn: 0 });
+  const [aggregated, setAggregated] = useState<{ nid: number; brn: number }>({
+    nid: 0,
+    brn: 0,
+  });
 
   const [topClients, setTopClients] = useState<TopClient[]>([]);
   const [loadingTop, setLoadingTop] = useState(false);
 
   const [tableExpanded, setTableExpanded] = useState({});
 
+  // stable object prop for the picker
+  const dateFieldProps = useMemo(
+    () => ({ className: "h-44 pl-8 pr-36" }),
+    []
+  );
+
+  // prevent mount-time onChange loops from chatty pickers
+  const didMountRef = useRef(false);
+
   // keep setState only when values actually change
   const handleDateChange = (dates: string[] | null) => {
     if (!dates || dates.length !== 2) return;
     const [s, e] = [dates[0]?.trim(), dates[1]?.trim()];
     if (!s || !e) return;
+
+    if (!didMountRef.current) {
+      // swallow the initial mount-sync event (common with date pickers)
+      didMountRef.current = true;
+      return;
+    }
+
     setDateRange((prev) => (prev[0] === s && prev[1] === e ? prev : [s, e]));
   };
 
   const handleDocTypeChange = (e: any) => {
     const newIndex = e?.data?.id ?? 0;
     setSelectedDocIndex((prev) => (prev === newIndex ? prev : newIndex));
-    setTopClients([]);
+    setTopClients([]); // clear for visual feedback
     setChartData([]);
   };
 
@@ -101,8 +141,8 @@ export default function VerificationAnalytics() {
         if (!res.ok) throw new Error(res.statusText);
         const json = await res.json();
         setAggregated({ nid: json?.nid ?? 0, brn: json?.brn ?? 0 });
-      } catch (err) {
-        if (!(err instanceof DOMException && err.name === "AbortError")) {
+      } catch (err: any) {
+        if (!(err?.name === "AbortError")) {
           console.error("Failed to load aggregated counts", err);
         }
       }
@@ -125,8 +165,8 @@ export default function VerificationAnalytics() {
         if (!res.ok) throw new Error(res.statusText);
         const json: TopClient[] = await res.json();
         setTopClients(Array.isArray(json) ? json : []);
-      } catch (err) {
-        if (!(err instanceof DOMException && err.name === "AbortError")) {
+      } catch (err: any) {
+        if (!(err?.name === "AbortError")) {
           console.error("Failed to load top clients", err);
           setTopClients([]);
         }
@@ -144,10 +184,9 @@ export default function VerificationAnalytics() {
         );
         if (!res.ok) throw new Error(res.statusText);
         const json = await res.json();
-        // defensive slice in case API returns more than 10
         setChartData(Array.isArray(json) ? json.slice(0, 10) : []);
-      } catch (err) {
-        if (!(err instanceof DOMException && err.name === "AbortError")) {
+      } catch (err: any) {
+        if (!(err?.name === "AbortError")) {
           console.error("Failed to load chart data", err);
           setChartData([]);
         }
@@ -173,13 +212,13 @@ export default function VerificationAnalytics() {
         </h4>
         <div className="flex justify-end">
           <MultipleDatePicker
-            dateField={{ className: "h-44 pl-8 pr-36" }}
-            toDate={todayRef.current}                // ✅ stable
+            dateField={dateFieldProps}        // stable
+            toDate={todayRef.current}         // stable
             mode="range"
             dateBetweenConnector="to"
-            value={memoDateRangeDates}               // ✅ stable
+            value={memoDateRangeDates}        // stable
             dateReturnFormat="yyyy-MM-dd"
-            onChange={handleDateChange}              // ✅ guarded
+            onChange={handleDateChange}       // guarded
           />
         </div>
 
@@ -188,14 +227,26 @@ export default function VerificationAnalytics() {
           Aggregated Verification Stats
         </h3>
         <div className="grid grid-cols-2 gap-4 md:grid-cols-4 md:gap-16">
-          <CardIndicator {...verificationIndicatorProps} variant="success" iconName="activity" title="Total NID Verified" subTitle={aggregated.nid.toLocaleString()} />
-          <CardIndicator {...verificationIndicatorProps} variant="success" iconName="activity" title="Total BRN Verified" subTitle={aggregated.brn.toLocaleString()} />
+          <CardIndicator
+            {...verificationIndicatorProps}
+            variant="success"
+            iconName="activity"
+            title="Total NID Verified"
+            subTitle={aggregated.nid.toLocaleString()}
+          />
+          <CardIndicator
+            {...verificationIndicatorProps}
+            variant="success"
+            iconName="activity"
+            title="Total BRN Verified"
+            subTitle={aggregated.brn.toLocaleString()}
+          />
         </div>
 
         {/* Segment 3: Doc-type selector + header */}
         <div className="flex items-center justify-between">
           <h3 className="mb-12 text-base font-semibold uppercase text-slate-600">
-           Top {docTypeOptions[selectedDocIndex].name} Verifications
+            Top {selectedDocType} Verifications
           </h3>
           <div className="w-[150px]">
             <DropDownSingle
@@ -237,7 +288,9 @@ export default function VerificationAnalytics() {
               expandAggregated={tableExpanded}
               setExpandedAggregatedState={setTableExpanded}
               onRowClick={(row: any) =>
-                router.push(`/admin/verification-analytics/client/${row.original.client_id}`)
+                router.push(
+                  `/admin/verification-analytics/client/${row.original.client_id}`
+                )
               }
               columnHeadersLabel={[
                 { accessorKey: "client_name", header: "Facility" },
@@ -255,7 +308,7 @@ export default function VerificationAnalytics() {
               isBtnClicked={() => setDateRange([defaultStart, defaultEnd])}
               hideCross
               title="No Results"
-              body={`No ${docTypeOptions[selectedDocIndex].name} verifications found for that date range.`}
+              body={`No ${selectedDocType} verifications found for that date range.`}
             />
           )}
         </div>

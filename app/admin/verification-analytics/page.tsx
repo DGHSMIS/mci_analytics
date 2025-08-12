@@ -1,8 +1,8 @@
 // app/.../page.tsx (Server Component)
 import { getServerSession } from "next-auth";
 import { authOptions } from "utils/lib/auth";
-import { redirect } from "next/navigation";
 import VerificationAnalytics from "@components/verificationAnalytics/VerificationAnalytics"; // no need for dynamic()
+import { signOut } from "next-auth/react";
 
 export const metadata = {
   title: "Verification Analytics | MCI",
@@ -13,9 +13,14 @@ export const metadata = {
 export const dynamic = "force-dynamic"; // or: export const revalidate = 0;
 
 export default async function Page() {
-  const session = await getServerSession(authOptions);
-  if (!session) {
-    redirect("/api/auth/signin?callbackUrl=/admin/verification-analytics");
+  //Accessing token from Server Side
+  const session: any = await getServerSession(authOptions);
+  console.log("Session in Dashboard!!");
+  console.log(session);
+  if (session) {
+    console.log(session.accessToken);
+  } else {
+    await signOut();
   }
 
   return (
