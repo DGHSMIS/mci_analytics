@@ -1,12 +1,13 @@
 "use client";
-
-import { useState, useEffect } from "react";
+import { useState, useMemo, Suspense, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import dynamic from "next/dynamic";
+import { useSuspenseQuery } from "@tanstack/react-query";
+import { signOut } from "next-auth/react";
+
+import { MCISpinner } from "@components/MCISpinner";
 import { CardIndicatorsProps } from "@components/globals/CardIndicator/CardIndicator";
 import { DropDownSingleItemProps } from "@library/form/DropDownSingle";
-import { MCISpinner } from "@components/MCISpinner";
-import dynamic from "next/dynamic";
-import { signOut } from "next-auth/react";
 
 const PageHeader = dynamic(() => import("@library/PageHeader"), { ssr: true });
 const Alert = dynamic(() => import("@library/Alert"), { ssr: true });
@@ -27,7 +28,7 @@ const DropDownSingle = dynamic(() => import("@library/form/DropDownSingle"), {
 });
 const LineChartMCI = dynamic(
   () => import("@components/charts/LineChart/LineChartMCI"),
-  { ssr: false }
+  { ssr: false, loading: () => <MCISpinner /> }
 );
 
 interface TopClient {
@@ -46,51 +47,94 @@ const verificationIndicatorProps: CardIndicatorsProps = {
   titleAlign: "center",
 };
 
+// --- Small fetch helper
+async function fetchJSON<T>(url: string): Promise<T> {
+  const res = await fetch(url, { method: "GET" });
+  if (!res.ok) {
+    const text = await res.text();
+    throw new Error(text || res.statusText);
+  }
+  return res.json();
+}
+
+// --- Suspense hooks
+function useAggregatedCounts(start: string, end: string) {
+  return useSuspenseQuery({
+    queryKey: ["aggregatedCounts", start, end],
+    queryFn: () =>
+      fetchJSON<{ nid: number; brn: number }>(
+        `/api/es/administer/nid_proxy/aggregated-count?startdate=${start}&enddate=${end}`
+      ),
+    staleTime: 60_000, // tune as needed
+    refetchOnWindowFocus: false,
+  });
+}
+
+function useTopClients(start: string, end: string, docType: string) {
+  return useSuspenseQuery({
+    queryKey: ["topClients", start, end, docType],
+    queryFn: () =>
+      fetchJSON<TopClient[]>(
+        `/api/es/administer/nid_proxy/top_id_verifications?startdate=${start}&enddate=${end}&limit=50&doc_type=${docType}`
+      ),
+    staleTime: 60_000,
+    refetchOnWindowFocus: false,
+  });
+}
+
+function useChartData(start: string, end: string, docType: string) {
+  return useSuspenseQuery({
+    queryKey: ["chartTop10", start, end, docType],
+    queryFn: () =>
+      fetchJSON<any[]>(
+        `/api/es/administer/nid_proxy/aggregated-top-10-verifiers?startdate=${start}&enddate=${end}&doc_type=${docType}`
+      ),
+    staleTime: 60_000,
+    refetchOnWindowFocus: false,
+  });
+}
+
 export default function VerificationAnalytics({ session }: any) {
   const router = useRouter();
 
-  // Default to last 5 days
+  // Auth guard (kept from your original)
+  useEffect(() => {
+    const handleAuth = async () => {
+      if (!session) {
+        await signOut();
+      }
+    };
+    handleAuth();
+  }, [session]);
+
+  // Default last 5 days
   const today = new Date();
   const defaultEnd = today.toISOString().split("T")[0];
   const defaultStart = new Date(today.getTime() - 5 * 24 * 60 * 60 * 1000)
     .toISOString()
     .split("T")[0];
 
-  // Date range state
+  // Date range + doc type UI state
   const [dateRange, setDateRange] = useState<[string, string]>([
     defaultStart,
     defaultEnd,
   ]);
 
-  // Chart data state
-  const [chartData, setChartData] = useState<any[]>([]);
-  const [loadingChart, setLoadingChart] = useState(false);
-
-  // Aggregated counts
-  const [aggregated, setAggregated] = useState<{ nid: number; brn: number }>({
-    nid: 0,
-    brn: 0,
-  });
-
-  // Document-type dropdown
   const docTypeOptions: DropDownSingleItemProps[] = [
     { id: 0, name: "NID" },
     { id: 1, name: "BRN" },
   ];
-
-  // Selected document type index [NID or BRN]
   const [selectedDocIndex, setSelectedDocIndex] = useState(0);
 
-  // Top-clients state
-  const [topClients, setTopClients] = useState<TopClient[]>([]);
+  const start = dateRange[0];
+  const end = dateRange[1];
+  const docType = useMemo(
+    () => docTypeOptions[selectedDocIndex].name,
+    [selectedDocIndex]
+  );
 
-  // Loading state for top clients
-  const [loadingTop, setLoadingTop] = useState(false);
-
-  // Table expansion state
   const [tableExpanded, setTableExpanded] = useState({});
 
-  // Handle date-picker changes
   const handleDateChange = (dates: string[] | null) => {
     if (
       dates &&
@@ -102,87 +146,10 @@ export default function VerificationAnalytics({ session }: any) {
     }
   };
 
-  // Handle dropdown changes: clear old data immediately
   const handleDocTypeChange = (e: any) => {
-    const newIndex = e.data.id;
-    setSelectedDocIndex(newIndex);
-    setTopClients([]); // clear out old table
-    setChartData([]); // clear out old chart
+    setSelectedDocIndex(e.data.id);
+    // no manual clears needed — queries are keyed by params
   };
-
-  useEffect(() => {
-    const handleAuth = async () => {
-      if (!session) {
-        await signOut().then(() => {
-          console.log("Signed Out");
-        });
-      }
-    };
-    handleAuth();
-  }, []);
-
-
-  // Fetch aggregated counts on dateRange change
-  useEffect(() => {
-    async function fetchAggregated() {
-      try {
-        const res = await fetch(
-          `/api/es/administer/nid_proxy/aggregated-count?startdate=${dateRange[0]}&enddate=${dateRange[1]}`
-        );
-        if (!res.ok) throw new Error(res.statusText);
-        const json = await res.json();
-        setAggregated({ nid: json.nid, brn: json.brn });
-      } catch (err) {
-        console.error("Failed to load aggregated counts", err);
-      }
-    }
-    fetchAggregated();
-  }, [dateRange]);
-
-  // Fetch top clients & chart on dateRange or docType change
-  useEffect(() => {
-    async function fetchTopClients() {
-      setLoadingTop(true);
-      try {
-        const res = await fetch(
-          `/api/es/administer/nid_proxy/top_id_verifications?` +
-            `startdate=${dateRange[0]}&enddate=${dateRange[1]}` +
-            `&limit=50&doc_type=${docTypeOptions[selectedDocIndex].name}`
-        );
-        if (!res.ok) throw new Error(res.statusText);
-        const json: TopClient[] = await res.json();
-        setTopClients(json);
-      } catch (err) {
-        console.error("Failed to load top clients", err);
-        setTopClients([]);
-      } finally {
-        setLoadingTop(false);
-      }
-    }
-
-    async function fetchChart() {
-      setLoadingChart(true);
-      try {
-        const res = await fetch(
-          `/api/es/administer/nid_proxy/aggregated-top-10-verifiers` +
-            `?startdate=${dateRange[0]}` +
-            `&enddate=${dateRange[1]}` +
-            `&doc_type=${docTypeOptions[selectedDocIndex].name}`
-        );
-        if (!res.ok) throw new Error(res.statusText);
-        const json = await res.json();
-        setChartData(json);
-      } catch (err) {
-        console.error("Failed to load chart data", err);
-        setChartData([]);
-      } finally {
-        setLoadingChart(false);
-      }
-    }
-
-    fetchTopClients();
-    fetchChart();
-  }, [dateRange, selectedDocIndex]);
 
   return (
     <main className="mt-40 flex w-full flex-col justify-center space-y-48 px-24 2xl:container bg-transparent border-none">
@@ -209,27 +176,14 @@ export default function VerificationAnalytics({ session }: any) {
         <h3 className="mb-12 text-base font-semibold uppercase text-slate-600">
           Aggregated Verification Stats
         </h3>
-        <div className="grid grid-cols-2 gap-4 md:grid-cols-4 md:gap-16">
-          <CardIndicator
-            {...verificationIndicatorProps}
-            variant="success"
-            iconName="activity"
-            title="Total NID Verified"
-            subTitle={aggregated.nid.toLocaleString()}
-          />
-          <CardIndicator
-            {...verificationIndicatorProps}
-            variant="success"
-            iconName="activity"
-            title="Total BRN Verified"
-            subTitle={aggregated.brn.toLocaleString()}
-          />
-        </div>
+        <Suspense fallback={<MCISpinner />}>
+          <AggregatedCounts start={start} end={end} />
+        </Suspense>
 
         {/* Segment 3: Doc-type selector + header */}
         <div className="flex items-center justify-between">
           <h3 className="mb-12 text-base font-semibold uppercase text-slate-600">
-            Top {docTypeOptions[selectedDocIndex].name} Verifications
+            Top {docType} Verifications
           </h3>
           <div className="w-auto">
             <h4 className="mb-12 text-sm font-semibold uppercase text-slate-600 flex justify-end">
@@ -247,58 +201,130 @@ export default function VerificationAnalytics({ session }: any) {
 
         {/* Segment 4: Line chart */}
         <div className="my-8 flex w-full flex-col items-center space-y-8 md:flex-row md:space-x-8">
-          {loadingChart ? (
-            <MCISpinner />
-          ) : chartData.length ? (
-            <div className="h-[400px] w-full rounded-lg">
-              <LineChartMCI
-                originalData={chartData}
-                chartTitle={`Top 10 ${docTypeOptions[selectedDocIndex].name} Verifiers (${dateRange[0]} → ${dateRange[1]})`}
-                useToolTip
-              />
-            </div>
-          ) : (
-            <div>No results in the given time range</div>
-          )}
+          <Suspense fallback={<MCISpinner />}>
+            <ChartSection start={start} end={end} docType={docType} />
+          </Suspense>
         </div>
 
         {/* Segment 5: Top clients table */}
         <div className="relative min-h-[300px]">
-          {loadingTop ? (
-            <MCISpinner />
-          ) : topClients.length > 0 ? (
-            <TablePagyCustom
-              rawData={topClients}
-              grouping={[]}
-              groupingChange={() => {}}
-              expandAggregated={tableExpanded}
-              setExpandedAggregatedState={setTableExpanded}
+          <Suspense fallback={<MCISpinner />}>
+            <TopClientsTable
+              start={start}
+              end={end}
+              docType={docType}
+              onReset={() => setDateRange([defaultStart, defaultEnd])}
+              tableExpanded={tableExpanded}
+              setTableExpanded={setTableExpanded}
               onRowClick={(row) =>
                 router.push(
                   `/admin/verification-analytics/client/${row.original.client_id}`
                 )
               }
-              columnHeadersLabel={[
-                { accessorKey: "client_name", header: "Facility" },
-                { accessorKey: "client_id", header: "Client ID" },
-                { accessorKey: "count", header: "Verification Count" },
-              ]}
             />
-          ) : (
-            <Alert
-              iconName="alert-triangle"
-              variant="secondary"
-              showBtn
-              btnText="Reset Date Range"
-              isIconClicked={false}
-              isBtnClicked={() => setDateRange([defaultStart, defaultEnd])}
-              hideCross
-              title="No Results"
-              body={`No ${docTypeOptions[selectedDocIndex].name} verifications found for that date range.`}
-            />
-          )}
+          </Suspense>
         </div>
       </div>
     </main>
+  );
+}
+
+/* ---------------- Sections (Suspense boundaries) ---------------- */
+
+function AggregatedCounts({ start, end }: { start: string; end: string }) {
+  const { data } = useAggregatedCounts(start, end);
+  return (
+    <div className="grid grid-cols-2 gap-4 md:grid-cols-4 md:gap-16">
+      <CardIndicator
+        {...verificationIndicatorProps}
+        variant="success"
+        iconName="activity"
+        title="Total NID Verified"
+        subTitle={data.nid.toLocaleString()}
+      />
+      <CardIndicator
+        {...verificationIndicatorProps}
+        variant="success"
+        iconName="activity"
+        title="Total BRN Verified"
+        subTitle={data.brn.toLocaleString()}
+      />
+    </div>
+  );
+}
+
+function ChartSection({
+  start,
+  end,
+  docType,
+}: {
+  start: string;
+  end: string;
+  docType: string;
+}) {
+  const { data } = useChartData(start, end, docType);
+  if (!data || data.length === 0) {
+    return <div>No results in the given time range</div>;
+  }
+  return (
+    <div className="h-[400px] w-full rounded-lg">
+      <LineChartMCI
+        originalData={data}
+        chartTitle={`Top 10 ${docType} Verifiers (${start} → ${end})`}
+        useToolTip
+      />
+    </div>
+  );
+}
+
+function TopClientsTable({
+  start,
+  end,
+  docType,
+  onReset,
+  tableExpanded,
+  setTableExpanded,
+  onRowClick,
+}: {
+  start: string;
+  end: string;
+  docType: string;
+  onReset: () => void;
+  tableExpanded: any;
+  setTableExpanded: (s: any) => void;
+  onRowClick: (row: any) => void;
+}) {
+  const { data } = useTopClients(start, end, docType);
+
+  if (!data || data.length === 0) {
+    return (
+      <Alert
+        iconName="alert-triangle"
+        variant="secondary"
+        showBtn
+        btnText="Reset Date Range"
+        isIconClicked={false}
+        isBtnClicked={onReset}
+        hideCross
+        title="No Results"
+        body={`No ${docType} verifications found for that date range.`}
+      />
+    );
+  }
+
+  return (
+    <TablePagyCustom
+      rawData={data}
+      grouping={[]}
+      groupingChange={() => {}}
+      expandAggregated={tableExpanded}
+      setExpandedAggregatedState={setTableExpanded}
+      onRowClick={onRowClick}
+      columnHeadersLabel={[
+        { accessorKey: "client_name", header: "Facility" },
+        { accessorKey: "client_id", header: "Client ID" },
+        { accessorKey: "count", header: "Verification Count" },
+      ]}
+    />
   );
 }
