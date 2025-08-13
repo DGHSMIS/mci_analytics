@@ -200,11 +200,11 @@ export default function VerificationAnalytics({ session }: any) {
         </div>
 
         {/* Segment 4: Line chart */}
-        <div className="my-8 flex w-full flex-col items-center space-y-8 md:flex-row md:space-x-8">
+        {/* <div className="my-8 flex w-full flex-col items-center space-y-8 md:flex-row md:space-x-8">
           <Suspense fallback={<MCISpinner />}>
             <ChartSection start={start} end={end} docType={docType} />
           </Suspense>
-        </div>
+        </div> */}
 
         {/* Segment 5: Top clients table */}
         <div className="relative min-h-[300px]">
