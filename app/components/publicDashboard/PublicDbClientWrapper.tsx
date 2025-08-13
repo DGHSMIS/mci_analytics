@@ -197,10 +197,10 @@ export default memo(function PublicDbClientWrapper({
         sectionHeader={section1Title}
         countStats={regStatsData}
         card1Title={"Health ID Registered"}
-        card2Title={"Regs. via OpenMRS+"}
-        card3Title={"Regs. via OpenSRP"}
-        card4Title={"Regs. via Aalo Clinic"}
-        card5Title={"Regs. via eMIS"}
+        card2Title={"OpenMRS+"}
+        card3Title={"SmartHealthBD"}
+        card4Title={"Aalo Clinic"}
+        card5Title={"eMIS"}
       />
 
       {/*Section 2 - Lifetime Clinical Data Collection Stats*/}
@@ -209,10 +209,10 @@ export default memo(function PublicDbClientWrapper({
         sectionHeader={section2Title}
         countStats={encounterStatsData}
         card1Title={"Total Clinical Records"}
-        card2Title={"Records via OpenMRS+"}
-        card3Title={"Records via OpenSRP"}
-        card4Title={"Records via Aalo Clinic"}
-        card5Title={"Records via eMIS"}
+        card2Title={"OpenMRS+"}
+        card3Title={"SmartHealthBD"}
+        card4Title={"Aalo Clinic"}
+        card5Title={"eMIS"}
       />
       {/*/!*Section 3 - Facility-wise Registration Stats *!/*/}
       <FacilityServiceOverview

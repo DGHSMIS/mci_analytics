@@ -2,7 +2,7 @@
 import { getServerSession } from "next-auth";
 import { authOptions } from "utils/lib/auth";
 import VerificationAnalytics from "@components/verificationAnalytics/VerificationAnalytics"; // no need for dynamic()
-import { signOut } from "next-auth/react";
+import { redirect } from "next/navigation";
 
 export const metadata = {
   title: "Verification Analytics | MCI",
@@ -18,14 +18,14 @@ export default async function Page() {
   console.log("Session in Dashboard!!");
   console.log(session);
   if (session) {
-    console.log(session.accessToken);
+    console.log("We got the access token : " +session.accessToken);
   } else {
-    await signOut();
+    redirect("/login");
   }
 
   return (
     <article className="h-fit">
-      <VerificationAnalytics />
+      <VerificationAnalytics session={session}/>
     </article>
   );
 }

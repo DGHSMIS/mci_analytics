@@ -8,7 +8,7 @@ import { getBaseUrl, getUrlFromName, resolveFacilityDetailURLFromNameAndId } fro
 import { delay } from "lodash";
 import { signOut } from "next-auth/react";
 import dynamic from "next/dynamic";
-import { memo } from "react";
+import { memo, useEffect } from "react";
 // import EncounterModal from "./EncounterSegment/EncounterModal";
 
 /**
@@ -140,7 +140,17 @@ export default memo(function PatientProfileMain({ session }: any) {
   const [patientEncounterList] = usePatientEncounterSuspenseQuery({  access_token:  session.accessToken ? session.accessToken:"", patientHid: patientId ?? "" });
   
   const [facilityInfo] = useFacilitySuspenseQuery({ access_token: session.accessToken ? session.accessToken:"", facilityID: patientInfo.created_facility_id?.toString() ??  "10000002"});
-  // fetchAndCacheFacilityInfo
+
+    useEffect(() => {
+    const handleAuth = async () => {
+      if (!session) {
+        await signOut().then(() => {
+          console.log("Signed Out");
+        });
+      }
+    };
+    handleAuth();
+  }, []);
   return (
     <>
     <div className="grid grid-cols-2 gap-40 lg:grid-cols-4">

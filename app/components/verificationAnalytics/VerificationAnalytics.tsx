@@ -1,36 +1,32 @@
 "use client";
 
-import { useState, useEffect, useMemo, useRef } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import dynamic from "next/dynamic";
 import { CardIndicatorsProps } from "@components/globals/CardIndicator/CardIndicator";
 import { DropDownSingleItemProps } from "@library/form/DropDownSingle";
 import { MCISpinner } from "@components/MCISpinner";
+import dynamic from "next/dynamic";
+import { signOut } from "next-auth/react";
 
-// Client-only heavy/DOM-touching components
-const LineChartMCI = dynamic(
-  () => import("@components/charts/LineChart/LineChartMCI"),
-  { ssr: false, loading: () => <MCISpinner /> }
-);
-const PageHeader = dynamic(() => import("@library/PageHeader"), { ssr: false }) as any;
-const Alert = dynamic(() => import("@library/Alert"), { ssr: false });
+const PageHeader = dynamic(() => import("@library/PageHeader"), { ssr: true });
+const Alert = dynamic(() => import("@library/Alert"), { ssr: true });
 const MultipleDatePicker = dynamic(
   () => import("@library/form/DatePicker/MultipleDatePicker"),
-  { ssr: false }
+  { ssr: true }
 );
-const DropDownSingle = dynamic(
-  () => import("@library/form/DropDownSingle"),
-  { ssr: false }
-);
-
-// Keep table SSR if it's safe on the server
 const TablePagyCustom = dynamic(
   () => import("@components/table/TablePagyCustom"),
   { ssr: true }
 );
-// If CardIndicator touches window at module scope, flip to ssr:false
 const CardIndicator = dynamic(
   () => import("@components/globals/CardIndicator/CardIndicator"),
+  { ssr: true }
+);
+const DropDownSingle = dynamic(() => import("@library/form/DropDownSingle"), {
+  ssr: true,
+});
+const LineChartMCI = dynamic(
+  () => import("@components/charts/LineChart/LineChartMCI"),
   { ssr: false }
 );
 
@@ -50,156 +46,143 @@ const verificationIndicatorProps: CardIndicatorsProps = {
   titleAlign: "center",
 };
 
-const docTypeOptions: DropDownSingleItemProps[] = [
-  { id: 0, name: "NID" },
-  { id: 1, name: "BRN" },
-];
-
-export default function VerificationAnalytics() {
+export default function VerificationAnalytics({ session }: any) {
   const router = useRouter();
 
-  // compute defaults once
-  const todayRef = useRef(new Date());
-  const defaultEnd = useMemo(
-    () => todayRef.current.toISOString().split("T")[0],
-    []
-  );
-  const defaultStart = useMemo(() => {
-    const t = new Date(todayRef.current.getTime() - 5 * 24 * 60 * 60 * 1000);
-    return t.toISOString().split("T")[0];
-  }, []);
+  // Default to last 5 days
+  const today = new Date();
+  const defaultEnd = today.toISOString().split("T")[0];
+  const defaultStart = new Date(today.getTime() - 5 * 24 * 60 * 60 * 1000)
+    .toISOString()
+    .split("T")[0];
 
+  // Date range state
   const [dateRange, setDateRange] = useState<[string, string]>([
     defaultStart,
     defaultEnd,
   ]);
 
-  const memoDateRangeDates = useMemo(
-    () => [new Date(dateRange[0]), new Date(dateRange[1])],
-    [dateRange[0], dateRange[1]]
-  );
-
-  const [selectedDocIndex, setSelectedDocIndex] = useState(0);
-  const selectedDocType = useMemo(
-    () => docTypeOptions[selectedDocIndex].name,
-    [selectedDocIndex]
-  );
-
+  // Chart data state
   const [chartData, setChartData] = useState<any[]>([]);
   const [loadingChart, setLoadingChart] = useState(false);
 
+  // Aggregated counts
   const [aggregated, setAggregated] = useState<{ nid: number; brn: number }>({
     nid: 0,
     brn: 0,
   });
 
+  // Document-type dropdown
+  const docTypeOptions: DropDownSingleItemProps[] = [
+    { id: 0, name: "NID" },
+    { id: 1, name: "BRN" },
+  ];
+
+  // Selected document type index [NID or BRN]
+  const [selectedDocIndex, setSelectedDocIndex] = useState(0);
+
+  // Top-clients state
   const [topClients, setTopClients] = useState<TopClient[]>([]);
+
+  // Loading state for top clients
   const [loadingTop, setLoadingTop] = useState(false);
 
+  // Table expansion state
   const [tableExpanded, setTableExpanded] = useState({});
 
-  // stable object prop for the picker
-  const dateFieldProps = useMemo(
-    () => ({ className: "h-44 pl-8 pr-36" }),
-    []
-  );
-
-  // prevent mount-time onChange loops from chatty pickers
-  const didMountRef = useRef(false);
-
-  // keep setState only when values actually change
+  // Handle date-picker changes
   const handleDateChange = (dates: string[] | null) => {
-    if (!dates || dates.length !== 2) return;
-    const [s, e] = [dates[0]?.trim(), dates[1]?.trim()];
-    if (!s || !e) return;
-
-    if (!didMountRef.current) {
-      // swallow the initial mount-sync event (common with date pickers)
-      didMountRef.current = true;
-      return;
+    if (
+      dates &&
+      dates.length === 2 &&
+      dates[0].trim() !== "" &&
+      dates[1].trim() !== ""
+    ) {
+      setDateRange([dates[0], dates[1]]);
     }
-
-    setDateRange((prev) => (prev[0] === s && prev[1] === e ? prev : [s, e]));
   };
 
+  // Handle dropdown changes: clear old data immediately
   const handleDocTypeChange = (e: any) => {
-    const newIndex = e?.data?.id ?? 0;
-    setSelectedDocIndex((prev) => (prev === newIndex ? prev : newIndex));
-    setTopClients([]); // clear for visual feedback
-    setChartData([]);
+    const newIndex = e.data.id;
+    setSelectedDocIndex(newIndex);
+    setTopClients([]); // clear out old table
+    setChartData([]); // clear out old chart
   };
+
+  useEffect(() => {
+    const handleAuth = async () => {
+      if (!session) {
+        await signOut().then(() => {
+          console.log("Signed Out");
+        });
+      }
+    };
+    handleAuth();
+  }, []);
+
 
   // Fetch aggregated counts on dateRange change
   useEffect(() => {
-    const ac = new AbortController();
-    (async () => {
+    async function fetchAggregated() {
       try {
         const res = await fetch(
-          `/api/es/administer/nid_proxy/aggregated-count?startdate=${dateRange[0]}&enddate=${dateRange[1]}`,
-          { signal: ac.signal }
+          `/api/es/administer/nid_proxy/aggregated-count?startdate=${dateRange[0]}&enddate=${dateRange[1]}`
         );
         if (!res.ok) throw new Error(res.statusText);
         const json = await res.json();
-        setAggregated({ nid: json?.nid ?? 0, brn: json?.brn ?? 0 });
-      } catch (err: any) {
-        if (!(err?.name === "AbortError")) {
-          console.error("Failed to load aggregated counts", err);
-        }
+        setAggregated({ nid: json.nid, brn: json.brn });
+      } catch (err) {
+        console.error("Failed to load aggregated counts", err);
       }
-    })();
-    return () => ac.abort();
-  }, [dateRange[0], dateRange[1]]);
+    }
+    fetchAggregated();
+  }, [dateRange]);
 
   // Fetch top clients & chart on dateRange or docType change
   useEffect(() => {
-    const ac1 = new AbortController();
-    const ac2 = new AbortController();
-
-    (async () => {
+    async function fetchTopClients() {
       setLoadingTop(true);
       try {
         const res = await fetch(
-          `/api/es/administer/nid_proxy/top_id_verifications?startdate=${dateRange[0]}&enddate=${dateRange[1]}&limit=50&doc_type=${selectedDocType}`,
-          { signal: ac1.signal }
+          `/api/es/administer/nid_proxy/top_id_verifications?` +
+            `startdate=${dateRange[0]}&enddate=${dateRange[1]}` +
+            `&limit=50&doc_type=${docTypeOptions[selectedDocIndex].name}`
         );
         if (!res.ok) throw new Error(res.statusText);
         const json: TopClient[] = await res.json();
-        setTopClients(Array.isArray(json) ? json : []);
-      } catch (err: any) {
-        if (!(err?.name === "AbortError")) {
-          console.error("Failed to load top clients", err);
-          setTopClients([]);
-        }
+        setTopClients(json);
+      } catch (err) {
+        console.error("Failed to load top clients", err);
+        setTopClients([]);
       } finally {
         setLoadingTop(false);
       }
-    })();
+    }
 
-    (async () => {
+    async function fetchChart() {
       setLoadingChart(true);
       try {
         const res = await fetch(
-          `/api/es/administer/nid_proxy/aggregated-top-10-verifiers?startdate=${dateRange[0]}&enddate=${dateRange[1]}&doc_type=${selectedDocType}`,
-          { signal: ac2.signal }
+          `/api/es/administer/nid_proxy/aggregated-top-10-verifiers` +
+            `?startdate=${dateRange[0]}` +
+            `&enddate=${dateRange[1]}` +
+            `&doc_type=${docTypeOptions[selectedDocIndex].name}`
         );
         if (!res.ok) throw new Error(res.statusText);
         const json = await res.json();
-        setChartData(Array.isArray(json) ? json.slice(0, 10) : []);
-      } catch (err: any) {
-        if (!(err?.name === "AbortError")) {
-          console.error("Failed to load chart data", err);
-          setChartData([]);
-        }
+        setChartData(json);
+      } catch (err) {
+        console.error("Failed to load chart data", err);
+        setChartData([]);
       } finally {
         setLoadingChart(false);
       }
-    })();
+    }
 
-    return () => {
-      ac1.abort();
-      ac2.abort();
-    };
-  }, [dateRange[0], dateRange[1], selectedDocType]);
+    fetchTopClients();
+    fetchChart();
+  }, [dateRange, selectedDocIndex]);
 
   return (
     <main className="mt-40 flex w-full flex-col justify-center space-y-48 px-24 2xl:container bg-transparent border-none">
@@ -212,13 +195,13 @@ export default function VerificationAnalytics() {
         </h4>
         <div className="flex justify-end">
           <MultipleDatePicker
-            dateField={dateFieldProps}        // stable
-            toDate={todayRef.current}         // stable
+            dateField={{ className: "h-44 pl-8 pr-36" }}
+            toDate={new Date()}
             mode="range"
             dateBetweenConnector="to"
-            value={memoDateRangeDates}        // stable
+            value={dateRange.map((d) => new Date(d))}
             dateReturnFormat="yyyy-MM-dd"
-            onChange={handleDateChange}       // guarded
+            onChange={handleDateChange}
           />
         </div>
 
@@ -246,9 +229,12 @@ export default function VerificationAnalytics() {
         {/* Segment 3: Doc-type selector + header */}
         <div className="flex items-center justify-between">
           <h3 className="mb-12 text-base font-semibold uppercase text-slate-600">
-            Top {selectedDocType} Verifications
+            Top {docTypeOptions[selectedDocIndex].name} Verifications
           </h3>
-          <div className="w-[150px]">
+          <div className="w-auto">
+            <h4 className="mb-12 text-sm font-semibold uppercase text-slate-600 flex justify-end">
+              Filter by Date Range
+            </h4>
             <DropDownSingle
               label=""
               items={docTypeOptions}
@@ -267,7 +253,7 @@ export default function VerificationAnalytics() {
             <div className="h-[400px] w-full rounded-lg">
               <LineChartMCI
                 originalData={chartData}
-                chartTitle={`Top 10 ${selectedDocType} Verifiers (${dateRange[0]} → ${dateRange[1]})`}
+                chartTitle={`Top 10 ${docTypeOptions[selectedDocIndex].name} Verifiers (${dateRange[0]} → ${dateRange[1]})`}
                 useToolTip
               />
             </div>
@@ -287,7 +273,7 @@ export default function VerificationAnalytics() {
               groupingChange={() => {}}
               expandAggregated={tableExpanded}
               setExpandedAggregatedState={setTableExpanded}
-              onRowClick={(row: any) =>
+              onRowClick={(row) =>
                 router.push(
                   `/admin/verification-analytics/client/${row.original.client_id}`
                 )
@@ -308,7 +294,7 @@ export default function VerificationAnalytics() {
               isBtnClicked={() => setDateRange([defaultStart, defaultEnd])}
               hideCross
               title="No Results"
-              body={`No ${selectedDocType} verifications found for that date range.`}
+              body={`No ${docTypeOptions[selectedDocIndex].name} verifications found for that date range.`}
             />
           )}
         </div>

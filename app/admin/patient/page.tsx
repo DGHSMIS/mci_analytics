@@ -5,10 +5,11 @@
  * website: https://aritsltd.com
  */
 import { getServerSession } from "next-auth/next";
-import { signOut } from "next-auth/react";
 import dynamic from "next/dynamic";
+import { redirect } from "next/navigation";
 import { Metadata } from "next/types";
 import { authOptions } from "utils/lib/auth";
+
 
 /**
  * * Metadata for current page
@@ -32,9 +33,9 @@ export default async function page() {
   console.log("Session in Dashboard!!");
   console.log(session);
   if (session) {
-    console.log(session.accessToken);
-  } else {
-    await signOut();
+    console.log("We got the access token : " +session.accessToken);
+  } else{
+    redirect("/login");
   }
   return (
     <article className="h-fit">

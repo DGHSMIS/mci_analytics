@@ -3,7 +3,7 @@ import LoggedInStoreInitializer from "@store/LoggedInStoreInitializer";
 import { initialLoggedInStoreStates } from "@store/useLoggedInStore";
 import { Metadata } from "next";
 import { getServerSession } from "next-auth";
-import { signOut } from "next-auth/react";
+import { redirect } from "next/navigation";
 import { authOptions } from "utils/lib/auth";
 
 const pageTitle = "Patient Info | MCI";
@@ -14,6 +14,8 @@ export const metadata: Metadata = {
   description: desc,
 };
 
+// If you want to be explicit that this should never be prerendered:
+export const dynamic = "force-dynamic"; // or: export const revalidate = 0;
 
 // const PatientProfileMain = dynamic(() => import("@components/profilePage/PatientProfileMain"), {
 //   ssr: false,
@@ -34,9 +36,9 @@ async function page(params: PatientDetailsProps) {
   // console.log(session);
   //get query params
   if (session) {
-    // console.log(session.accessToken);
-  } else {
-    await signOut();
+    console.log("We got the access token : " +session.accessToken);
+  } else{
+    redirect("/login");
   }
 
   const initalizedStoreStates = {
