@@ -11,7 +11,7 @@ import pLimit from "p-limit";
 import { stringify } from "uuid";
 import prismaPostGresClient from '@api/providers/prisma/postgres/prismaPostGresClient';
 import { CDPatientUpdateLogInterface } from "@utils/interfaces/Cassandra/CDPatientUpdateLogInterface";
-import {insertOrUpdateSinglePatientToHealthRecordESIndex} from "@providers/elasticsearch/healthRecordSummaryIndex/ESHealthRecordSummaryIndex";
+import { insertOrUpdateSinglePatientToHealthRecordESIndex } from "@providers/elasticsearch/healthRecordSummaryIndex/ESHealthRecordSummaryIndex";
 
 // Elasticsearch index name
 export const patientESIndex = patientESIndexName;
@@ -387,7 +387,7 @@ export async function fetchLatestPatientsFromEventTracker() {
     // Array to hold patient health IDs that require indexing
     let patientHIDList: string[] = [];
     let latestEventId: string = eventTrackerId.eventId;
-    let totalCount =0;
+    let totalCount = 0;
     const getPatientFromEvent = async (
       pageState: any
     ) => {
@@ -435,7 +435,7 @@ export async function fetchLatestPatientsFromEventTracker() {
             },
             data: {
               eventId: String(rows[i].event_id),
-              isProcessed: true
+              isProcessed: false
             }
           });
           console.log("Event Tracker Updated");
@@ -454,6 +454,14 @@ export async function fetchLatestPatientsFromEventTracker() {
     };
     await getPatientFromEvent(null);
     console.log("Accumulated Patient Count - ", totalCount);
+    await prismaPostGresClient.cassandraEventTracker.update({
+      where: {
+        id: eventTrackerId.id
+      },
+      data: {
+        isProcessed: true
+      }
+    });
     return Promise.resolve(true);
   }
 }
