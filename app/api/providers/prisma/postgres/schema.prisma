@@ -110,3 +110,10 @@ model Facility {
   // Relationship
   patientVisits PatientVisit[]
 }
+
+
+model CassandraEventTracker {
+  id            Int           @id @default(autoincrement())
+  eventId       String        @default("")
+  isProcessed   Boolean       @default(true)
+}

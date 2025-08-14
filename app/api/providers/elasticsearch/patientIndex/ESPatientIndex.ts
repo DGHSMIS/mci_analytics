@@ -9,6 +9,9 @@ import fetchAndCacheFacilityInfo from "@utils/providers/fetchAndCacheFacilityInf
 import { blankCreatedAndUpdatedByPatientESObject, isAaloClinic, timeUUIDToDate } from "@utils/utilityFunctions";
 import pLimit from "p-limit";
 import { stringify } from "uuid";
+import prismaPostGresClient from '@api/providers/prisma/postgres/prismaPostGresClient';
+import { CDPatientUpdateLogInterface } from "@utils/interfaces/Cassandra/CDPatientUpdateLogInterface";
+import {insertOrUpdateSinglePatientToHealthRecordESIndex} from "@providers/elasticsearch/healthRecordSummaryIndex/ESHealthRecordSummaryIndex";
 
 // Elasticsearch index name
 export const patientESIndex = patientESIndexName;
@@ -66,7 +69,7 @@ export const temporarilyHotFixJSONObject = (jsonString: string, patientId: strin
   }
   if (DebugElasticProvider) console.log(resultString);
   return resultString;
-}
+};
 
 
 /**
@@ -148,7 +151,7 @@ async function convertDataToPatientESFormat(doc: CDPatientInterface, indexedTime
     const [createdFacilityInfo, updatedFacilityInfo] = await Promise.all([
       created_facility_id ? await fetchAndCacheFacilityInfo(created_facility_id) : null,
       updated_facility_id ? await fetchAndCacheFacilityInfo(updated_facility_id) : null,
-    ])
+    ]);
 
     esDoc.created_facility_id = created_facility_id;
     esDoc.updated_facility_id = updated_facility_id;
@@ -159,7 +162,7 @@ async function convertDataToPatientESFormat(doc: CDPatientInterface, indexedTime
       if (esDoc.created_by.facility) {
         esDoc.created_by.facility.name = createdFacilityInfo ? createdFacilityInfo?.name : "";
         esDoc.created_by.facility.solutionType = createdFacilityInfo ?
-          (createdFacilityInfo.name ? createdFacilityInfo.name : "") : "openMRS+"
+          (createdFacilityInfo.name ? createdFacilityInfo.name : "") : "openMRS+";
         esDoc.created_by.facility.divisionCode = createdFacilityInfo ? createdFacilityInfo.divisionCode : "";
         esDoc.created_by.facility.districtCode = createdFacilityInfo ? createdFacilityInfo.districtCode : "";
         esDoc.created_by.facility.upazilaCode = createdFacilityInfo ? createdFacilityInfo.upazilaCode : "";
@@ -269,9 +272,9 @@ export async function insertOrUpdateSinglePatientToESIndex(healthId: String) {
       console.log(getRecordFromES.body.hits.hits.length);
       let indexedTime = new Date();
       if (getRecordFromES.body.hits.hits.length) {
-        console.log("<<<< Indexed Item >>>>");
-        console.log(getRecordFromES.body.hits.hits[0]._source);
-        console.log(getRecordFromES.body.hits.hits[0]._source['index_time']);
+        // console.log("<<<< Indexed Item >>>>");
+        // console.log(getRecordFromES.body.hits.hits[0]._source);
+        // console.log(getRecordFromES.body.hits.hits[0]._source['index_time']);
         if (getRecordFromES.body.hits.hits[0]._source.index_time) {
           console.log("<<<< index_time exists>>>>");
           indexedTime = getRecordFromES.body.hits.hits[0]._source.index_time ?? new Date();
@@ -318,94 +321,233 @@ export async function insertOrUpdateSinglePatientToESIndex(healthId: String) {
 
 
 /**
+ * Fetch latest patients added using Event Tracker
+ */
+
+export async function fetchLatestPatientsFromEventTracker() {
+  const eventTrackerId = await prismaPostGresClient.cassandraEventTracker.findFirst();
+  //If no event tracker ID is found, then insert the first row from patient_update_log table
+  if (!eventTrackerId) {
+    console.log("No data found in the Event Tracker");
+    const queryOptions = {
+      prepare: true,
+      fetchSize: 1
+    };
+    //Get the first row from the patient_update_log table
+    const query = `SELECT * FROM patient_update_log LIMIT 1;`;
+    const getEventTrackerFromCassandra = await cassandraClient.execute(
+      query,
+      [],
+      queryOptions
+    );
+    const rows: any = getEventTrackerFromCassandra.rows;
+    console.log("Rows from patient_update_log");
+    console.log(rows);
+
+    if (rows.length > 0) {
+      //Insert the first row to the CassandraEventTracker table
+      const insertEventTracker = await prismaPostGresClient.cassandraEventTracker.create({
+        data: {
+          eventId: String(rows[0].event_id),
+          isProcessed: true
+        }
+      });
+      console.log("Inserted Event Tracker ID is - ", insertEventTracker.eventId);
+      console.log("Inserted Event Tracker ID is - ", insertEventTracker.id);
+    }
+    return Promise.resolve(false);
+  }
+
+  else {
+    console.log("Event Tracker ID is - ", eventTrackerId.eventId);
+
+    //check if event tracker is currently processing data
+
+    const isEventTrackerProcessing = await prismaPostGresClient.cassandraEventTracker.findFirst();
+
+    if (isEventTrackerProcessing && !isEventTrackerProcessing.isProcessed) {
+      console.log("Event Tracker is currently processing data, returning false");
+      return Promise.resolve(false);
+    }
+
+    console.log("Event Tracker is not processing data, proceeding with indexing");
+
+
+    console.log("Setting Event Tracker isProcessed to false before processing data");
+    //Setting Event Tracker isProcessed to false before processing data
+    //Set the Event Tracker isProcessed to false
+    await prismaPostGresClient.cassandraEventTracker.update({
+      where: {
+        id: eventTrackerId.id
+      },
+      data: {
+        isProcessed: false
+      }
+    });
+    // Array to hold patient health IDs that require indexing
+    let patientHIDList: string[] = [];
+    let latestEventId: string = eventTrackerId.eventId;
+    let totalCount =0;
+    const getPatientFromEvent = async (
+      pageState: any
+    ) => {
+      const query = `SELECT * FROM patient_update_log WHERE event_id>=${latestEventId} ALLOW FILTERING;`;
+      console.log("Query to get patients from event tracker " + query);
+      const queryOptions = {
+        prepare: true,
+        fetchSize: CASSANDRA_PAGE_SIZE,
+        pageState
+      };
+
+      // Execute the query to get the patient update log
+      const results: any = await cassandraClient.execute(
+        query,
+        [],
+        queryOptions
+      );
+      const rows: CDPatientUpdateLogInterface[] = results.rows;
+      console.log("Rows from patient_update_log");
+      console.log(rows);
+      console.log("Processing Rows");
+      totalCount = totalCount + rows.length;
+      // Processing each row found in the patient_update_log table
+      for (let i = 0; i < rows.length; i++) {
+        //Add the health_id to the patientHIDList
+        patientHIDList.push(rows[i].health_id);
+        //Update the ElasticSearch index for the patient with the health_id
+        if (rows[i].health_id) {
+          console.log("Processing Patient with Health ID - ", rows[i].health_id);
+          //Index the patient data to Elasticsearch
+          await insertOrUpdateSinglePatientToESIndex(rows[i].health_id);
+          //Also index the patient data to Health Record Summary Index
+          await insertOrUpdateSinglePatientToHealthRecordESIndex(rows[i].health_id);
+        }
+        console.log("The value of i is - ", i);
+        console.log(rows.length);
+        console.log(rows.length - 1);
+        // if this is the last time in the row, then update eventId in the CassandraEventTracker table
+        if (i === (rows.length - 1)) {
+          console.log("Last Row in the Event Tracker - ", rows[i].event_id);
+          //Update the eventId in the CassandraEventTracker table
+          const updateEventTracker = await prismaPostGresClient.cassandraEventTracker.update({
+            where: {
+              id: eventTrackerId.id
+            },
+            data: {
+              eventId: String(rows[i].event_id),
+              isProcessed: true
+            }
+          });
+          console.log("Event Tracker Updated");
+          console.log("Updated Event Tracker ID is - ", updateEventTracker.eventId);
+        }
+      }
+      console.log("Total Patients Processed in batch- ", patientHIDList.length);
+      console.log("Patients Found - ", patientHIDList);
+      // Check if there are more pages
+      if (results.pageState) {
+        if (DebugElasticProvider)
+          console.log("More pages to come: " + results.pageState);
+        await getPatientFromEvent(results.pageState);
+      }
+
+    };
+    await getPatientFromEvent(null);
+    console.log("Accumulated Patient Count - ", totalCount);
+    return Promise.resolve(true);
+  }
+}
+
+
+/**
 * Fetch ALL data from Cassandra database and Index it in Elasticsearch
 */
 export async function indexAllPatientESData() {
- try {
-   indexCount = 0;
-   aloRegCount = 0;
-   errorCount = 0;
-   listOfErrorPatients = [];
-   let i: number = 0;
-   const concurrencyLimit = 10; // Adjust the concurrency limit as needed
-   const limit = pLimit(concurrencyLimit);
+  try {
+    indexCount = 0;
+    aloRegCount = 0;
+    errorCount = 0;
+    listOfErrorPatients = [];
+    let i: number = 0;
+    const concurrencyLimit = 10; // Adjust the concurrency limit as needed
+    const limit = pLimit(concurrencyLimit);
 
-   // Define a function to process each page of results
-   const getAllPatientData = async (
-     pageState: any,
-     query: string = "SELECT * FROM patient"
-   ) => {
-     if (DebugElasticProvider) console.log("Retrieving page with pageIndex", i);
-     const queryOptions = {
-       prepare: true,
-       fetchSize: CASSANDRA_PAGE_SIZE,
-       pageState,
-     };
-     const result: any = await cassandraClient.execute(
-       query,
-       [],
-       queryOptions
-     );
+    // Define a function to process each page of results
+    const getAllPatientData = async (
+      pageState: any,
+      query: string = "SELECT * FROM patient"
+    ) => {
+      if (DebugElasticProvider) console.log("Retrieving page with pageIndex", i);
+      const queryOptions = {
+        prepare: true,
+        fetchSize: CASSANDRA_PAGE_SIZE,
+        pageState,
+      };
+      const result: any = await cassandraClient.execute(
+        query,
+        [],
+        queryOptions
+      );
 
-     const rows: CDPatientInterface[] = result.rows;
-     if (DebugElasticProvider) console.log("Processing page");
+      const rows: CDPatientInterface[] = result.rows;
+      if (DebugElasticProvider) console.log("Processing page");
 
-     // Process the batch here using p-limit to control concurrency
-     const formattedDocsPromises = rows.map((patient) =>
-       limit(() => convertDataToPatientESFormat(patient, new Date()))
-     );
-     let formattedDocs = await Promise.all(formattedDocsPromises);
+      // Process the batch here using p-limit to control concurrency
+      const formattedDocsPromises = rows.map((patient) =>
+        limit(() => convertDataToPatientESFormat(patient, new Date()))
+      );
+      let formattedDocs = await Promise.all(formattedDocsPromises);
 
-     // Filter out empty array responses from formattedDocs
-     formattedDocs = formattedDocs.filter((doc) => doc.length > 0);
+      // Filter out empty array responses from formattedDocs
+      formattedDocs = formattedDocs.filter((doc) => doc.length > 0);
 
-     // Flatten the array
-     const flattenedDocs = formattedDocs.reduce(
-       (acc, val) => acc.concat(val),
-       []
-     );
+      // Flatten the array
+      const flattenedDocs = formattedDocs.reduce(
+        (acc, val) => acc.concat(val),
+        []
+      );
 
-     // Send the data to ES Index, ensuring there's something to index
-     if (flattenedDocs.length > 0) {
-       if (DebugElasticProvider) {
-         indexCount += flattenedDocs.length;
-       }
-       await esBaseClient.bulk({ index: patientESIndex, body: flattenedDocs });
-       
-       if (DebugElasticProvider)
-         console.log(
-           `Indexed ${flattenedDocs.length} documents in current batch`
-         );
-     }
+      // Send the data to ES Index, ensuring there's something to index
+      if (flattenedDocs.length > 0) {
+        if (DebugElasticProvider) {
+          indexCount += flattenedDocs.length;
+        }
+        await esBaseClient.bulk({ index: patientESIndex, body: flattenedDocs });
 
-     i++;
+        if (DebugElasticProvider)
+          console.log(
+            `Indexed ${flattenedDocs.length} documents in current batch`
+          );
+      }
 
-     // Check if there are more pages
-     if (result.pageState) {
-       if (DebugElasticProvider)
-         console.log("More pages to come: " + result.pageState);
-       await getAllPatientData(result.pageState);
-     }
-   };
+      i++;
 
-   // Start retrieving and processing pages
-   await getAllPatientData(null);
+      // Check if there are more pages
+      if (result.pageState) {
+        if (DebugElasticProvider)
+          console.log("More pages to come: " + result.pageState);
+        await getAllPatientData(result.pageState);
+      }
+    };
 
-   if (DebugElasticProvider) {
-     console.log("List of Patients with Invalid JSON Object");
-     console.log(JSON.stringify(listOfErrorPatients));
-     console.log("Count of Invalid JSON Object");
-     console.log(listOfErrorPatients.length/2);
-     console.log("Total Indexed Documents");
-     console.log(indexCount/2);
-     console.log("Total Alo Registration Count");
-     console.log(aloRegCount/2);
-   }
-   return true;
- } catch (error) {
-   console.error("Error in indexing all patient data", error);
-   return false;
- }
+    // Start retrieving and processing pages
+    await getAllPatientData(null);
+
+    if (DebugElasticProvider) {
+      console.log("List of Patients with Invalid JSON Object");
+      console.log(JSON.stringify(listOfErrorPatients));
+      console.log("Count of Invalid JSON Object");
+      console.log(listOfErrorPatients.length / 2);
+      console.log("Total Indexed Documents");
+      console.log(indexCount / 2);
+      console.log("Total Alo Registration Count");
+      console.log(aloRegCount / 2);
+    }
+    return true;
+  } catch (error) {
+    console.error("Error in indexing all patient data", error);
+    return false;
+  }
 }
 
 /**
@@ -508,5 +650,5 @@ export const convertCassandraPatientToESPatientIndexObject = (doc: CDPatientInte
       : null,
     upazila_id: parseInt(doc.upazila_id) ? parseInt(doc.upazila_id) : null,
     village: doc.village,
-  }
-}
+  };
+};
