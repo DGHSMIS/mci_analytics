@@ -15,7 +15,7 @@ import {
   upazilaCodes
 } from "@utils/constantsInMemory";
 import { ESDateRangeSingleItemQueryInterface } from "@utils/interfaces/DataModels/ESModelInterfaces";
-import { addDays, formatISO, set, subDays, subMinutes, subMonths, subYears } from "date-fns";
+import { addDays, formatISO, set, subDays, subHours, subMinutes, subMonths, subYears } from "date-fns";
 import { NextRequest } from "next/server";
 import { v1 as uuidv1 } from "uuid";
 
@@ -250,6 +250,12 @@ export function addXDaysToDate(xdays: number): Date {
 
 export function xMonthsAgo(xmonthsAgo: number): Date {
   return subMonths(new Date(), xmonthsAgo);
+}
+
+export function getLastXHoursRange(hours: number): { start: Date; end: Date } {
+  const end = new Date(); // now (UTC in Node.js)
+  const start = subHours(end, hours); // subtract X hours
+  return { start, end };
 }
 
 // Create a date x minutes ago

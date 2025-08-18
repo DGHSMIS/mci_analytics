@@ -312,8 +312,12 @@ function TopClientsTable({
     );
   }
 
+  // Force a remount of the table whenever filters change
+  const tableKey = `${start}|${end}|${docType}`;
+
   return (
     <TablePagyCustom
+      key={tableKey}
       rawData={data}
       grouping={[]}
       groupingChange={() => {}}

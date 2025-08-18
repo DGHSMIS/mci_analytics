@@ -6,10 +6,9 @@ import { ESPatientInterface } from "@providers/elasticsearch/patientIndex/interf
 import { CDPatientInterface } from "@utils/interfaces/Cassandra/CDPatientInterface";
 import { FacilityInterface } from "@utils/interfaces/DataModels/FacilityInterfaces";
 import fetchAndCacheFacilityInfo from "@utils/providers/fetchAndCacheFacilityInfo";
-import { blankCreatedAndUpdatedByPatientESObject, isAaloClinic, timeUUIDToDate } from "@utils/utilityFunctions";
+import { blankCreatedAndUpdatedByPatientESObject, getLastXHoursRange, isAaloClinic, timeUUIDToDate } from "@utils/utilityFunctions";
 import pLimit from "p-limit";
 import { stringify } from "uuid";
-import prismaPostGresClient from '@api/providers/prisma/postgres/prismaPostGresClient';
 import { CDPatientUpdateLogInterface } from "@utils/interfaces/Cassandra/CDPatientUpdateLogInterface";
 import { insertOrUpdateSinglePatientToHealthRecordESIndex } from "@providers/elasticsearch/healthRecordSummaryIndex/ESHealthRecordSummaryIndex";
 
@@ -325,74 +324,18 @@ export async function insertOrUpdateSinglePatientToESIndex(healthId: String) {
  */
 
 export async function fetchLatestPatientsFromEventTracker() {
-  const eventTrackerId = await prismaPostGresClient.cassandraEventTracker.findFirst();
-  //If no event tracker ID is found, then insert the first row from patient_update_log table
-  if (!eventTrackerId) {
-    console.log("No data found in the Event Tracker");
-    const queryOptions = {
-      prepare: true,
-      fetchSize: 1
-    };
-    //Get the first row from the patient_update_log table
-    const query = `SELECT * FROM patient_update_log WHERE year = 2023 ORDER BY event_id ASC;`;
-    const getEventTrackerFromCassandra = await cassandraClient.execute(
-      query,
-      [],
-      queryOptions
-    );
-    const rows: any = getEventTrackerFromCassandra.rows;
-    console.log("Rows from patient_update_log");
-    console.log(rows);
+    //Event Time range to filter the data
+    const { start, end } = getLastXHoursRange(120);
+    console.log("Start:", start.toISOString());
+    console.log("End:", end.toISOString());
 
-    if (rows.length > 0) {
-      //Insert the first row to the CassandraEventTracker table
-      const insertEventTracker = await prismaPostGresClient.cassandraEventTracker.create({
-        data: {
-          eventId: String(rows[0].event_id),
-          isProcessed: true
-        }
-      });
-      console.log("Inserted Event Tracker ID is - ", insertEventTracker.eventId);
-      console.log("Inserted Event Tracker ID is - ", insertEventTracker.id);
-    }
-    return Promise.resolve(false);
-  }
-
-  else {
-    console.log("Event Tracker ID is - ", eventTrackerId.eventId);
-
-    //check if event tracker is currently processing data
-
-    const isEventTrackerProcessing = await prismaPostGresClient.cassandraEventTracker.findFirst();
-
-    if (isEventTrackerProcessing && !isEventTrackerProcessing.isProcessed) {
-      console.log("Event Tracker is currently processing data, returning false");
-      return Promise.resolve(false);
-    }
-
-    console.log("Event Tracker is not processing data, proceeding with indexing");
-
-
-    console.log("Setting Event Tracker isProcessed to false before processing data");
-    //Setting Event Tracker isProcessed to false before processing data
-    //Set the Event Tracker isProcessed to false
-    await prismaPostGresClient.cassandraEventTracker.update({
-      where: {
-        id: eventTrackerId.id
-      },
-      data: {
-        isProcessed: false
-      }
-    });
     // Array to hold patient health IDs that require indexing
     let patientHIDList: string[] = [];
-    let latestEventId: string = eventTrackerId.eventId;
-    let lastProcessedEventId = latestEventId;
     let totalCount = 0;
     const getPatientFromEvent = async (
       pageState: any
     ) => {
-      const query = `SELECT * FROM patient_update_log WHERE event_id>=${latestEventId} ALLOW FILTERING;`;
+      const query = `SELECT health_id FROM events WHERE event_id > minTimeuuid('${start.toISOString()}') AND event_id < maxTimeuuid('${end.toISOString()}')`;
       console.log("Query to get patients from event tracker " + query);
       const queryOptions = {
         prepare: true,
@@ -424,8 +367,6 @@ export async function fetchLatestPatientsFromEventTracker() {
           //Also index the patient data to Health Record Summary Index
           const insertToHealthIndex = await insertOrUpdateSinglePatientToHealthRecordESIndex(rows[i].health_id);
           console.log("Inserted to Health Record Summary Index - ", insertToHealthIndex);
-        } else{
-          console.log("No Health ID found for the patient");
         }
         console.log("The value of i is - ", i);
         console.log(rows.length);
@@ -434,18 +375,6 @@ export async function fetchLatestPatientsFromEventTracker() {
         if (i === (rows.length - 1)) {
           console.log("Last Row in the Event Tracker - ", rows[i].event_id);
           //Update the eventId in the CassandraEventTracker table
-          lastProcessedEventId = String(rows[i].event_id);
-          // const updateEventTracker = await prismaPostGresClient.cassandraEventTracker.update({
-          //   where: {
-          //     id: eventTrackerId.id
-          //   },
-          //   data: {
-          //     eventId: String(rows[i].event_id),
-          //     isProcessed: false
-          //   }
-          // });
-          console.log("Event Tracker Updated");
-          console.log("Updated Event Tracker ID is - ", lastProcessedEventId);
         }
       }
       console.log("Total Patients Processed in batch- ", patientHIDList.length);
@@ -460,17 +389,8 @@ export async function fetchLatestPatientsFromEventTracker() {
     };
     await getPatientFromEvent(null);
     console.log("Accumulated Patient Count - ", totalCount);
-    await prismaPostGresClient.cassandraEventTracker.update({
-      where: {
-        id: eventTrackerId.id
-      },
-      data: {
-        eventId: lastProcessedEventId,
-        isProcessed: true
-      }
-    });
     return Promise.resolve(true);
-  }
+  
 }
 
 
