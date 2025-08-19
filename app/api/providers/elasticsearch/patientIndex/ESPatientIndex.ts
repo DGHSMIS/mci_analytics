@@ -386,7 +386,7 @@ export async function fetchLatestPatientsFromEventTracker() {
 
 
     //Event Time range to filter the data
-    const { start, end } = getLastXHoursRange(120);
+    const { start, end } = getLastXHoursRange(24);
     console.log("Start:", start.toISOString());
     console.log("End:", end.toISOString());
 
