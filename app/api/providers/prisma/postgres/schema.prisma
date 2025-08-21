@@ -116,4 +116,5 @@ model CassandraEventTracker {
   id            Int           @id @default(autoincrement())
   eventId       String        @default("")
   isProcessed   Boolean       @default(true)
+  syncedAt      DateTime      @default(now())
 }

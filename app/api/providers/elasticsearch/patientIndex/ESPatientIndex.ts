@@ -328,7 +328,7 @@ export async function fetchLatestPatientsFromEventTracker() {
   const eventTrackerId = await prismaPostGresClient.cassandraEventTracker.findFirst();
   //If no event tracker ID is found, then insert the first row from patient_update_log table
   if (!eventTrackerId) {
-    console.log("No data found in the Event Tracker");
+    if (DebugElasticProvider) console.log("No data found in the Event Tracker");
     const queryOptions = {
       prepare: true,
       fetchSize: 1
@@ -341,8 +341,8 @@ export async function fetchLatestPatientsFromEventTracker() {
       queryOptions
     );
     const rows: any = getEventTrackerFromCassandra.rows;
-    console.log("Rows from patient_update_log");
-    console.log(rows);
+    if (DebugElasticProvider) console.log("Rows from patient_update_log");
+    if (DebugElasticProvider) console.log(rows);
 
     if (rows.length > 0) {
       //Insert the first row to the CassandraEventTracker table
@@ -352,27 +352,24 @@ export async function fetchLatestPatientsFromEventTracker() {
           isProcessed: true
         }
       });
-      console.log("Inserted Event Tracker ID is - ", insertEventTracker.eventId);
-      console.log("Inserted Event Tracker ID is - ", insertEventTracker.id);
+      if (DebugElasticProvider) console.log("Inserted Event Tracker ID is - ", insertEventTracker.eventId);
+      if (DebugElasticProvider) console.log("Inserted Event Tracker ID is - ", insertEventTracker.id);
     }
     return Promise.resolve(false);
   }
   else {
-    console.log("Event Tracker ID is - ", eventTrackerId.eventId);
+    if (DebugElasticProvider) console.log("Event Tracker ID is - ", eventTrackerId.eventId);
 
     //check if event tracker is currently processing data
-
     const isEventTrackerProcessing = await prismaPostGresClient.cassandraEventTracker.findFirst();
 
     if (isEventTrackerProcessing && !isEventTrackerProcessing.isProcessed) {
-      console.log("Event Tracker is currently processing data, returning false");
+      if (DebugElasticProvider) console.log("Event Tracker is currently processing data, returning false");
       return Promise.resolve(false);
     }
 
-    console.log("Event Tracker is not processing data, proceeding with indexing");
-
-
-    console.log("Setting Event Tracker isProcessed to false before processing data");
+    if (DebugElasticProvider) console.log("Event Tracker is not processing data, proceeding with indexing");
+    if (DebugElasticProvider) console.log("Setting Event Tracker isProcessed to false before processing data");
     //Setting Event Tracker isProcessed to false before processing data
     //Set the Event Tracker isProcessed to false
     await prismaPostGresClient.cassandraEventTracker.update({
@@ -384,11 +381,10 @@ export async function fetchLatestPatientsFromEventTracker() {
       }
     });
 
-
     //Event Time range to filter the data
     const { start, end } = getLastXHoursRange(24);
-    console.log("Start:", start.toISOString());
-    console.log("End:", end.toISOString());
+    if (DebugElasticProvider) console.log("Start:", start.toISOString());
+    if (DebugElasticProvider) console.log("End:", end.toISOString());
 
     // Array to hold patient health IDs that require indexing
     let patientHIDList: string[] = [];
@@ -398,8 +394,8 @@ export async function fetchLatestPatientsFromEventTracker() {
     const getPatientFromEvent = async (
       pageState: any
     ) => {
-      const query = `SELECT health_id FROM patient_update_log WHERE event_id > minTimeuuid('${start.toISOString()}') AND event_id < maxTimeuuid('${end.toISOString()}') ALLOW FILTERING;`;
-      console.log("Query to get patients from event tracker " + query);
+      const query = `SELECT health_id,event_id FROM patient_update_log WHERE event_id > minTimeuuid('${start.toISOString()}') AND event_id < maxTimeuuid('${end.toISOString()}') ALLOW FILTERING;`;
+      if (DebugElasticProvider) console.log("Query to get patients from event tracker " + query);
       const queryOptions = {
         prepare: true,
         fetchSize: CASSANDRA_PAGE_SIZE,
@@ -413,9 +409,9 @@ export async function fetchLatestPatientsFromEventTracker() {
         queryOptions
       );
       const rows: CDPatientUpdateLogInterface[] = results.rows;
-      console.log("Rows from patient_update_log");
-      console.log(rows);
-      console.log("Processing Rows");
+      if (DebugElasticProvider) console.log("Rows from patient_update_log");
+      if (DebugElasticProvider) console.log(rows);
+      if (DebugElasticProvider) console.log("Processing Rows");
       totalCount = totalCount + rows.length;
       // Processing each row found in the patient_update_log table
       for (let i = 0; i < rows.length; i++) {
@@ -423,44 +419,45 @@ export async function fetchLatestPatientsFromEventTracker() {
         patientHIDList.push(rows[i].health_id);
         //Update the ElasticSearch index for the patient with the health_id
         if (rows[i].health_id) {
-          console.log("Processing Patient with Health ID - ", rows[i].health_id);
+          if (DebugElasticProvider) console.log("Processing Patient with Health ID - ", rows[i].health_id);
           //Index the patient data to Elasticsearch
           const insertToESIndex = await insertOrUpdateSinglePatientToESIndex(rows[i].health_id);
-          console.log("Inserted to ES Index - ", insertToESIndex);
+          if (DebugElasticProvider) console.log("Inserted to ES Index - ", insertToESIndex);
           //Also index the patient data to Health Record Summary Index
           const insertToHealthIndex = await insertOrUpdateSinglePatientToHealthRecordESIndex(rows[i].health_id);
-          console.log("Inserted to Health Record Summary Index - ", insertToHealthIndex);
+          if (DebugElasticProvider) console.log("Inserted to Health Record Summary Index - ", insertToHealthIndex);
         }
-        console.log("The value of i is - ", i);
-        console.log(rows.length);
-        console.log(rows.length - 1);
+        if (DebugElasticProvider) console.log("The value of i is - ", i);
+        if (DebugElasticProvider) console.log(rows.length);
+        if (DebugElasticProvider) console.log(rows.length - 1);
         // if this is the last time in the row, then update eventId in the CassandraEventTracker table
         if (i === (rows.length - 1)) {
-          console.log("Last Row in the Event Tracker - ", rows[i].event_id);
+          if (DebugElasticProvider) console.log("Last Row in the Event Tracker - ", rows[i].event_id);
           lastProcessedEventId = String(rows[i].event_id);
-          console.log("Event Tracker Updated");
-          console.log("Updated Event Tracker ID is - ", lastProcessedEventId);
+          if (DebugElasticProvider) console.log("Event Tracker Updated");
+          if (DebugElasticProvider) console.log("Updated Event Tracker ID is - ", lastProcessedEventId);
         }
       }
-      console.log("Total Patients Processed in batch- ", patientHIDList.length);
-      console.log("Patients Found - ", patientHIDList);
+      if (DebugElasticProvider) console.log("Total Patients Processed in batch- ", patientHIDList.length);
+      if (DebugElasticProvider) console.log("Patients Found - ", patientHIDList);
       // Check if there are more pages
       if (results.pageState) {
         if (DebugElasticProvider)
-          console.log("More pages to come: " + results.pageState);
+          if (DebugElasticProvider) console.log("More pages to come: " + results.pageState);
           await getPatientFromEvent(results.pageState);
       }
 
     };
     await getPatientFromEvent(null);
-    console.log("Accumulated Patient Count - ", totalCount);
+    if (DebugElasticProvider) console.log("Accumulated Patient Count - ", totalCount);
     await prismaPostGresClient.cassandraEventTracker.update({
       where: {
         id: eventTrackerId.id
       },
       data: {
         eventId: lastProcessedEventId,
-        isProcessed: true
+        isProcessed: true,
+        syncedAt: new Date()
       }
     });
     return Promise.resolve(true);
