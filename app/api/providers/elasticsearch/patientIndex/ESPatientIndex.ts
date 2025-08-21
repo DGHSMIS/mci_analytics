@@ -334,7 +334,7 @@ export async function fetchLatestPatientsFromEventTracker() {
       fetchSize: 1
     };
     //Get the first row from the patient_update_log table
-    const query = `SELECT * FROM patient_update_log WHERE year = 2023 ORDER BY event_id ASC;`;
+    const query = `SELECT * FROM mci.patient_update_log WHERE year = 2023 ORDER BY event_id ASC;`;
     const getEventTrackerFromCassandra = await cassandraClient.execute(
       query,
       [],
@@ -394,7 +394,7 @@ export async function fetchLatestPatientsFromEventTracker() {
     const getPatientFromEvent = async (
       pageState: any
     ) => {
-      const query = `SELECT health_id,event_id FROM patient_update_log WHERE event_id > minTimeuuid('${start.toISOString()}') AND event_id < maxTimeuuid('${end.toISOString()}') ALLOW FILTERING;`;
+      const query = `SELECT health_id,event_id FROM mci.patient_update_log WHERE event_id > minTimeuuid('${start.toISOString()}') AND event_id < maxTimeuuid('${end.toISOString()}') ALLOW FILTERING;`;
       if (DebugElasticProvider) console.log("Query to get patients from event tracker " + query);
       const queryOptions = {
         prepare: true,
