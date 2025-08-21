@@ -3,7 +3,7 @@ import { CASSANDRA_DEFAULT_KEYSPACE, CASSANDRA_PAGE_SIZE, CASSANDRA_SHR_KEYSPACE
 import { DebugElasticProvider, ELASTIC_BATCH_SIZE, encounterIndexName } from "@providers/elasticsearch/constants";
 import { CDEncounterInterface } from "@utils/interfaces/Cassandra/CDEncounterInterface";
 import fetchAndCacheFacilityInfo from "@utils/providers/fetchAndCacheFacilityInfo";
-import { blankCreatedAndUpdatedByEncounterESObject, timeUUIDToDate } from "@utils/utilityFunctions";
+import { blankCreatedAndUpdatedByEncounterESObject, getLastXHoursRange, timeUUIDToDate } from "@utils/utilityFunctions";
 import { esBaseClient } from 'app/api/providers/elasticsearch/ESBase';
 import { stringify } from "uuid";
 import { ESEncounterIndexBody } from "./ESEncounterMapping";
@@ -233,13 +233,18 @@ export async function insertOrUpdateSingleEncounterToESIndex(encounterId: String
 /**
  * Fetch ALL data from Cassandra database and Index it in Elasticsearch
  */
-export async function indexAllEncountersInESData() {
+export async function indexEncountersInESData(isFullReindex: boolean = true) {
   try {
     indexCount = 0;
     const results: CDEncounterInterface[] = [];
     cassandraClient.keyspace = CASSANDRA_SHR_KEYSPACE;
     let i: number = 0;
+    const { start, end } = getLastXHoursRange(24);
+    
     // Define a function to process each page of results
+    const cassandraEncounterQuery = isFullReindex ? "SELECT * FROM encounter" : `SELECT * FROM encounter WHERE received_at > minTimeuuid('${start.toISOString()}') AND received_at < minTimeuuid('${end.toISOString()}') ALLOW FILTERING;`
+    console.log("Cassandra Encounter Query");
+    console.log(cassandraEncounterQuery);
     const getAllEncounterData = async (pageState: any, query: string = "SELECT * FROM encounter") => {
       if (DebugElasticProvider) console.log("Retrieving page with pageIndex", i);
       const queryOptions = { prepare: true, fetchSize: CASSANDRA_PAGE_SIZE, pageState };
@@ -265,7 +270,7 @@ export async function indexAllEncountersInESData() {
     };
 
     // Call the getAllPaginatedData function to start retrieving pages
-    await getAllEncounterData(null);
+    await getAllEncounterData(null, cassandraEncounterQuery);
 
     // Index the data in batches
     for (let i = 0; i < results.length; i += batchSize) {
