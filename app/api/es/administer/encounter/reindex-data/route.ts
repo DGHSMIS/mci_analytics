@@ -59,7 +59,7 @@ export async function POST(req: NextRequest) {
       console.log(`Cleaning & reindexing ${encounterIndexName} index`);
       startEncounterIndexGeneration = await dropAndGenerateIndex(encounterIndexName, ESEncounterIndexBody);
       if (startEncounterIndexGeneration) {
-        const isIndexAllEncounterRecords = await indexEncountersInESData();
+        const isIndexAllEncounterRecords = await indexEncountersInESData(true);
         if (isIndexAllEncounterRecords) {
           return sendSuccess({ message: `${encounterIndexName} index has been reindexed successfully at ${formatDateTime(new Date().toISOString())}` }, 200);
         }
