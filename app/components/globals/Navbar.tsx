@@ -163,7 +163,8 @@ const Navbar = memo(function Navbar({
                       />
                       <div className="info">
                         <span className="mt-2 block text-sm font-semibold leading-4 tracking-tight md:mt-0 md:text-base">
-                          Directorate General of Health Services
+                          {/* Directorate General of Health Services */}
+                            Ministry of Health & Family Welfare
                         </span>
                       </div>
                     </div>

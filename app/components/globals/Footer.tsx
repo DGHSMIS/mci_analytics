@@ -7,8 +7,9 @@ export default memo(function Footer() {
   const currentYear = getYear(new Date());
 
   const misDGHSLogoTitle = process.env.NEXT_PUBLIC_DG_MIS_LOGO_TITLE ?? "";
-  const footerLead = "Management Information System,";
-  const footerTail = "Directorate General of Health Services";
+  const footerLead = "Management Information System, DGHS";
+  // const footerTail = "Directorate General of Health Services";
+  const footerTail = "Ministry of Health & Family Welfare";
   const misDGHSLogo = '/img/mis_logo.png';
   const titleLabel = "UNICEF";
   const unicefLogo = '/img/unicef.png';
