@@ -146,7 +146,8 @@ const Navbar = memo(function Navbar({
                   <Link href="/" className="flex flex-shrink-0 items-center">
                     {/* //+ Mobile Logo */}
                     <img
-                      src="/img/dghs.png"
+                      // src="/img/dghs.png"
+                      src="/img/bd-gov-logo.png"
                       alt={dghsLogoTitleAndAria}
                       aria-label={dghsLogoTitleAndAria}
                       title={dghsLogoTitleAndAria}
@@ -156,7 +157,8 @@ const Navbar = memo(function Navbar({
                     <div className="flex items-center gap-x-16">
                       <img
                         className="hidden w-44 md:block"
-                        src="/img/dghs.png"
+                        // src="/img/dghs.png"
+                        src="/img/bd-gov-logo.png"
                         alt={dghsLogoTitleAndAria}
                         aria-label={dghsLogoTitleAndAria}
                         title={dghsLogoTitleAndAria}

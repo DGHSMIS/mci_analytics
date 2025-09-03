@@ -7,10 +7,13 @@ export default memo(function Footer() {
   const currentYear = getYear(new Date());
 
   const misDGHSLogoTitle = process.env.NEXT_PUBLIC_DG_MIS_LOGO_TITLE ?? "";
-  const footerLead = "Management Information System, DGHS";
+  const footerLead = "Ministry of Health & Family Welfare";
+  // const footerLead = "Management Information System, DGHS";
   // const footerTail = "Directorate General of Health Services";
-  const footerTail = "Ministry of Health & Family Welfare";
-  const misDGHSLogo = '/img/mis_logo.png';
+  // const footerTail = "Ministry of Health & Family Welfare";
+  const footerTail = "";
+  // const misDGHSLogo = '/img/mis_logo.png';
+  const misDGHSLogo = '/img/bd-gov-logo.png';
   const titleLabel = "UNICEF";
   const unicefLogo = '/img/unicef.png';
   const unicefLink = "https://www.unicef.org/";
@@ -32,10 +35,10 @@ export default memo(function Footer() {
           </div>
           <div className="flex justify-center items-center flex-col pt-2">
             <p className="ml-0  text-xs leading-5 text-slate-500">
-              &copy; {currentYear}. All rights reserved.
+              {footerLead}
             </p>
             <p className="ml-0  text-xs leading-5 text-slate-500">
-              {footerLead}
+              &copy; {currentYear}. All rights reserved.
             </p>
             <p className="ml-0 text-xs leading-5 text-slate-500">{footerTail}</p>
           </div>

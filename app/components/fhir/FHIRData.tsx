@@ -111,6 +111,7 @@ export default memo(function FHIRData({ json, encounter }: FHIRDataProps) {
       console.log("FHIR Data Already Exists in Store");
       const fhirJson: Bundle = JSON.parse(fhirData.xmlToJson(json.results));
       setFhirResource(fhirJson);
+
     }
   };
 
@@ -147,10 +148,14 @@ const RenderFhirEncounterUI = memo(function RenderFhirEncounterUI({ fhirResource
   const MedicationRequestItems: JSX.Element[] = [];
   //Get All Conditions
   const conditions: Condition[] = [];
+  const observations: Observation[] = [];
   let otherResources: any[] = [];
   let sections: CompositionSection[] = [];
   const resources: Resource[] = [];
   const renderedUI: JSX.Element[] = [];
+  
+  // For grouping observations by reference
+  const groupedObservations: { [key: string]: Observation[] } = {};
 
   fhirResource.entry.forEach((item: BundleEntry) => {
     if (item.resource) {
@@ -163,7 +168,9 @@ const RenderFhirEncounterUI = memo(function RenderFhirEncounterUI({ fhirResource
       if (item.resource) {
         resources.push(item.resource);
         if (item.resource.resourceType === "Observation") {
-          ObservationsItems.push(<ObservationResource observation={item.resource as Observation} />);
+          let obs = item.resource as Observation;
+          observations.push(obs);
+          // We'll add ObservationItems after grouping them
         }
         if (item.resource.resourceType === "Encounter") {
           encounter.push(item.resource);
@@ -181,6 +188,130 @@ const RenderFhirEncounterUI = memo(function RenderFhirEncounterUI({ fhirResource
       }
     }
     // providerInfo = encounter.participant ? encounter.participant[0].individual?.reference ?? "":"";
+  });
+
+
+  // Process composition sections to identify observation groups
+  let observationGroups: { [key: string]: string } = {};
+  
+  if (composition.length > 0 && composition[0].section) {
+    composition[0].section.forEach((section: CompositionSection) => {
+      if (section.entry) {
+        section.entry.forEach(entry => {
+          // Extract the resource ID from the reference
+          const refParts = entry.reference?.split('/');
+          if (refParts && refParts.length > 1) {
+            const resourceType = refParts[0];
+            const resourceId = refParts[1];
+            
+            if (resourceType === 'Observation') {
+              // Store the section title for this observation ID
+              observationGroups[resourceId] = section.title || 'Other Observations';
+            }
+          }
+        });
+      }
+    });
+  }
+  
+  // Create a map of observation IDs to their full URIs for reference lookup
+  const observationIdMap: { [key: string]: string } = {};
+  // Create a map to track parent-child relationships between observations
+  const parentChildMap: { [key: string]: string[] } = {};
+  
+  // First pass: build the ID maps
+  observations.forEach((obs: Observation) => {
+    // Get the observation identifier (URI)
+    const obsIdentifier = obs.identifier?.[0]?.value;
+    const obsId = obs.id;
+    
+    if (obsIdentifier) {
+      // Map the ID to the full identifier URI
+      if (obsId) {
+        observationIdMap[obsId] = obsIdentifier;
+      }
+      
+      // Check if this observation has related observations (parent)
+      if (obs.related && obs.related.length > 0) {
+        // This is a parent observation that references other observations
+        parentChildMap[obsIdentifier] = [];
+        
+        // Add all child references
+        obs.related.forEach(related => {
+          if (related.type === 'has-member' && related.target && related.target.reference) {
+            parentChildMap[obsIdentifier].push(related.target.reference);
+          }
+        });
+      }
+    }
+  });
+  
+  // Second pass: group observations based on parent-child relationships
+  observations.forEach((obs: Observation) => {
+    // Get the observation identifier (URI)
+    const obsIdentifier = obs.identifier?.[0]?.value;
+    const obsId = obs.id;
+    
+    // Determine which group this observation belongs to
+    let groupName = 'Other Observations';
+    let isChildObservation = false;
+    
+    // Check if this observation is a child of another observation
+    if (obsIdentifier) {
+      for (const parentId in parentChildMap) {
+        if (parentChildMap[parentId].includes(obsIdentifier)) {
+          // This observation is a child - find the parent observation
+          const parentObs = observations.find(o => o.identifier?.[0]?.value === parentId);
+          if (parentObs && parentObs.code?.coding?.[0]?.display) {
+            groupName = parentObs.code.coding[0].display;
+            isChildObservation = true;
+            break;
+          }
+        }
+      }
+    }
+    
+    // If not a child, check if it's in a section or has a category
+    if (!isChildObservation) {
+      if (obsId && observationGroups[obsId]) {
+        groupName = observationGroups[obsId];
+      } else if (obs.category && obs.category.length > 0 && obs.category[0].coding && obs.category[0].coding.length > 0) {
+        // If not found in sections, try to use the category
+        groupName = obs.category[0].coding[0].display || 'Other Observations';
+      } else if (obs.code?.coding?.[0]?.display && obsIdentifier && parentChildMap[obsIdentifier]) {
+        // This is a parent observation with children, use its display name
+        groupName = obs.code.coding[0].display;
+      }
+    }
+    
+    // Skip parent observations in the main list if they don't have their own values
+    // They'll be represented by their group name instead
+    if (obsIdentifier && parentChildMap[obsIdentifier] && !obs.valueQuantity && !obs.valueCodeableConcept) {
+      return;
+    }
+    
+    // Initialize the group if it doesn't exist
+    if (!groupedObservations[groupName]) {
+      groupedObservations[groupName] = [];
+    }
+    
+    // Add the observation to its group
+    groupedObservations[groupName].push(obs);
+    
+    // Create the ObservationResource element with the reference group
+    ObservationsItems.push(<ObservationResource observation={obs} referenceGroup={groupName} />);
+  });
+  
+  // Create grouped observation items for the ObservationInfo component
+  const groupedObservationItems = Object.keys(groupedObservations).map(groupName => {
+    const groupItems = groupedObservations[groupName].map(obs => 
+      <ObservationResource observation={obs} referenceGroup={groupName} />
+    );
+    
+    return {
+      groupName,
+      items: groupItems
+    };
   });
 
   if (composition.length == 1) {
@@ -240,7 +371,7 @@ const RenderFhirEncounterUI = memo(function RenderFhirEncounterUI({ fhirResource
           <>
             {tabItemToShow == 0 && <ConditionInfo conditions={conditions} />}
             {/* Observations */}
-            {tabItemToShow == 1 && <ObservationInfo items={ObservationsItems} obsHeader={obsHeader}/>}
+            {tabItemToShow == 1 && <ObservationInfo items={ObservationsItems} groupedItems={groupedObservationItems} obsHeader={obsHeader}/>}
             {/* Medications */}
             {tabItemToShow == 2 && <MedicationRequestFormItem medicationRequests={medicationRequest} />}
             {/* Immunization */}

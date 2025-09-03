@@ -6,9 +6,10 @@ import { memo } from "react";
 
 interface ObservationResourceProps {
   observation: Observation;
+  referenceGroup?: string;
 }
 
-export default memo(function ObservationResource({ observation }: ObservationResourceProps) {
+export default memo(function ObservationResource({ observation, referenceGroup }: ObservationResourceProps) {
   if (!observation) {
     return <ReferenceErrorLog error="No observation found" />;
   }
@@ -54,6 +55,7 @@ export default memo(function ObservationResource({ observation }: ObservationRes
     // performer: renderPerformer(observation),
     // status: renderStatus(observation),
     // category: observation.code?.coding?.[0]?.code || "N/A",
+    referenceGroup: referenceGroup
   }
   if(ObservationObject.title == "N/A" || ObservationObject.value == "N/A"){
     return <></>

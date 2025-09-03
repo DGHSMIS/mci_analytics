@@ -9,6 +9,7 @@ export interface ObservationFormItemProps {
   performer?: string;
   category?: string;
   isBold?: boolean;
+  referenceGroup?: string;
 }
 const ObservationFormItem = memo(function ObservationFormItem(props: ObservationFormItemProps) {
   if(props.title.includes("N/A")){
