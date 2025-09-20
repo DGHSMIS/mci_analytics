@@ -539,11 +539,15 @@ export const ncdDiseases: string[] = [
   "Type 1 Diabetes Mellitus",
   "Thalassemia and iron deficiency anemia",
   "Nephrotic Syndrome",
-];export const getFacilitySolutionTypeFromName = (
+];
+
+export const getFacilitySolutionTypeFromName = (
   facilityNamePartialMatch: string
 ) => {
   if (facilityNamePartialMatch.includes("Directorate General of Health Services (DGHS)")) {
     return "openSRP";
+  } else if (facilityNamePartialMatch.includes("DGHS")) {
+    return "vaxEPI";
   }
   return "openMRS+";
 };

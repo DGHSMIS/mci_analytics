@@ -84,6 +84,10 @@ async function getTotalEncounterStats() {
           case "openMRS+":
             openMRSCount += item.doc_count ?? 0;
             break;
+          case "vaxEPI":
+            // For vaxEPI, we are adding the count to eMISCount as per the original logic
+            eMISCount += item.doc_count ?? 0;
+            break;
           default:
             console.log("Facility Type not found");
             console.log(item);
