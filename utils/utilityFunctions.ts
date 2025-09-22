@@ -544,10 +544,8 @@ export const ncdDiseases: string[] = [
 export const getFacilitySolutionTypeFromName = (
   facilityNamePartialMatch: string
 ) => {
-  if (facilityNamePartialMatch.includes("Directorate General of Health Services (DGHS)")) {
+  if (facilityNamePartialMatch.includes("Directorate General of Health Services (DGHS)") || facilityNamePartialMatch.includes("DGHS")) {
     return "openSRP";
-  } else if (facilityNamePartialMatch.includes("DGHS")) {
-    return "vaxEPI";
   }
   return "openMRS+";
 };

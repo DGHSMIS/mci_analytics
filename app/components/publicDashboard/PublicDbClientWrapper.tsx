@@ -200,7 +200,7 @@ export default memo(function PublicDbClientWrapper({
         card2Title={"OpenMRS+"}
         card3Title={"SmartHealthBD"}
         card4Title={"Aalo Clinic"}
-        card5Title={"VaxEPI"}
+        card5Title={"eMIS"}
       />
 
       {/*Section 2 - Lifetime Clinical Data Collection Stats*/}
@@ -212,7 +212,7 @@ export default memo(function PublicDbClientWrapper({
         card2Title={"OpenMRS+"}
         card3Title={"SmartHealthBD"}
         card4Title={"Aalo Clinic"}
-        card5Title={"VaxEPI"}
+        card5Title={"eMIS"}
       />
       {/*/!*Section 3 - Facility-wise Registration Stats *!/*/}
       <FacilityServiceOverview
