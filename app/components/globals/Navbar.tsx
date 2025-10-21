@@ -168,6 +168,10 @@ const Navbar = memo(function Navbar({
                           {/* Directorate General of Health Services */}
                             Ministry of Health & Family Welfare
                         </span>
+                        <span className="block text-xs text-slate-500 md:mt-0">
+                          Government of the People's Republic of Bangladesh
+                          {/* People&apos;s Republic of Bangladesh. */}
+                        </span>
                       </div>
                     </div>
                   </Link>

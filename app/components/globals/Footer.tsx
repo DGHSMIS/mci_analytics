@@ -94,7 +94,7 @@ export default memo(function Footer() {
           </div>
         </div>
 
-        <p className="inline-block text-center text-xs text-slate-500 px-24">
+        {/* <p className="inline-block text-center text-xs text-slate-500 px-24"> */}
           {/* &copy; {currentYear}
           <img
             src="/img/dghs.png"
@@ -104,7 +104,7 @@ export default memo(function Footer() {
 
             className="ml-28 mr-12 block w-40 md:ml-0 md:hidden"
           /> {footerLead} */}
-          <div className="flex justify-center space-x-4 w-100 max-h-48 items-center mt-12">
+          {/* <div className="flex justify-center space-x-4 w-100 max-h-48 items-center mt-12">
             <div className="text-xs">
               Supported by &nbsp;
             </div>
@@ -126,8 +126,8 @@ export default memo(function Footer() {
                 placeholder="blur"
               />
             </Link>
-          </div>
-        </p>
+          </div> */}
+        {/* </p> */}
       </div>
     </div>
   );
