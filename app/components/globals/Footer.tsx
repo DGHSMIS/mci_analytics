@@ -1,4 +1,3 @@
-
 import { getYear } from "date-fns";
 import Image from "next/image";
 import Link from "next/link";
@@ -10,125 +9,58 @@ export default memo(function Footer() {
   const footerLead = "Ministry of Health & Family Welfare";
   // const footerLead = "Management Information System, DGHS";
   // const footerTail = "Directorate General of Health Services";
-  // const footerTail = "Ministry of Health & Family Welfare";
-  const footerTail = "";
+  const footerTail = "Government of the People's Republic of Bangladesh";
+
   // const misDGHSLogo = '/img/mis_logo.png';
-  const misDGHSLogo = '/img/bd-gov-logo.png';
+  const misDGHSLogo = "/img/bd-gov-logo.png";
   const titleLabel = "UNICEF";
-  const unicefLogo = '/img/unicef.png';
+  const unicefLogo = "/img/unicef.png";
   const unicefLink = "https://www.unicef.org/";
   return (
-    <div className="border-t border-slate-100 py-16 text-center sm:py-32">
-      {/* //! Desktop View */}
-      <div className="mobile hidden sm:flex sm:justify-center sm:items-center flex-col">
-        <div className="text-start text-xs leading-none text-slate-500">
-          <div className="text-center text-xs leading-none text-slate-500">
-            <div className="flex justify-center items-center flex-col">
-              <img
-                src={`${misDGHSLogo}`}
-                alt={misDGHSLogoTitle}
-                aria-label={misDGHSLogoTitle}
-                title={misDGHSLogoTitle}
-                className="mx-6 h-[50px] hidden:sm visible:md inline-block"
-              />
+    <footer className="bg-slate-100 py-12 sm:py-24 shadow-md drop-shadow-md inset-x-0">
+      {/* Outer container with max-width */}
+      <div className="mx-auto container px-4 py-12 sm:px-6 lg:px-8">
+        {/* Responsive grid: 1 column on mobile, 2 columns on small screens and above */}
+        <div className="grid grid-cols-1 gap-8 sm:grid-cols-1">
+          {/* Left Column */}
+          <div className="flex flex-col space-y-4 justify-center items-center">
+            <div className="flex flex-col sm:flex-row sm:items-center sm:space-x-12 space-y-4 sm:space-y-0">
+              {/* Logo */}
+              <a
+                href="https://www.dghs.gov.bd/"
+                className="flex items-center justify-center sm:justify-start space-x-4"
+                rel="follow"
+              >
+                <Image
+                  src={misDGHSLogo}
+                  alt={footerTail}
+                  title={footerTail}
+                  className=" p-2 sm:p-12 md:w-[100px] sm:w-[75px] sm:max-h-[75px] md:max-h-[100px]"
+                  width={100}
+                  height={100}
+                  blurDataURL={`${process.env.blurDataURL}`}
+                  placeholder="blur"
+                />
+              </a>
+              {/* Text content */}
+              <div className="text-center sm:text-left flex flex-col space-y-4">
+                <p className="text-xl text-slate-600 font-semibold">
+                  {footerLead}
+                </p>
+                <p className="text-lg text-slate-500 font-medium">
+                  {footerTail}
+                </p>
+                {/* <p className="text-base italic text-slate-600 mt-2 font-medium">
+                {translation?.("address")}
+                </p> */}
+                <p className="text-sm text-gray-500">
+                  &copy; {currentYear}. All rights reserved.
+                </p>
+              </div>
             </div>
           </div>
-          <div className="flex justify-center items-center flex-col pt-2">
-            <p className="ml-0  text-xs leading-5 text-slate-500">
-              {footerLead}
-            </p>
-            <p className="ml-0  text-xs leading-5 text-slate-500">
-              &copy; {currentYear}. All rights reserved.
-            </p>
-            <p className="ml-0 text-xs leading-5 text-slate-500">{footerTail}</p>
-          </div>
         </div>
-        <p className="inline-block text-center text-xs leading-none text-slate-500">
-          <div className="flex justify-center space-x-4 w-100 max-h-48 items-center mt-16">
-            <span className="text-xs">
-              Supported by &nbsp;
-            </span>
-          </div>
-          <div className="flex justify-center space-x-4 max-h-96 items-center mt-8">
-            <Link
-              href={`${unicefLink}`}
-              rel="nofollow"
-              target="_blank"
-              title={titleLabel}
-              aria-label={titleLabel}
-              // className="bg-[#189cfe]"
-            >
-              <Image src={unicefLogo} alt={titleLabel} title={titleLabel}
-                className="block md:ml-0 p-12 w-[10rem] m-h-96 border-[2px] border-[#1cabe2] border-opacity-10 hover:transition-opacity hover:border-opacity-30 hover:shadow-sm rounded"
-                width={200}
-                height={108}
-                blurDataURL={`${process.env.blurDataURL}`}
-                placeholder="blur"
-              />
-            </Link>
-          </div>
-        </p>
       </div>
-      {/* //! Mobile View */}
-      <div className="sm:hidden flex justify-center items-center flex-col">
-        <div className="text-center text-xs leading-none text-slate-500">
-          <div className="flex justify-center items-center flex-col">
-            <img
-              src={`${misDGHSLogo}`}
-              alt={misDGHSLogoTitle}
-              aria-label={misDGHSLogoTitle}
-              title={misDGHSLogoTitle}
-              className="mx-6 h-[50px] hidden:sm visible:md inline-block"
-            />
-          </div>
-        </div>
-        <div className="text-start text-xs leading-none text-slate-500">
-          <div className="flex justify-center items-center flex-col">
-            <p className="ml-0  text-xs leading-5 text-slate-500">
-              &copy; {currentYear}. All rights reserved.
-            </p>
-            <p className="ml-0  text-xs leading-5 text-slate-500">
-              {footerLead}
-            </p>
-            <p className="ml-0 text-xs leading-5 text-slate-500">{footerTail}</p>
-          </div>
-        </div>
-
-        {/* <p className="inline-block text-center text-xs text-slate-500 px-24"> */}
-          {/* &copy; {currentYear}
-          <img
-            src="/img/dghs.png"
-            alt={misDGHSLogoTitle}
-            aria-label={misDGHSLogoTitle}
-            title={misDGHSLogoTitle}
-
-            className="ml-28 mr-12 block w-40 md:ml-0 md:hidden"
-          /> {footerLead} */}
-          {/* <div className="flex justify-center space-x-4 w-100 max-h-48 items-center mt-12">
-            <div className="text-xs">
-              Supported by &nbsp;
-            </div>
-          </div>
-          <div className="flex justify-center space-x-4 w-100 max-h-48 items-center my-20">
-            <Link
-              href={`${unicefLink}`}
-              rel="nofollow"
-              target="_blank"
-              title={titleLabel}
-              aria-label={titleLabel}
-              // className="bg-[#189cfe]"
-            >
-              <Image src={unicefLogo} alt={titleLabel} title={titleLabel}
-                className="hover:cursor-pointer hover:opacity-90 transition-opacity block md:ml-0 p-8 w-[8rem] m-h-40 border-[1px] border-[#1cabe2] border-opacity-10 hover:transition-opacity hover:border-opacity-30 hover:shadow-sm rounded"
-                width={100}
-                height={54}
-                blurDataURL={`${process.env.blurDataURL}`}
-                placeholder="blur"
-              />
-            </Link>
-          </div> */}
-        {/* </p> */}
-      </div>
-    </div>
+    </footer>
   );
-})
+});
