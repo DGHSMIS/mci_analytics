@@ -475,7 +475,7 @@ export async function indexAllPatientESData() {
     errorCount = 0;
     listOfErrorPatients = [];
     let i: number = 0;
-    const concurrencyLimit = 10; // Adjust the concurrency limit as needed
+    const concurrencyLimit = 2; // Adjust the concurrency limit as needed
     const limit = pLimit(concurrencyLimit);
 
     // Define a function to process each page of results
