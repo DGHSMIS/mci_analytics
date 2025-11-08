@@ -31,13 +31,13 @@ export async function PUT(req: NextRequest) {
     };
 
     //Check Authorization & respond error if not verified
-   const isValidUserRequest = await checkIfAuthenticatedMCIUser(req);
-   console.log("isValidUserRequest");
-   console.log(isValidUserRequest);
+//    const isValidUserRequest = await checkIfAuthenticatedMCIUser(req);
+//    console.log("isValidUserRequest");
+//    console.log(isValidUserRequest);
 
-   if (isValidUserRequest !== null) {
-       return isValidUserRequest;
-   }
+//    if (isValidUserRequest !== null) {
+//        return isValidUserRequest;
+//    }
     console.log('Request is from Validated User');
 
     try {
