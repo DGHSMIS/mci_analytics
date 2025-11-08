@@ -236,61 +236,74 @@ export async function insertOrUpdateSingleEncounterToESIndex(encounterId: String
 export async function indexEncountersInESData(isFullReindex: boolean = true) {
   try {
     indexCount = 0;
-    const results: CDEncounterInterface[] = [];
     cassandraClient.keyspace = CASSANDRA_SHR_KEYSPACE;
-    let i: number = 0;
-    const { start, end } = getLastXHoursRange(24);
+    let pageIndex: number = 0;
+    const { start, end } = getLastXHoursRange(240);
     
-    // Define a function to process each page of results
+    // Define the query based on reindex type
     const cassandraEncounterQuery = isFullReindex ? "SELECT * FROM encounter" : `SELECT * FROM encounter WHERE received_at > minTimeuuid('${start.toISOString()}') AND received_at < minTimeuuid('${end.toISOString()}') ALLOW FILTERING;`
     console.log("Cassandra Encounter Query");
     console.log(cassandraEncounterQuery);
-    const getAllEncounterData = async (pageState: any, query: string = "SELECT * FROM encounter") => {
-      if (DebugElasticProvider) console.log("Retrieving page with pageIndex", i);
-      const queryOptions = { prepare: true, fetchSize: CASSANDRA_PAGE_SIZE, pageState };
+    
+    // Process data in streaming fashion - process each page immediately
+    let currentPageState: any = null;
+    let totalProcessed = 0;
+    
+    do {
+      if (DebugElasticProvider) console.log("Retrieving page with pageIndex", pageIndex);
+      
+      // Fetch one page at a time
+      const queryOptions = { prepare: true, fetchSize: CASSANDRA_PAGE_SIZE, pageState: currentPageState };
       const result: any = await cassandraClient.execute(
-        `${query}`,
+        `${cassandraEncounterQuery}`,
         [],
         queryOptions,
       );
 
       const rows: CDEncounterInterface[] = result.rows;
-      // Process each row here...
-      if (DebugElasticProvider) console.log("Pushing page to allRows");
-      console.log("row of Encounter data");
-      console.log(rows);
-      results.push(...rows);
-      i++;
+      
+      if (DebugElasticProvider) console.log(`Processing page ${pageIndex} with ${rows.length} rows`);
+      console.log(`Processing batch of ${rows.length} encounter records`);
+      
+      // Process this page immediately in batches
+      const CHUNK_SIZE = Math.min(batchSize, CASSANDRA_PAGE_SIZE); // Ensure we don't exceed page size
+      
+      for (let i = 0; i < rows.length; i += CHUNK_SIZE) {
+        const batch = rows.slice(i, i + CHUNK_SIZE);
+        
+        try {
+          // Step 1: Format the data
+          const formattedDocsPromises = batch.map(encounter => convertDataToEncounterESFormat(encounter, new Date()));
+          let formattedDocs = await Promise.all(formattedDocsPromises);
+          // Filter out empty array responses from formattedDocs
+          formattedDocs = formattedDocs.filter(doc => doc.length > 0);
 
-      // Check if there are more pages
-      if (result.pageState) {
-        if (DebugElasticProvider) console.log("More pages to come" + result.pageState);
-        await getAllEncounterData(result.pageState);
+          // Step 2: Flatten the array
+          const flattenedDocs = formattedDocs.reduce((acc, val) => acc.concat(val), []);
+
+          // Step 3: Send the data to ES Index, ensuring there's something to index
+          if (flattenedDocs.length > 0) {
+            if (DebugElasticProvider) { indexCount += flattenedDocs.length; }
+            await esBaseClient.bulk({ index: encounterIndexName, body: flattenedDocs });
+            if (DebugElasticProvider) console.log(`Indexed ${flattenedDocs.length} documents in current batch`);
+          }
+        } catch (batchError) {
+          console.error(`Error processing batch ${i}-${i + CHUNK_SIZE}:`, batchError);
+          errorCount += batch.length;
+          // Continue with next batch instead of failing entire operation
+        }
       }
-    };
-
-    // Call the getAllPaginatedData function to start retrieving pages
-    await getAllEncounterData(null, cassandraEncounterQuery);
-
-    // Index the data in batches
-    for (let i = 0; i < results.length; i += batchSize) {
-      const batch = results.slice(i, i + batchSize);
-      // Step 1: Format the data
-      const formattedDocsPromises = batch.map(encounter => convertDataToEncounterESFormat(encounter, new Date()));
-      let formattedDocs = await Promise.all(formattedDocsPromises);
-      // Filter out empty array responses from formattedDocs
-      formattedDocs = formattedDocs.filter(doc => doc.length > 0);
-
-      // Step 2: Flatten the array
-      const flattenedDocs = formattedDocs.reduce((acc, val) => acc.concat(val), []);
-
-      // Step 3: Send the data to ES Index, ensuring there's something to index
-      if (flattenedDocs.length > 0) {
-        if (DebugElasticProvider) { indexCount += flattenedDocs.length; }
-        await esBaseClient.bulk({ index: encounterIndexName, body: flattenedDocs });
-        if (DebugElasticProvider) console.log(`Indexed ${flattenedDocs.length} documents in current batch`);
+      
+      totalProcessed += rows.length;
+      currentPageState = result.pageState;
+      pageIndex++;
+      
+      // Add a small delay every 10 pages to prevent overwhelming the system
+      if (pageIndex % 10 === 0) {
+        await new Promise(resolve => setTimeout(resolve, 100));
       }
-    }
+      
+    } while (currentPageState);
 
     if (DebugElasticProvider) {
       console.log("List of Encounter with Invalid JSON Object");
@@ -301,7 +314,14 @@ export async function indexEncountersInESData(isFullReindex: boolean = true) {
       console.log(errorCount);
       console.log("Total Indexed Documents");
       console.log(indexCount);
+      console.log("Total Processed Records");
+      console.log(totalProcessed);
+      console.log("Total Pages Processed");
+      console.log(pageIndex);
     }
+    
+    console.log(`Successfully processed ${totalProcessed} encounter records across ${pageIndex} pages`);
+    
     // await esBaseClient.close();
     cassandraClient.keyspace = CASSANDRA_DEFAULT_KEYSPACE;
     await cassandraClient.shutdown();
