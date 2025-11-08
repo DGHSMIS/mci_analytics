@@ -238,7 +238,7 @@ export async function indexEncountersInESData(isFullReindex: boolean = true) {
     indexCount = 0;
     cassandraClient.keyspace = CASSANDRA_SHR_KEYSPACE;
     let pageIndex: number = 0;
-    const { start, end } = getLastXHoursRange(48);
+    const { start, end } = getLastXHoursRange(240);
     
     // Define the query based on reindex type
     const cassandraEncounterQuery = isFullReindex ? "SELECT * FROM encounter" : `SELECT * FROM encounter WHERE received_at > minTimeuuid('${start.toISOString()}') AND received_at < minTimeuuid('${end.toISOString()}') ALLOW FILTERING;`

@@ -198,7 +198,7 @@ export default memo(function PublicDbClientWrapper({
         countStats={regStatsData}
         card1Title={"Health ID Registered"}
         card2Title={"OpenMRS+"}
-        card3Title={"SmartHealthBD"}
+        card3Title={"VaxEPI"}
         card4Title={"Aalo Clinic"}
         card5Title={"eMIS"}
       />
@@ -210,7 +210,7 @@ export default memo(function PublicDbClientWrapper({
         countStats={encounterStatsData}
         card1Title={"Total Clinical Records"}
         card2Title={"OpenMRS+"}
-        card3Title={"SmartHealthBD"}
+        card3Title={"VaxEPI"}
         card4Title={"Aalo Clinic"}
         card5Title={"eMIS"}
       />
