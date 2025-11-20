@@ -12,7 +12,7 @@ import DateAggregationToLineChartSerieCollection from "@utils/converters/DateAgg
 import LineToPieChartSerieCollection from "@utils/converters/LineToPieChartSerieCollection";
 import { LatestGenderWiseStatsInterface } from "@utils/interfaces/Analytics/PublicDashboard/PublicDashboardInterfaces";
 import { getBaseUrl, getUrlFromName } from "@utils/lib/apiList";
-import { getObjectKeyFromValue } from "@utils/utilityFunctions";
+import { formatDateToLocalISO, getObjectKeyFromValue } from "@utils/utilityFunctions";
 import { memo, Suspense, useEffect, useMemo, useState } from "react";
 
 type GenderwiseStatsProps = {
@@ -53,14 +53,14 @@ export default memo(function GenderwiseStats({
       //   }
       //   formData.append("divisionId", divisionId);
       // }
-      let queryParams = "?dateFrom="+demographyMinDate.toISOString()+"&dateTo="+demographyMaxDate.toISOString();
+      let queryParams = "?dateFrom=" + formatDateToLocalISO(demographyMinDate) + "&dateTo=" + formatDateToLocalISO(demographyMaxDate);
       console.log("queryParams", queryParams);
       if (selectedDivision.length > 0) {
-        queryParams = queryParams+"&divisionId=" + getObjectKeyFromValue(divisionCodes, selectedDivision[0]);
+        queryParams = queryParams + "&divisionId=" + getObjectKeyFromValue(divisionCodes, selectedDivision[0]);
       }
       const results: LatestGenderWiseStatsInterface = await getAPIResponse(
         getBaseUrl(),
-        getUrlFromName("get-genderwise-count-stats")+queryParams,
+        getUrlFromName("get-genderwise-count-stats") + queryParams,
         "",
         "GET",
         null,

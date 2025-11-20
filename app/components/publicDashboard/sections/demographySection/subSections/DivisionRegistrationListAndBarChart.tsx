@@ -13,6 +13,7 @@ import DivisionDistrictwiseDocCountToTableData, {
 } from "@utils/converters/DivisionDistrictwiseDocCountToTableData";
 import { AreaWiseRegistrationStatsProps } from "@utils/interfaces/DataModels/LocalityInterfaces";
 import { getBaseUrl, getUrlFromName } from "@utils/lib/apiList";
+import { formatDateToLocalISO } from "@utils/utilityFunctions";
 import { tokens } from "@utils/styles/ThemeToken";
 import { delay } from "lodash";
 import { MRT_ExpandedState } from "material-react-table";
@@ -21,17 +22,17 @@ import { memo, Suspense, useEffect, useMemo, useRef, useState } from "react";
 
 const ChartViewManagerComponent = dynamic(
   () => import("@components/publicDashboard/sectionFilterSegment/ChartViewManagerComponent"), {
-    ssr: false,
-  });
+  ssr: false,
+});
 const BarChartMCI = dynamic(
   () => import("@charts/BarChart/BarChartMCI"), {
-    ssr: false,
-  });
+  ssr: false,
+});
 
 const TablePagyCustom = dynamic(
   () => import("@components/table/TablePagyCustom"), {
-    ssr: false,
-  });
+  ssr: false,
+});
 
 const TooltipBarChart = dynamic(() => import("@charts/BarChart/TooltipBarChart"), {
   ssr: true,
@@ -42,8 +43,8 @@ interface DivisionRegListAndBarChartProps {
 }
 
 export default function DivisionRegistrationListAndBarChart({
-                                               divisionWiseRegistrationCount,
-                                             }: DivisionRegListAndBarChartProps){
+  divisionWiseRegistrationCount,
+}: DivisionRegListAndBarChartProps) {
   /*
    * Get the store variables
    */
@@ -148,38 +149,38 @@ export default function DivisionRegistrationListAndBarChart({
   }, [divisionDocCountToTableDataConverter]);
 
   async function fetchFilterdDivisionWiseData() {
-      setApiCallInProgress(true);
-      setErrorInAPI(false);
-      await delay(async() => {
-        console.log("Fake Delau");
-        try {
-          console.log("fetchDivisionWiseData from Client Component");
-          const fetchTimeFilteredDataX = await getAPIResponse(
-            getBaseUrl(),
-            getUrlFromName("get-areawise-count-stats") + "?dateFrom=" + demographyMinDate.toISOString() + "&dateTo=" + demographyMaxDate.toISOString(),
-            "",
-            "GET",
-            null,
-            false,
-            getRevalidationTime(),
-          );
-          console.log("fetchDivisionWiseData");
-          console.log(fetchTimeFilteredDataX);
-          setApiCallInProgress(false);
-          setErrorInAPI(false);
-          setRenderableData(fetchTimeFilteredDataX);
-        } catch (e) {
-          setApiCallInProgress(false);
-          setErrorInAPI(true);
-        }
-      }, 50);
+    setApiCallInProgress(true);
+    setErrorInAPI(false);
+    await delay(async () => {
+      console.log("Fake Delau");
+      try {
+        console.log("fetchDivisionWiseData from Client Component");
+        const fetchTimeFilteredDataX = await getAPIResponse(
+          getBaseUrl(),
+          getUrlFromName("get-areawise-count-stats") + "?dateFrom=" + formatDateToLocalISO(demographyMinDate) + "&dateTo=" + formatDateToLocalISO(demographyMaxDate),
+          "",
+          "GET",
+          null,
+          false,
+          getRevalidationTime(),
+        );
+        console.log("fetchDivisionWiseData");
+        console.log(fetchTimeFilteredDataX);
+        setApiCallInProgress(false);
+        setErrorInAPI(false);
+        setRenderableData(fetchTimeFilteredDataX);
+      } catch (e) {
+        setApiCallInProgress(false);
+        setErrorInAPI(true);
+      }
+    }, 50);
   }
 
   const { leftAxisProps, bottomAxisProps, otherPropVals } = useMemo(() => {
     const leftAxisProps = {
       ...defaultLeftAxisProps,
       tickRotation: -45,
-      legend: barViewState==0 ? "Divisions":"Districts",
+      legend: barViewState == 0 ? "Divisions" : "Districts",
     };
 
     const bottomAxisProps = {
@@ -214,18 +215,18 @@ export default function DivisionRegistrationListAndBarChart({
     if (selectedDivision.length > 0) {
       const newTableData = divisionDocCountToTableDataConverter.filter(
         (item: any) => {
-          return item.division_name===selectedDivision[0];
+          return item.division_name === selectedDivision[0];
         },
       );
       setTableData(newTableData);
       setTableExpanded(true);
       setTableKey((prevKey) => prevKey + 1);
 
-      if (barViewState==0) {
+      if (barViewState == 0) {
         setBarViewState(1);
       }
     } else {
-      if (barViewState==1) {
+      if (barViewState == 1) {
         setBarViewState(0);
       }
       setTableData(divisionDocCountToTableDataConverter);
@@ -241,10 +242,9 @@ export default function DivisionRegistrationListAndBarChart({
   return (
     <div className="w-full transition-colors">
       <ChartViewManagerComponent
-        title={`Registration stats by ${
-          barViewState==0 ? "division":"districts in " + selectedDivision[0]
-        }`}
-        showBackButton={barViewState==1}
+        title={`Registration stats by ${barViewState == 0 ? "division" : "districts in " + selectedDivision[0]
+          }`}
+        showBackButton={barViewState == 1}
         primaryBtnTitle="Bar"
         isPrimarySelected={!isTableView}
         primaryIconName="horizontal-bar-chart-01"
@@ -289,7 +289,7 @@ export default function DivisionRegistrationListAndBarChart({
                     GroupedCell: ({ row }) => {
                       console.log("The row");
                       console.log(row);
-                      return row ? <AggregatedCell row={row} />:<> </>;
+                      return row ? <AggregatedCell row={row} /> : <> </>;
                     },
                   },
                   {
@@ -308,17 +308,17 @@ export default function DivisionRegistrationListAndBarChart({
               />
             </Suspense>
           </div>
-        ):(
+        ) : (
           //    Show CHart View
           <div className="h-[640px] w-full rounded-lg">
             <Suspense fallback={<MCISpinner />}>
               <BarChartMCI
                 chartTitle=""
                 originalData={
-                  barViewState==0
+                  barViewState == 0
                     ? generateBarData.divisionData
-                    :generateBarData.districtData.filter(
-                      (item) => item.parent_name==selectedDivision[0],
+                    : generateBarData.districtData.filter(
+                      (item) => item.parent_name == selectedDivision[0],
                     )
                 }
                 indexBy="name"
@@ -332,7 +332,7 @@ export default function DivisionRegistrationListAndBarChart({
                   ...otherPropVals,
                 }}
                 onClicked={(barEvent: any) => {
-                  if (barViewState==0) {
+                  if (barViewState == 0) {
                     console.log("Event Fired");
                     console.log(barEvent);
                     setSelectedDivision([barEvent.data.name]);
@@ -360,7 +360,7 @@ const AggregatedCell = memo(function AggregatedCell({ row }: any) {
     });
     total = aggregatedDataRow.length
       ? aggregatedDataRow[0].original?.reg_count?.toLocaleString()
-      :0;
+      : 0;
   }
   return (
     <div>
@@ -376,7 +376,7 @@ const tooltipProps = (
   chartViewState: number,
 ): TooltipBarChartProps => {
   return {
-    line1Label: `${chartViewState==0 ? "Division:":"District"}`,
+    line1Label: `${chartViewState == 0 ? "Division:" : "District"}`,
     line1Value: item.indexValue,
     line2Label: "Registrations:",
     line2Value: item.value,

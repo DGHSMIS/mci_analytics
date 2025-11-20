@@ -1,0 +1,256 @@
+# Antigravity Rules for MCI Analytics Dashboard
+
+## Project Overview
+This is a Next.js 14 analytics dashboard application for DGHS (Directorate General of Health Services) MCI (Master Client Index) Analytics. The application provides healthcare analytics, NCD (Non-Communicable Disease) tracking, and FHIR-based health data management.
+
+## Technology Stack
+- **Framework**: Next.js 14.2.5 (App Router)
+- **Language**: TypeScript 4.9.5
+- **Runtime**: Node.js with Bun support
+- **Styling**: Tailwind CSS 3.4.4 with custom configuration
+- **UI Libraries**: Material-UI (MUI) 5.16.0, React Bootstrap 2.10.4
+- **State Management**: Zustand 4.5.4
+- **Data Fetching**: TanStack Query (React Query) 5.50.1
+- **Tables**: TanStack React Table 8.19.2, Material React Table 1.15.1
+- **Charts**: Nivo 0.87.0, Highcharts 11.4.6
+- **Database**: PostgreSQL with Prisma ORM 5.21.1, MySQL (NID Proxy), Cassandra, Elasticsearch 7.17.11
+- **Authentication**: NextAuth.js 4.24.7
+- **FHIR**: FHIR 4.12.0, fhir-ui 0.6.3
+
+## Project Structure
+
+### Directory Organization
+```
+/app                          # Next.js App Router directory
+  /admin                      # Admin-specific pages and components
+  /api                        # API routes and backend logic
+    /providers                # Database providers (Prisma, Elasticsearch, Cassandra)
+  /components                 # React components
+    /library                  # Reusable library components
+    /charts                   # Chart components (Nivo, Highcharts)
+  /store                      # Zustand state management stores
+  /styles                     # SCSS and global styles
+  /login                      # Authentication pages
+  /ncd-corner                 # NCD-specific features
+  /search-nid                 # NID search functionality
+  /fhir-demo                  # FHIR demonstration pages
+/utils                        # Utility functions and helpers
+/public                       # Static assets
+/dev                          # Development utilities
+```
+
+### Path Aliases (tsconfig.json)
+- `@library/*` → `app/components/library/*`
+- `@components/*` → `app/components/*`
+- `@variables/*` → `app/styles/scss/*`
+- `@store/*` → `app/store/*`
+- `@public/*` → `public/*`
+- `@utils/*` → `utils/*`
+- `@api/*` → `app/api/*`
+- `@charts/*` → `app/components/charts/*`
+- `@providers/*` → `app/api/providers/*`
+- `@admin/*` → `app/admin/*`
+- `@app/*` → `app/*`
+
+## Development Guidelines
+
+### Code Style
+- **TypeScript**: Use strict mode, always type function parameters and return values
+- **React**: Use functional components with hooks, avoid class components
+- **Imports**: Use path aliases consistently, organize imports with prettier-plugin-sort-imports
+- **Formatting**: Use Prettier with the project's configuration (run `npm run format`)
+- **Linting**: Follow ESLint rules (run `npm run lint`)
+
+### Component Patterns
+- **Server Components**: Default to React Server Components in App Router unless client interactivity is needed
+- **Client Components**: Mark with `'use client'` directive only when necessary (hooks, event handlers, browser APIs)
+- **Styling**: Use Tailwind CSS utility classes, styled-components for complex components
+- **State Management**: Use Zustand for global state, React Query for server state
+- **Data Tables**: Prefer Material React Table or TanStack React Table for complex data grids
+
+### Database & Data Access
+- **Prisma**: Use Prisma Client for PostgreSQL operations
+  - Schema: `app/api/providers/prisma/postgres/schema.prisma`
+  - MySQL Schema: `app/api/providers/prisma/mysql/schema.prisma`
+- **Elasticsearch**: Use for search and analytics queries
+- **Cassandra**: Use cassandra-driver for time-series data
+- **FHIR**: Use fhir and fhir-ui libraries for healthcare data standards
+
+### API Routes
+- Place API routes in `/app/api` directory
+- Use Next.js App Router route handlers (route.ts files)
+- Implement proper error handling and validation
+- Use server-only package for server-side code
+
+### Authentication
+- NextAuth.js is configured for authentication
+- Protect routes using middleware.ts
+- Use cookies-next for cookie management
+
+### Environment Variables
+- Development: `.env.development`
+- Production: `.env.production`
+- Example: `.env.example`
+- Never commit actual `.env` files
+
+## Scripts & Commands
+
+### Development
+```bash
+npm run dev              # Start dev server on port 3001
+npm run debugger         # Start with Node.js inspector
+npm run analyzer         # Analyze bundle size
+```
+
+### Build & Deploy
+```bash
+npm run build            # Production build
+npm run start            # Start production server on port 3001
+```
+
+### Code Quality
+```bash
+npm run lint             # Run ESLint
+npm run format           # Format code with Prettier
+npm run clean            # Clean install (remove node_modules, .next, reinstall)
+```
+
+### Database (Prisma)
+```bash
+npm run prisma:generate:dev        # Generate Prisma client (PostgreSQL, dev)
+npm run prisma:generate:prod       # Generate Prisma client (PostgreSQL, prod)
+npm run prisma:migrate:dev         # Run migrations (dev)
+npm run prisma:migrate:prod        # Deploy migrations (prod)
+npm run prisma:studio:dev          # Open Prisma Studio
+npm run prisma:generate:nid_proxy_dev   # Generate MySQL client (dev)
+npm run prisma:generate:nid_proxy_prod  # Generate MySQL client (prod)
+```
+
+## Key Dependencies & Usage
+
+### Charts & Visualization
+- **Nivo**: Use for modern, responsive charts (@nivo/bar, @nivo/line, @nivo/pie)
+- **Highcharts**: Use for advanced interactive charts with highcharts-react-official
+
+### Date & Time
+- **moment**: Primary date manipulation library
+- **date-fns**: Alternative for date utilities
+- **react-datepicker**: Date picker components
+- **@mui/x-date-pickers**: Material-UI date pickers
+
+### File Handling
+- **xlsx**: Excel file generation and parsing
+- **jspdf**: PDF generation
+- **jspdf-autotable**: PDF tables
+- **file-saver**: Client-side file downloads
+- **browser-image-compression**: Image optimization
+
+### Utilities
+- **lodash**: Utility functions
+- **clsx**: Conditional className joining
+- **uuid**: UUID generation
+- **libphonenumber-js**: Phone number validation
+- **superjson**: JSON serialization with type preservation
+
+## Healthcare & FHIR Specific
+
+### FHIR Resources
+- Use `@types/fhir` for TypeScript types
+- Use `fhir-ui` components for rendering FHIR resources
+- Follow FHIR R4 specification
+
+### NCD Corner
+- Non-Communicable Disease tracking and analytics
+- Located in `/app/ncd-corner`
+
+### NID Search
+- National ID search functionality
+- Located in `/app/search-nid`
+- Uses MySQL database via Prisma
+
+## Performance Considerations
+- **Image Optimization**: Use Next.js Image component with sharp
+- **Bundle Analysis**: Run `npm run analyzer` to check bundle size
+- **Code Splitting**: Leverage Next.js automatic code splitting
+- **Caching**: Use lru-cache for in-memory caching
+- **Server Components**: Maximize use of React Server Components for better performance
+
+## Docker & Deployment
+- Dockerfile is configured for containerized deployment
+- Use entry_point.sh for container initialization
+- Kubernetes deployment via Helm charts (see README)
+- Push to Dockerhub or container registry
+
+## Testing & Debugging
+- Use `npm run debugger` for Node.js debugging
+- React Query Devtools available in development
+- Prisma Studio for database inspection
+- Browser DevTools for frontend debugging
+
+## Common Patterns
+
+### Data Fetching
+```typescript
+// Use TanStack Query for server state
+import { useQuery } from '@tanstack/react-query';
+
+const { data, isLoading, error } = useQuery({
+  queryKey: ['key'],
+  queryFn: fetchFunction,
+});
+```
+
+### State Management
+```typescript
+// Use Zustand for global state
+import { create } from 'zustand';
+
+const useStore = create((set) => ({
+  // state and actions
+}));
+```
+
+### Styling
+```typescript
+// Use Tailwind with clsx for conditional classes
+import clsx from 'clsx';
+
+<div className={clsx('base-class', { 'conditional-class': condition })} />
+```
+
+## Important Notes
+- **Port**: Development server runs on port 3001 (not default 3000)
+- **Node Options**: Production uses max-old-space-size=4096 for memory
+- **Package Manager**: Project supports both npm and bun
+- **Strict Mode**: TypeScript strict mode is enabled
+- **Module Resolution**: Uses Node.js module resolution
+
+## File Naming Conventions
+- **Components**: PascalCase (e.g., `UserProfile.tsx`)
+- **Utilities**: camelCase (e.g., `formatDate.ts`)
+- **API Routes**: lowercase with hyphens (e.g., `route.ts` in `/api/user-data`)
+- **Styles**: kebab-case for SCSS files (e.g., `main-layout.scss`)
+
+## When Making Changes
+1. **Always** check existing patterns in the codebase before implementing new features
+2. **Use** path aliases instead of relative imports
+3. **Follow** the established component structure
+4. **Test** with both development and production builds when making significant changes
+5. **Run** linting and formatting before committing
+6. **Update** Prisma schema and run migrations for database changes
+7. **Consider** performance implications, especially for data-heavy analytics features
+8. **Document** complex business logic and healthcare-specific implementations
+
+## Security Considerations
+- **Environment Variables**: Never expose sensitive data in client components
+- **Authentication**: Always verify user permissions for protected routes
+- **Data Validation**: Validate all user inputs, especially healthcare data
+- **FHIR Compliance**: Ensure FHIR resources follow proper security and privacy guidelines
+- **Database**: Use parameterized queries via Prisma to prevent SQL injection
+
+## Accessibility
+- Use semantic HTML elements
+- Ensure proper ARIA labels for interactive elements
+- Test keyboard navigation
+- Maintain proper color contrast ratios
+- Provide alternative text for images and charts

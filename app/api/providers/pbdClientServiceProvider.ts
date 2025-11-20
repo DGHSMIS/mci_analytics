@@ -6,6 +6,7 @@ import DateAggregationToLineChartSerieCollection from "@utils/converters/DateAgg
 import { LatestGenderWiseStatsInterface } from "@utils/interfaces/Analytics/PublicDashboard/PublicDashboardInterfaces";
 import { AreaWiseRegistrationStatsProps } from "@utils/interfaces/DataModels/LocalityInterfaces";
 import { getBaseUrl, getUrlFromName } from "@utils/lib/apiList";
+import { formatDateToLocalISO } from "@utils/utilityFunctions";
 import { signOut } from "next-auth/react";
 
 /**
@@ -28,7 +29,7 @@ export async function fetchDivisionWiseData(
   // console.log("The form data is ", formData);
   return await getAPIResponse(
     getBaseUrl(),
-    getUrlFromName("get-areawise-count-stats")+'?dateFrom='+minDate.toISOString()+"&dateTo="+maxDate.toISOString(),
+    getUrlFromName("get-areawise-count-stats") + '?dateFrom=' + formatDateToLocalISO(minDate) + "&dateTo=" + formatDateToLocalISO(maxDate),
     "",
     "GET",
     null,
@@ -69,7 +70,7 @@ export default async function getGenderWiseStats({
       const results: LatestGenderWiseStatsInterface =
         await getAPIResponse(
           getBaseUrl(),
-          getUrlFromName("get-genderwise-count-stats")+'?dateFrom='+minDate.toISOString()+"&dateTo="+maxDate.toISOString(),
+          getUrlFromName("get-genderwise-count-stats") + '?dateFrom=' + formatDateToLocalISO(minDate) + "&dateTo=" + formatDateToLocalISO(maxDate),
           requireAuth ? sessionFromServer.accessToken || "" : "",
           "GET",
           null,
@@ -118,10 +119,10 @@ export async function fetchFacilityServiceOverview(
   console.log("Fetching Facility Service Overview");
   //Create Form Data for filtering by date and division
   console.log("The URL is");
-  console.log(getUrlFromName("get-facility-service-overview")+'?dateFrom='+minDate.toISOString()+"&dateTo="+maxDate.toISOString());
+  console.log(getUrlFromName("get-facility-service-overview") + '?dateFrom=' + formatDateToLocalISO(minDate) + "&dateTo=" + formatDateToLocalISO(maxDate));
   const response: RankListProps[] = await getAPIResponse(
     getBaseUrl(),
-    getUrlFromName("get-facility-service-overview")+'?dateFrom='+minDate.toISOString()+"&dateTo="+maxDate.toISOString(),
+    getUrlFromName("get-facility-service-overview") + '?dateFrom=' + formatDateToLocalISO(minDate) + "&dateTo=" + formatDateToLocalISO(maxDate),
     "",
     "GET",
     null,

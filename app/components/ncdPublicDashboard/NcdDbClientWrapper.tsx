@@ -8,6 +8,7 @@ import { NCDAggregatedStatsProps } from "@utils/interfaces/Analytics/NCD/NCDAggr
 import { NCDDiseasewiseStatsProps } from "@utils/interfaces/Analytics/NCD/NCDDiseasewiseStatsProps";
 import { NCDLifetimeStats } from "@utils/interfaces/Analytics/NCD/NCDLifetimeStats";
 import { getBaseUrl, getUrlFromName } from "@utils/lib/apiList";
+import { formatDateToLocalISO } from "@utils/utilityFunctions";
 import dynamic from "next/dynamic";
 import { memo } from "react";
 
@@ -74,7 +75,7 @@ function useNCDAggregatedStats(props: {
         queryKey: ["getNCDAggregatedStats", props.queryClient, props.minDate, props.maxDate, props.facility_code],
         queryFn: async () => await getAPIResponse(
             getBaseUrl(),
-            getUrlFromName("get-ncd-aggregated-stats") + `?dateFrom=${props.minDate.toISOString()}&dateTo=${props.maxDate.toISOString()}&facility_code=${props.facility_code ?? ""}`,
+            getUrlFromName("get-ncd-aggregated-stats") + `?dateFrom=${formatDateToLocalISO(props.minDate)}&dateTo=${formatDateToLocalISO(props.maxDate)}&facility_code=${props.facility_code ?? ""}`,
             "",
             "GET",
             null,
@@ -113,7 +114,7 @@ function useNCDiseasewiseStats(props: {
         queryKey: ["getNCDDiseaseStats", props.queryClient, props.minDate, props.maxDate, props.disease_code],
         queryFn: async () => await getAPIResponse(
             getBaseUrl(),
-            getUrlFromName("get-ncd-disease-stats") + `?dateFrom=${props.minDate.toISOString()}&dateTo=${props.maxDate.toISOString()}&disease_code=${props.disease_code ?? ""}`,
+            getUrlFromName("get-ncd-disease-stats") + `?dateFrom=${formatDateToLocalISO(props.minDate)}&dateTo=${formatDateToLocalISO(props.maxDate)}&disease_code=${props.disease_code ?? ""}`,
             "",
             "GET",
             null,

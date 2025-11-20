@@ -5,7 +5,7 @@ import DatePicker from "@library/form/DatePicker";
 import Label from "@library/form/Label";
 import { useStore } from "@store/store";
 import { getDaysBetweenDates, xMonthsAgo } from "@utils/utilityFunctions";
-import { addMonths } from "date-fns";
+import { addMonths, startOfDay, endOfDay } from "date-fns";
 import { delay } from "lodash";
 import React, { useEffect, useState } from "react";
 
@@ -63,44 +63,59 @@ export default function SearchDateRangeFilterv2({
     }
   }, [ncdDataMinDate, ncdDataMaxDate, renderContext]);
 
+  // Utility functions to normalize dates in local timezone
+  const normalizeStartDate = (date: Date): Date => {
+    const normalized = new Date(date);
+    normalized.setHours(0, 0, 0, 0); // Sets time to 12:00:00 AM local time
+    return normalized;
+  };
+
+  const normalizeEndDate = (date: Date): Date => {
+    const normalized = new Date(date);
+    normalized.setHours(23, 59, 59, 999); // Sets time to 11:59:59.999 PM local time
+    return normalized;
+  };
+
   // Validate and sync date logic when selecting start/end date
   const handleStartDateChange = (date: Date) => {
-    if (date > tempMaxDate) {
-      setTempMinDate(date);
-      setTempMaxDate(addMonths(date, 3));
+    const normalizedDate = normalizeStartDate(date);
+    if (normalizedDate > tempMaxDate) {
+      setTempMinDate(normalizedDate);
+      setTempMaxDate(normalizeEndDate(addMonths(normalizedDate, 3)));
     } else {
-      const days = getDaysBetweenDates(date, tempMaxDate);
+      const days = getDaysBetweenDates(normalizedDate, tempMaxDate);
       if (days > maxRange) {
-        setTempMinDate(date);
-        setTempMaxDate(addMonths(date, 3));
+        setTempMinDate(normalizedDate);
+        setTempMaxDate(normalizeEndDate(addMonths(normalizedDate, 3)));
       } else {
-        setTempMinDate(date);
+        setTempMinDate(normalizedDate);
       }
     }
   };
 
   const handleEndDateChange = (date: Date) => {
-    if (date < tempMinDate) {
-      setTempMinDate(addMonths(date, -3));
-      setTempMaxDate(date);
+    const normalizedDate = normalizeEndDate(date);
+    if (normalizedDate < tempMinDate) {
+      setTempMinDate(normalizeStartDate(addMonths(normalizedDate, -3)));
+      setTempMaxDate(normalizedDate);
     } else {
-      const days = getDaysBetweenDates(tempMinDate, date);
+      const days = getDaysBetweenDates(tempMinDate, normalizedDate);
       if (days > maxRange) {
-        setTempMaxDate(addMonths(tempMinDate, 3));
+        setTempMaxDate(normalizeEndDate(addMonths(tempMinDate, 3)));
       } else {
-        setTempMaxDate(date);
+        setTempMaxDate(normalizedDate);
       }
     }
   };
 
   return (
-    <div className="grid w-full grid-cols-1 items-start md:grid-col-1 lg:grid-cols-3 lg:gap-x-12 space-y-8 lg:space-y-0">
+    <div className="grid w-full grid-cols-1 items-start lg:grid-cols-3 gap-4 lg:gap-x-12">
       {showLabel && (
-        <Label text={label} isRequired={false} className="col-span-3" />
+        <Label text={label} isRequired={false} className="col-span-full" />
       )}
 
       {/* Date Pickers Section */}
-      <div className="col-span-2 grid grid-cols-2 gap-8">
+      <div className="col-span-1 lg:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-8">
         <DatePicker
           label="Start Date"
           className={'col-span-1'}
@@ -116,7 +131,7 @@ export default function SearchDateRangeFilterv2({
           label="End Date"
           className={'col-span-1'}
           value={tempMaxDate}
-          onChange={(date:any) => {
+          onChange={(date: any) => {
             if (date) handleEndDateChange(date as Date);
           }}
           maxDate={new Date()}
@@ -127,7 +142,7 @@ export default function SearchDateRangeFilterv2({
 
       {/* Filter Button */}
       {(renderContext === 1 || renderContext === 2 || renderContext === 3) && (
-        <div className="col-span-1 flex flex-col md:flex-grow justify-start pl-0 lg:pt-24 w-full">
+        <div className="col-span-1 flex flex-col justify-start lg:pt-24 w-full">
           <Button
             size="sm"
             className="h-36 w-full lg:w-auto"
@@ -135,18 +150,22 @@ export default function SearchDateRangeFilterv2({
             iconStrokeWidth="1.5"
             clicked={async (event) => {
               event.preventDefault();
+              // Ensure dates are normalized before saving
+              const finalMinDate = normalizeStartDate(tempMinDate);
+              const finalMaxDate = normalizeEndDate(tempMaxDate);
+
               if (renderContext === 1) {
-                setDemoGraphyMinDate(tempMinDate);
-                setDemoGraphyMaxDate(tempMaxDate);
+                setDemoGraphyMinDate(finalMinDate);
+                setDemoGraphyMaxDate(finalMaxDate);
               } else if (renderContext === 2) {
-                setServiceOverviewMinDate(tempMinDate);
-                setServiceOverviewMaxDate(tempMaxDate);
+                setServiceOverviewMinDate(finalMinDate);
+                setServiceOverviewMaxDate(finalMaxDate);
               } else if (renderContext === 3) {
-                setNCDDataMinDate(tempMinDate);
-                setNCDDataMaxDate(tempMaxDate);
+                setNCDDataMinDate(finalMinDate);
+                setNCDDataMaxDate(finalMaxDate);
               }
               if (filterByDate) {
-                delay(() => filterByDate(tempMinDate, tempMaxDate), 200);
+                delay(() => filterByDate(finalMinDate, finalMaxDate), 200);
               }
             }}
           />

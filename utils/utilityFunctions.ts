@@ -47,22 +47,22 @@ export function convertGenderToReadableFormat(genderCode: string, lang: string =
 }
 
 
-  /**
-   * Sets the date by subtracting the specified number of years from today's date and returns it in ISO format.
-   *
-   * @param {number} yearsFromToday - The number of years to subtract from today's date.
-   * @return {string} The date in ISO format.
-   */
-  export function setDateByYears(yearsFromToday: number) {
-    return formatISO(
-      set(subYears(new Date(), yearsFromToday), {
-        hours: 0,
-        minutes: 0,
-        seconds: 0,
-        milliseconds: 0,
-      })
-    );
-  }
+/**
+ * Sets the date by subtracting the specified number of years from today's date and returns it in ISO format.
+ *
+ * @param {number} yearsFromToday - The number of years to subtract from today's date.
+ * @return {string} The date in ISO format.
+ */
+export function setDateByYears(yearsFromToday: number) {
+  return formatISO(
+    set(subYears(new Date(), yearsFromToday), {
+      hours: 0,
+      minutes: 0,
+      seconds: 0,
+      milliseconds: 0,
+    })
+  );
+}
 
 /**
  * Convert Date to Readable Format
@@ -273,6 +273,26 @@ export function getDaysBetweenDates(startDate: Date, endDate: Date): number {
   const diffInMs = Math.abs(endDate.getTime() - startDate.getTime());
   return diffInMs / (1000 * 60 * 60 * 24);
 }
+
+/**
+ * Format a Date object to ISO-like string in local timezone (not UTC)
+ * This prevents timezone offset issues when sending dates to APIs
+ * @param date - The date to format
+ * @returns ISO-like string in local timezone (e.g., "2024-11-01T00:00:00.000")
+ */
+export function formatDateToLocalISO(date: Date): string {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const day = String(date.getDate()).padStart(2, '0');
+  const hours = String(date.getHours()).padStart(2, '0');
+  const minutes = String(date.getMinutes()).padStart(2, '0');
+  const seconds = String(date.getSeconds()).padStart(2, '0');
+  const milliseconds = String(date.getMilliseconds()).padStart(3, '0');
+
+  return `${year}-${month}-${day}T${hours}:${minutes}:${seconds}.${milliseconds}`;
+}
+
+
 // Calculate Age from Birth Date
 export function calculateAge(birthDate: Date, currentDate: Date): number {
   let age = currentDate.getFullYear() - birthDate.getFullYear();

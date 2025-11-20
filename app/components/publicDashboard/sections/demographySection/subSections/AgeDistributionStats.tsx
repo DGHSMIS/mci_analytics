@@ -13,7 +13,7 @@ import { divisionCodes, primaryMapGradientHue, primaryMapGradientSaturation } fr
 import { LatestGenderWiseStatsInterface } from "@utils/interfaces/Analytics/PublicDashboard/PublicDashboardInterfaces";
 import { getBaseUrl, getUrlFromName } from "@utils/lib/apiList";
 import { tokens } from "@utils/styles/ThemeToken";
-import { generateHslLightShades, getObjectKeyFromValue } from "@utils/utilityFunctions";
+import { formatDateToLocalISO, generateHslLightShades, getObjectKeyFromValue } from "@utils/utilityFunctions";
 import { size } from "lodash";
 import dynamic from "next/dynamic";
 import { memo, Suspense, useEffect, useMemo, useState } from "react";
@@ -23,13 +23,13 @@ const TooltipBarChart = dynamic(() => import("@charts/BarChart/TooltipBarChart")
 });
 
 const BarChartMCI = dynamic(
-  () =>import("@charts/BarChart/BarChartMCI"), {
-    ssr: true,
-  })
+  () => import("@charts/BarChart/BarChartMCI"), {
+  ssr: true,
+})
 const ChartViewManagerComponent = dynamic(
-  () =>import("@components/publicDashboard/sectionFilterSegment/ChartViewManagerComponent"), {
-    ssr: true,
-  })
+  () => import("@components/publicDashboard/sectionFilterSegment/ChartViewManagerComponent"), {
+  ssr: true,
+})
 export default memo(function AgeDistributionStats() {
   //Theme Stuff
   const colorsTheme: any = tokens();
@@ -60,16 +60,16 @@ export default memo(function AgeDistributionStats() {
   async function getAgeGroupStats(searchMinDate: Date, searchMaxDate: Date) {
     setErrorInAPI(false);
     setApiCallInProgress(true);
-    let queryParams = "?dateFrom="+demographyMinDate.toISOString()+"&dateTo="+demographyMaxDate.toISOString();
+    let queryParams = "?dateFrom=" + formatDateToLocalISO(demographyMinDate) + "&dateTo=" + formatDateToLocalISO(demographyMaxDate);
     console.log("queryParams", queryParams);
     if (selectedDivision.length > 0) {
-      queryParams = queryParams+"&divisionId=" + getObjectKeyFromValue(divisionCodes, selectedDivision[0]);
+      queryParams = queryParams + "&divisionId=" + getObjectKeyFromValue(divisionCodes, selectedDivision[0]);
     }
 
     try {
       const results: LatestGenderWiseStatsInterface = await getAPIResponse(
         getBaseUrl(),
-        getUrlFromName("get-agewise-count-stats")+queryParams,
+        getUrlFromName("get-agewise-count-stats") + queryParams,
         "",
         "GET",
         null,
