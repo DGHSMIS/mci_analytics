@@ -57,6 +57,8 @@ function useRegistrationStatsAPI(props: {
           openSRPCount: 0,
           aaloClincCount: 0,
           eMISCount: 0,
+          uncategorizedCount: 0,
+          validationPassed: true,
         };
         return empty;
       }
@@ -95,6 +97,8 @@ function useEncounterStatsAPI(props: {
           openSRPCount: 0,
           aaloClincCount: 0,
           eMISCount: 0,
+          uncategorizedCount: 0,
+          validationPassed: true,
         };
         return empty;
       }

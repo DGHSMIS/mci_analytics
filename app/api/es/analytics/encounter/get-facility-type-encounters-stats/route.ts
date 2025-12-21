@@ -104,6 +104,8 @@ async function getTotalEncounterStats() {
     openSRPCount: openSRPCount,
     aaloClincCount: aaloClinicCount,
     eMISCount: eMISCount,
+    uncategorizedCount: 0, // No uncategorized encounters in this legacy implementation
+    validationPassed: true, // Assume validation passes for legacy implementation
   };
   return results;
 }
