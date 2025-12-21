@@ -42,18 +42,21 @@ export async function insertOrUpdateSinglePatientToHealthRecordESIndex(healthId:
       console.log("No data found for the healthId");
       return Promise.resolve(false);
     }
-    const formattedDocsPromises = await convertCassandraPatientToESHealthRecordSummaryIndexObject(results[0]);
     
-    console.log("formattedDocsPromises Docs");
-    console.log(formattedDocsPromises);
+    // Use the same conversion logic as the batch indexing to properly parse facility IDs
+    const formattedDocArray = await convertDataToHealthRecordSummaryESFormat(results[0]);
+    
+    console.log("formattedDocArray");
+    console.log(formattedDocArray);
     
     //Add Single Row to the existing Index
-    if (formattedDocsPromises) {
-      await esBaseClient.bulk({ index: healthRecordESIndexName, body: [{ index: { _index: healthRecordESIndexName, _id: healthId } }, formattedDocsPromises] });
-      if (DebugElasticProvider) console.log(`Indexed ${formattedDocsPromises.health_id} document to the ${healthRecordESIndexName} index`);
+    if (formattedDocArray && formattedDocArray.length > 0) {
+      await esBaseClient.bulk({ index: healthRecordESIndexName, body: formattedDocArray });
+      const docData = formattedDocArray[1] as ESHealthRecordSummaryInterface;
+      if (DebugElasticProvider) console.log(`Indexed ${docData.health_id} document to the ${healthRecordESIndexName} index`);
     } else {
       if (DebugElasticProvider) {
-        console.log("No data to index");
+        console.log("No data to index - facility ID parsing may have failed");
       }
     }
 
