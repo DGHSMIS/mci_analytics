@@ -92,9 +92,11 @@ export class FacilityCategorizationService implements IFacilityCategorizationSer
   /**
    * Categorize a single facility with caching and error handling
    */
-  async categorizeSingleFacility(facilityId: string, docCount: number): Promise<FacilityCategorization> {
+  async categorizeSingleFacility(facilityId: string | number, docCount: number): Promise<FacilityCategorization> {
+    const facilityIdStr = String(facilityId);
+    
     // Check cache first
-    const cacheKey = `${facilityId}_${docCount}`;
+    const cacheKey = `${facilityIdStr}_${docCount}`;
     if (this.facilityCache.has(cacheKey)) {
       this.cacheHits++;
       return this.facilityCache.get(cacheKey)!;
@@ -103,7 +105,7 @@ export class FacilityCategorizationService implements IFacilityCategorizationSer
     this.cacheMisses++;
 
     try {
-      const categorization = await this.performCategorization(facilityId, docCount);
+      const categorization = await this.performCategorization(facilityIdStr, docCount);
       
       // Cache the result
       this.facilityCache.set(cacheKey, categorization);
@@ -112,13 +114,13 @@ export class FacilityCategorizationService implements IFacilityCategorizationSer
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : 'Unknown error';
       
-      this.logger.logCategorizationFailure(facilityId, errorMessage, {
+      this.logger.logCategorizationFailure(facilityIdStr, errorMessage, {
         docCount,
         operation: 'single_facility_categorization'
       });
       
       const errorCategorization: FacilityCategorization = {
-        facilityId,
+        facilityId: facilityIdStr,
         facilityType: 'uncategorized',
         docCount,
         error: errorMessage
@@ -134,20 +136,23 @@ export class FacilityCategorizationService implements IFacilityCategorizationSer
   /**
    * Perform the actual categorization logic
    */
-  private async performCategorization(facilityId: string, docCount: number): Promise<FacilityCategorization> {
+  private async performCategorization(facilityId: string | number, docCount: number): Promise<FacilityCategorization> {
+    // Convert facilityId to string for consistent handling
+    const facilityIdStr = String(facilityId);
+    
     // Handle special cases first
-    if (facilityId === "unknown" || !facilityId || facilityId.trim() === "") {
+    if (facilityIdStr === "unknown" || !facilityIdStr || facilityIdStr.trim() === "") {
       return {
-        facilityId: facilityId || "unknown",
+        facilityId: facilityIdStr || "unknown",
         facilityType: 'uncategorized',
         docCount
       };
     }
     
     // Check if it's an Aalo Clinic
-    if (isAaloClinic(facilityId)) {
+    if (isAaloClinic(facilityIdStr)) {
       return {
-        facilityId,
+        facilityId: facilityIdStr,
         facilityType: 'aaloClinic',
         docCount
       };
@@ -155,12 +160,12 @@ export class FacilityCategorizationService implements IFacilityCategorizationSer
     
     // Fetch facility information with error handling
     try {
-      const facilityInfo = await fetchAndCacheFacilityInfo(facilityId);
+      const facilityInfo = await fetchAndCacheFacilityInfo(facilityIdStr);
       
       if (!facilityInfo || !facilityInfo.name) {
-        this.logger.logFacilityLookupFailure(facilityId, 'Facility information not found or missing name');
+        this.logger.logFacilityLookupFailure(facilityIdStr, 'Facility information not found or missing name');
         return {
-          facilityId,
+          facilityId: facilityIdStr,
           facilityType: 'uncategorized',
           docCount,
           error: 'Facility information not found'
@@ -180,20 +185,20 @@ export class FacilityCategorizationService implements IFacilityCategorizationSer
           break;
         default:
           // Log unknown facility types for monitoring
-          this.logger.logUnknownFacilityType(facilityId, facilityInfo.name, facilityType);
+          this.logger.logUnknownFacilityType(facilityIdStr, facilityInfo.name, facilityType);
           mappedType = 'eMIS';
           break;
       }
       
       return {
-        facilityId,
+        facilityId: facilityIdStr,
         facilityType: mappedType,
         facilityName: facilityInfo.name,
         docCount
       };
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : 'Unknown facility lookup error';
-      this.logger.logFacilityLookupFailure(facilityId, errorMessage);
+      this.logger.logFacilityLookupFailure(facilityIdStr, errorMessage);
       throw error; // Re-throw to be handled by the calling function
     }
   }

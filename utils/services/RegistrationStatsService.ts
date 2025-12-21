@@ -35,8 +35,8 @@ export class RegistrationStatsService {
             facility_stats: {
               terms: {
                 field: "created_facility_id",
-                size: 50000, // Increased size to capture all facilities
-                missing: "unknown" // Handle missing facility IDs
+                size: 50000 // Increased size to capture all facilities
+                // Removed 'missing' parameter as it's causing number format exception
               }
             }
           }
@@ -65,8 +65,8 @@ export class RegistrationStatsService {
         eMISCount: 0,
         uncategorizedCount: 0,
         validationPassed: false,
-        message: 'Error retrieving registration statistics',
-        errors: [error instanceof Error ? error.message : 'Unknown error']
+        // message: 'Error retrieving registration statistics',
+        // errors: [error instanceof Error ? error.message : 'Unknown error']
       };
     }
   }
