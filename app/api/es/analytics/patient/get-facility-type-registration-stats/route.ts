@@ -37,8 +37,8 @@ export async function GET() {
       eMISCount: 0,
       uncategorizedCount: 0,
       validationPassed: false,
-      // message: 'API error occurred',
-      // errors: [error instanceof Error ? error.message : 'Unknown API error']
+      message: 'API error occurred',
+      errors: [error instanceof Error ? error.message : 'Unknown API error']
     }, {
       status: 500,
       headers: getResponseHeaders(600, true, "*", "GET, OPTIONS", "Content-Type")

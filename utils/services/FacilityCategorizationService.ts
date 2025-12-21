@@ -140,12 +140,13 @@ export class FacilityCategorizationService implements IFacilityCategorizationSer
     // Convert facilityId to string for consistent handling
     const facilityIdStr = String(facilityId);
     
-    // Handle special cases first
-    if (facilityIdStr === "unknown" || !facilityIdStr || facilityIdStr.trim() === "") {
+    // Handle special cases first - including records with missing facility_id
+    if (facilityIdStr === "unknown" || !facilityIdStr || facilityIdStr.trim() === "" || facilityIdStr === "null" || facilityIdStr === "undefined") {
       return {
         facilityId: facilityIdStr || "unknown",
         facilityType: 'uncategorized',
-        docCount
+        docCount,
+        error: 'Missing or invalid facility ID'
       };
     }
     

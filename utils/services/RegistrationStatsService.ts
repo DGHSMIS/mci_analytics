@@ -26,6 +26,12 @@ export class RegistrationStatsService {
    */
   async getTotalRegistrationStats(): Promise<FacilityTypeWiseStatsInterface> {
     try {
+      // Get the true total count from the index
+      const totalCountResponse = await esBaseClient.count({
+        index: healthRecordESIndexName
+      });
+      const actualTotalCount = totalCountResponse.body.count;
+
       // Single aggregation query with larger size to capture all facilities
       const facilityAggregation = await esBaseClient.search({
         index: healthRecordESIndexName,
@@ -36,7 +42,7 @@ export class RegistrationStatsService {
               terms: {
                 field: "created_facility_id",
                 size: 50000 // Increased size to capture all facilities
-                // Removed 'missing' parameter as it's causing number format exception
+                // Removed 'missing' parameter as it causes number format exception for numeric fields
               }
             }
           }
@@ -46,15 +52,20 @@ export class RegistrationStatsService {
       const buckets: FacilityBucket[] = facilityAggregation.body.aggregations.facility_stats.buckets;
       const totalFromAggregation = buckets.reduce((sum, bucket) => sum + bucket.doc_count, 0);
       
+      // Log discrepancy if any
+      if (totalFromAggregation !== actualTotalCount) {
+        console.warn(`[RegistrationStats] Count discrepancy detected: Aggregation=${totalFromAggregation}, Index Total=${actualTotalCount}, Difference=${actualTotalCount - totalFromAggregation}`);
+      }
+      
       // Process facilities using categorization service
       const categorizedFacilities = await this.categorizationService.categorizeFacilities(buckets);
       
-      // Calculate counts and validate
-      const stats = this.calculateStatsFromCategorization(categorizedFacilities, totalFromAggregation);
+      // Calculate counts and validate using the actual total count
+      const stats = this.calculateStatsFromCategorization(categorizedFacilities, actualTotalCount);
       
       return stats;
     } catch (error) {
-      console.error('Error in getTotalRegistrationStats:', error);
+      console.error('[RegistrationStats] Error in getTotalRegistrationStats:', error);
       
       // Return error response with zero counts
       return {
@@ -65,8 +76,8 @@ export class RegistrationStatsService {
         eMISCount: 0,
         uncategorizedCount: 0,
         validationPassed: false,
-        // message: 'Error retrieving registration statistics',
-        // errors: [error instanceof Error ? error.message : 'Unknown error']
+        message: 'Error retrieving registration statistics',
+        errors: [error instanceof Error ? error.message : 'Unknown error']
       };
     }
   }
@@ -76,7 +87,7 @@ export class RegistrationStatsService {
    */
   private calculateStatsFromCategorization(
     categorizedFacilities: FacilityCategorization[], 
-    expectedTotal: number
+    actualTotalCount: number
   ): FacilityTypeWiseStatsInterface {
     const startTime = Date.now();
     
@@ -118,20 +129,33 @@ export class RegistrationStatsService {
       }
     });
 
-    // Validate counts
+    // Calculate the sum of categorized counts
     const calculatedTotal = categoryStats.openMRSCount + categoryStats.openSRPCount + 
                            categoryStats.aaloClinicCount + categoryStats.eMISCount + 
                            categoryStats.uncategorizedCount;
     
-    const validationPassed = calculatedTotal === expectedTotal && calculatedTotal === categoryStats.totalProcessed;
+    // Check if there's a discrepancy between processed and actual total
+    const discrepancy = actualTotalCount - categoryStats.totalProcessed;
+    if (discrepancy > 0) {
+      // Add the missing records to uncategorized count
+      categoryStats.uncategorizedCount += discrepancy;
+      console.warn(`[RegistrationStats] Added ${discrepancy} missing records to uncategorized count`);
+    }
+    
+    // Recalculate total after adjustment
+    const finalCalculatedTotal = categoryStats.openMRSCount + categoryStats.openSRPCount + 
+                                categoryStats.aaloClinicCount + categoryStats.eMISCount + 
+                                categoryStats.uncategorizedCount;
+    
+    const validationPassed = finalCalculatedTotal === actualTotalCount;
     const processingTime = Date.now() - startTime;
     
     // Record validation metrics
     const validationResult: ValidationResult = {
       passed: validationPassed,
-      expectedTotal,
-      calculatedTotal,
-      discrepancy: calculatedTotal - expectedTotal,
+      expectedTotal: actualTotalCount,
+      calculatedTotal: finalCalculatedTotal,
+      discrepancy: finalCalculatedTotal - actualTotalCount,
       timestamp: new Date().toISOString(),
       processingTime,
       errorDetails: categoryStats.errors.length > 0 ? categoryStats.errors : undefined
@@ -140,10 +164,10 @@ export class RegistrationStatsService {
     this.validationMetrics.recordValidation(validationResult);
     
     // Log validation results
-    this.logValidationResults(categoryStats, expectedTotal, calculatedTotal);
+    this.logValidationResults(categoryStats, actualTotalCount, finalCalculatedTotal, discrepancy);
 
     return {
-      totalCount: expectedTotal,
+      totalCount: actualTotalCount, // Use the actual total from the index
       openMRSCount: categoryStats.openMRSCount,
       openSRPCount: categoryStats.openSRPCount,
       aaloClincCount: categoryStats.aaloClinicCount,
@@ -158,11 +182,15 @@ export class RegistrationStatsService {
   /**
    * Log validation results for debugging and monitoring
    */
-  private logValidationResults(stats: CategoryStats, expectedTotal: number, calculatedTotal: number): void {
+  private logValidationResults(stats: CategoryStats, expectedTotal: number, calculatedTotal: number, discrepancy?: number): void {
     if (calculatedTotal !== expectedTotal) {
       this.logger.logValidationWarning(calculatedTotal, expectedTotal, stats);
     } else {
       this.logger.logSuccessfulCalculation(expectedTotal, Object.keys(stats).length - 2, stats.errors.length);
+    }
+    
+    if (discrepancy && discrepancy > 0) {
+      console.info(`[RegistrationStats] Handled ${discrepancy} records with missing facility IDs by adding to uncategorized count`);
     }
   }
 
