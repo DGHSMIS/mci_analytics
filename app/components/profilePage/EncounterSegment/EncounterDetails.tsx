@@ -43,7 +43,7 @@ const EncounterDetails = ({ encounterId, hid }: EncounterDetailsProps) => {
 
   const { setSelectedEncounter, setShowEncounterData, selectedEncounter, patient, patientId } = useLoggedInStore();
 
-  if(!selectedEncounter || !patientId) return <></>;
+  if (!selectedEncounter || !patientId) return <></>;
   /* @ts-ignore */
   const { data, status } = useQuery({
     queryKey: ["patientEncounter", patientId, selectedEncounter?.id],
@@ -82,45 +82,45 @@ const EncounterDetails = ({ encounterId, hid }: EncounterDetailsProps) => {
 
 
   return (
-      <div className="h-full bg-white w-full">
-        <ModalBlank
-          containerClassName={"bg-white"}
-          className={"!bg-white space-y-8 h-full w-full md:h-[90vh] md:w-[90vw] fixed overflow-y-hidden"}
-          onClickOutToClose={false}
-          modalSize={"full"}
-          modalAlign={"center"}
-          showCrossButton={true}
-          onCloseModal={() => {
-            setShowEncounterData(false);
-            setSelectedEncounter(null);
-          }}
-        >
+    <div className="h-full bg-white w-full">
+      <ModalBlank
+        containerClassName={"bg-white"}
+        className={"!bg-white space-y-8 h-full w-full md:h-[90vh] md:w-[90vw] fixed overflow-y-auto"}
+        onClickOutToClose={false}
+        modalSize={"full"}
+        modalAlign={"center"}
+        showCrossButton={true}
+        onCloseModal={() => {
+          setShowEncounterData(false);
+          setSelectedEncounter(null);
+        }}
+      >
 
-          {status === "error" && <Alert
-            iconName="alert-triangle"
-            className="w-full"
-            variant="warning"
-            isIconClicked={() => null}
-            showBtn={false}
-            title="Ops! Error Fetching Encounter Data"
-            body="We have encountered an error while fetching the encounter data. Please try again later or contact system administrator."
-            isBtnGhost={true}
-            hideCross={true}
-          />}
+        {status === "error" && <Alert
+          iconName="alert-triangle"
+          className="w-full"
+          variant="warning"
+          isIconClicked={() => null}
+          showBtn={false}
+          title="Ops! Error Fetching Encounter Data"
+          body="We have encountered an error while fetching the encounter data. Please try again later or contact system administrator."
+          isBtnGhost={true}
+          hideCross={true}
+        />}
 
-          {status ==="pending" && <MCISpinner classNames="max-h-[100vh] min-h-[80vh] h-full w-full flex align-center justify-center" />}
+        {status === "pending" && <MCISpinner classNames="max-h-[100vh] min-h-[80vh] h-full w-full flex align-center justify-center" />}
 
-          {status==="success"  &&
-            <div className={"w-full h-full min-h-[80vh]"}>
-                <FHIRData
-                  key={selectedEncounter.id}
-                  json={fhirBundle}
-                  encounter={selectedEncounter}
-                />
-            </div>
-          }
-        </ModalBlank>
-      </div>
+        {status === "success" &&
+          <div className={"w-full h-full min-h-[80vh]"}>
+            <FHIRData
+              key={selectedEncounter.id}
+              json={fhirBundle}
+              encounter={selectedEncounter}
+            />
+          </div>
+        }
+      </ModalBlank>
+    </div>
   );
 };
 
