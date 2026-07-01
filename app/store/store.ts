@@ -23,6 +23,9 @@ export interface StoreStates {
   serviceOverviewApiCallInProgress: boolean;
   renderType: "RSC" | "SSR" | "Client" | undefined;
   eAppointmentCount: number | null;
+  upazilaFilterType: string;
+  upazilaSelectedMonth: string;
+  upazilaSelectedYear: string;
 }
 
 export const initialStoreStates: StoreStates = {
@@ -44,6 +47,9 @@ export const initialStoreStates: StoreStates = {
   serviceOverviewApiCallInProgress: false,
   renderType: "RSC",
   eAppointmentCount: null,
+  upazilaFilterType: "all_time",
+  upazilaSelectedMonth: "",
+  upazilaSelectedYear: "",
 };
 
 export interface StoreActions {
@@ -66,6 +72,9 @@ export interface StoreActions {
   setServiceOverviewMinDate: (date: Date) => void;
   setServiceOverviewMaxDate: (date: Date) => void;
   setEAppointmentCount: (count: number | null) => void;
+  setUpazilaFilterType: (filter: string) => void;
+  setUpazilaSelectedMonth: (month: string) => void;
+  setUpazilaSelectedYear: (year: string) => void;
 }
 // Primary store without selectors
 export const useStore = create<StoreStates & StoreActions>(
@@ -96,6 +105,9 @@ export const useStore = create<StoreStates & StoreActions>(
       set({ selectedDivision: division }),
     resetSelectedDivision: () => set({ selectedDivision: [] }),
     setRenderType: (type) => set({ renderType: type }),
-    setEAppointmentCount: (count) => set({ eAppointmentCount: count })
+    setEAppointmentCount: (count) => set({ eAppointmentCount: count }),
+    setUpazilaFilterType: (filter) => set({ upazilaFilterType: filter }),
+    setUpazilaSelectedMonth: (month) => set({ upazilaSelectedMonth: month }),
+    setUpazilaSelectedYear: (year) => set({ upazilaSelectedYear: year })
   })
 );

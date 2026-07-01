@@ -151,26 +151,7 @@ function useDivisionWiseDataAPI(props: {
 }
 
 
-function useUpazilaWiseDataAPI(props: {
-  queryClient: QueryClient;
-  minDate: Date;
-  maxDate: Date;
-}) {
 
-  const normalizeDate = (date:Date) => {
-    const d = new Date(date);
-    d.setHours(0, 0, 0, 0); // Set time to 00:00:00.000
-    return d.toISOString(); // Return as ISO string
-  };
-  /* @ts-ignore */
-  return useSuspenseQuery({
-    queryKey: ["getUpazilaWiseData", props.queryClient, normalizeDate(props.minDate), normalizeDate(props.maxDate)],
-    queryFn: async () => await fetchUpazilaWiseData(
-      props.minDate,
-      props.maxDate,
-    ),
-  }, props.queryClient);
-}
 
 
 interface PublicDashboardProps {
@@ -236,12 +217,7 @@ export default memo(function PublicDbClientWrapper({
     regStatsData: regStatsData,
   });
 
-  // Step 4 - Get Upazila wise data
-  const { data: upazilaWiseData, isError: upazilaWiseError, isLoading: upazilaWiseLoading } = useUpazilaWiseDataAPI({
-    queryClient,
-    minDate: demographyMinDate,
-    maxDate: demographyMaxDate,
-  });
+
 
   console.log("The registration stats from Page RSC");
 
@@ -287,9 +263,6 @@ export default memo(function PublicDbClientWrapper({
       {/*Section 5 - Upazila-wise HID Breakdown*/}
       <UpazilaRegistrationStats
         key={5}
-        data={upazilaWiseData}
-        isLoading={upazilaWiseLoading}
-        isError={upazilaWiseError}
       />
     </>
   );
