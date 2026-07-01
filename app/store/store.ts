@@ -21,7 +21,8 @@ export interface StoreStates {
   serviceOverviewMinDate: Date;
   serviceOverviewMaxDate: Date;
   serviceOverviewApiCallInProgress: boolean;
-  renderType: "RSC" | "SSR" | "Client" | undefined
+  renderType: "RSC" | "SSR" | "Client" | undefined;
+  eAppointmentCount: number | null;
 }
 
 export const initialStoreStates: StoreStates = {
@@ -41,7 +42,8 @@ export const initialStoreStates: StoreStates = {
   serviceOverviewMinDate: xDaysAgo(6),
   serviceOverviewMaxDate: xDaysAgo(0),
   serviceOverviewApiCallInProgress: false,
-  renderType: "RSC"
+  renderType: "RSC",
+  eAppointmentCount: null,
 };
 
 export interface StoreActions {
@@ -63,7 +65,7 @@ export interface StoreActions {
   setRenderType: (type: "RSC" | "SSR" | "Client") => void;
   setServiceOverviewMinDate: (date: Date) => void;
   setServiceOverviewMaxDate: (date: Date) => void;
-
+  setEAppointmentCount: (count: number | null) => void;
 }
 // Primary store without selectors
 export const useStore = create<StoreStates & StoreActions>(
@@ -93,6 +95,7 @@ export const useStore = create<StoreStates & StoreActions>(
     setSelectedDivision: (division: string[]) =>
       set({ selectedDivision: division }),
     resetSelectedDivision: () => set({ selectedDivision: [] }),
-    setRenderType: (type) => set({ renderType: type })
+    setRenderType: (type) => set({ renderType: type }),
+    setEAppointmentCount: (count) => set({ eAppointmentCount: count })
   })
 );

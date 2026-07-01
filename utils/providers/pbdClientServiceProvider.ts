@@ -132,3 +132,22 @@ export async function fetchFacilityServiceOverview(
 
   return response;
 }
+
+/**
+ * Retrieves upazilawise registration statistics within a given date range.
+ */
+export async function fetchUpazilaWiseData(
+  minDate: Date,
+  maxDate: Date
+): Promise<any> {
+  console.log("Fetching Upazilawise Registration Stats");
+  return await getAPIResponse(
+    getBaseUrl(),
+    getUrlFromName("get-upazilawise-registration-stats") + '?dateFrom=' + formatDateToLocalISO(minDate) + "&dateTo=" + formatDateToLocalISO(maxDate),
+    "",
+    "GET",
+    null,
+    false,
+    getRevalidationTime()
+  );
+}

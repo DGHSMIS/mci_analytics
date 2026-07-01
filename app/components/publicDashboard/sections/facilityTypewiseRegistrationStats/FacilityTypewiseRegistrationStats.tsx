@@ -13,6 +13,8 @@ export interface BaseDashboardStatsProps {
   card3Title: string;
   card4Title: string;
   card5Title: string;
+  card6Title?: string;
+  card6Value?: number | string | null;
   commonCardProps?: CardIndicatorsProps;
 }
 
@@ -35,10 +37,12 @@ const FacilityTypewiseRegistrationStats = memo(function FacilityTypewiseRegistra
   sectionHeader,
   countStats,
   card1Title,
-card2Title,
-card3Title,
-card4Title,
-card5Title,
+  card2Title,
+  card3Title,
+  card4Title,
+  card5Title,
+  card6Title,
+  card6Value,
   commonCardProps = DashboardCardCommonProps,
 }: BaseDashboardStatsProps) {
   return (
@@ -48,7 +52,7 @@ card5Title,
           {sectionHeader}
         </h3>
       )}
-      <div className="grid grid-cols-2  lg:grid-cols-5 gap-16 lg:space-x-0 lg:space-y-0">
+      <div className={`grid grid-cols-2 gap-16 lg:space-x-0 lg:space-y-0 ${card6Title ? "lg:grid-cols-6" : "lg:grid-cols-5"}`}>
         <CardIndicators
           {...commonCardProps}
           key={0}
@@ -116,6 +120,20 @@ card5Title,
               : ""
           }
         />
+        {card6Title && card6Value !== undefined && (
+          <CardIndicators
+            {...commonCardProps}
+            key={5}
+            iconName="bar-chart-square-plus"
+            title={card6Title}
+            className='col-span-1 lg:col-span-1'
+            subTitle={
+              card6Value !== null
+                ? Number(card6Value).toLocaleString("en-IN")
+                : ""
+            }
+          />
+        )}
       </div>
     </div>
   );

@@ -5,10 +5,10 @@ import { useStore } from "@store/store";
 import { QueryClient, useQueryClient, useSuspenseQuery } from "@tanstack/react-query";
 import { FacilityTypeWiseStatsInterface } from "@utils/interfaces/Analytics/PublicDashboard/FacilityTypeWiseStatsInterface";
 import { getBaseUrl, getUrlFromName } from "@utils/lib/apiList";
-import { fetchDivisionWiseData } from "@utils/providers/pbdClientServiceProvider";
+import { fetchDivisionWiseData, fetchUpazilaWiseData } from "@utils/providers/pbdClientServiceProvider";
 import { xDaysAgo } from "@utils/utilityFunctions";
 import dynamic from "next/dynamic";
-import { memo } from "react";
+import { memo, useEffect } from "react";
 import SkeletonFacilityTypewiseRegistrationStats from "./sections/facilityTypewiseRegistrationStats/SkeletonFacilityTypewiseRegistrationStats";
 
 const FacilityTypewiseRegistrationStats = dynamic(() => import("@components/publicDashboard/sections/facilityTypewiseRegistrationStats/FacilityTypewiseRegistrationStats"), {
@@ -24,6 +24,11 @@ const DemographyMain = dynamic(() => import("@components/publicDashboard/section
 const FacilityServiceOverview = dynamic(() => import("@components/publicDashboard/sections/facilityServiceOverview/FacilityServiceOverview"), {
   ssr: false,
   loading: () => (<SectionSkeletonLoader renderContext={2} hideFilterDD={true} />)
+});
+
+const UpazilaRegistrationStats = dynamic(() => import("@components/publicDashboard/sections/demographySection/subSections/UpazilaRegistrationStats"), {
+  ssr: false,
+  loading: () => (<SectionSkeletonLoader renderContext={1} hideFilterDD={true} />)
 });
 
 
@@ -146,6 +151,28 @@ function useDivisionWiseDataAPI(props: {
 }
 
 
+function useUpazilaWiseDataAPI(props: {
+  queryClient: QueryClient;
+  minDate: Date;
+  maxDate: Date;
+}) {
+
+  const normalizeDate = (date:Date) => {
+    const d = new Date(date);
+    d.setHours(0, 0, 0, 0); // Set time to 00:00:00.000
+    return d.toISOString(); // Return as ISO string
+  };
+  /* @ts-ignore */
+  return useSuspenseQuery({
+    queryKey: ["getUpazilaWiseData", props.queryClient, normalizeDate(props.minDate), normalizeDate(props.maxDate)],
+    queryFn: async () => await fetchUpazilaWiseData(
+      props.minDate,
+      props.maxDate,
+    ),
+  }, props.queryClient);
+}
+
+
 interface PublicDashboardProps {
   section1Title: string;
   section2Title: string;
@@ -163,6 +190,8 @@ export default memo(function PublicDbClientWrapper({
   const {
     demographyMinDate,
     demographyMaxDate,
+    eAppointmentCount,
+    setEAppointmentCount,
   } = useStore();
 
 
@@ -176,6 +205,21 @@ export default memo(function PublicDbClientWrapper({
       refetchOnReconnect: true,
     },
   });
+
+  useEffect(() => {
+    async function getEAppointmentStats() {
+      try {
+        const response = await fetch("https://eappointment.dghs.gov.bd/api/v1/stats");
+        const json = await response.json();
+        if (json && typeof json.patients_all === "number") {
+          setEAppointmentCount(json.patients_all);
+        }
+      } catch (err) {
+        console.error("Failed to fetch eAppointment stats:", err);
+      }
+    }
+    getEAppointmentStats();
+  }, [setEAppointmentCount]);
 
 
   // Step 1 - Getting the data for the Dashboard page, directly on the server site
@@ -192,6 +236,13 @@ export default memo(function PublicDbClientWrapper({
     regStatsData: regStatsData,
   });
 
+  // Step 4 - Get Upazila wise data
+  const { data: upazilaWiseData, isError: upazilaWiseError, isLoading: upazilaWiseLoading } = useUpazilaWiseDataAPI({
+    queryClient,
+    minDate: demographyMinDate,
+    maxDate: demographyMaxDate,
+  });
+
   console.log("The registration stats from Page RSC");
 
   return (
@@ -205,6 +256,8 @@ export default memo(function PublicDbClientWrapper({
         card3Title={"VaxEPI"}
         card4Title={"Aalo Clinic"}
         card5Title={"eMIS"}
+        card6Title={"eAppointment"}
+        card6Value={eAppointmentCount}
       />
 
       {/*Section 2 - Lifetime Clinical Data Collection Stats*/}
@@ -229,6 +282,14 @@ export default memo(function PublicDbClientWrapper({
         key={3}
         sectionHeader={section4Title}
         divisionWiseRegistrationCount={dvWiseData.divisionWiseData}
+      />
+
+      {/*Section 5 - Upazila-wise HID Breakdown*/}
+      <UpazilaRegistrationStats
+        key={5}
+        data={upazilaWiseData}
+        isLoading={upazilaWiseLoading}
+        isError={upazilaWiseError}
       />
     </>
   );

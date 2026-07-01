@@ -20,6 +20,10 @@ const apiList: ApiUrlInterface[] = [
     urlPath: "/api/es/analytics/patient/get-areawise-registration-stats",
   },
   {
+    name: "get-upazilawise-registration-stats",
+    urlPath: "/api/es/analytics/patient/get-upazilawise-registration-stats",
+  },
+  {
     name: "get-genderwise-count-stats",
     urlPath: "/api/es/analytics/patient/get-genderwise-stats",
   },
