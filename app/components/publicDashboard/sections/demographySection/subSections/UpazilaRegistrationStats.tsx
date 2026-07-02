@@ -6,6 +6,7 @@ import { useQuery } from "@tanstack/react-query";
 import { fetchUpazilaWiseData } from "@utils/providers/pbdClientServiceProvider";
 import { MCISpinner } from "@components/MCISpinner";
 import Alert from "@library/Alert";
+import { utils, writeFile } from "xlsx";
 
 interface UnionStat {
   unionCode: string;
@@ -131,6 +132,49 @@ export default function UpazilaRegistrationStats() {
     }).filter((d) => d.upazilas.length > 0);
   }, [selectedDistricts, upazilaSearchQuery]);
 
+  const handleExportExcel = () => {
+    if (!data || data.length === 0) return;
+
+    // Map each upazila to a flat row with district, upazila, and count. Exclude union data.
+    const exportRows = data.flatMap((district) =>
+      district.upazilas.map((upazila) => ({
+        District: district.districtName,
+        Upazila: upazila.upazilaName,
+        "Total HID": upazila.count,
+      }))
+    );
+
+    const workbook = utils.book_new();
+    const worksheet = utils.json_to_sheet(exportRows);
+
+    // Auto-fit column widths for a clean look
+    const maxDistrictLen = Math.max(...exportRows.map((r) => r.District.length), 10);
+    const maxUpazilaLen = Math.max(...exportRows.map((r) => r.Upazila.length), 10);
+    worksheet["!cols"] = [
+      { wch: maxDistrictLen + 5 },
+      { wch: maxUpazilaLen + 5 },
+      { wch: 15 },
+    ];
+
+    utils.book_append_sheet(workbook, worksheet, "HID Breakdown");
+
+    // Format the filename using current time range filter
+    let filterLabel = "All_Time";
+    if (upazilaFilterType === "last_7_days") {
+      filterLabel = "Last_7_Days";
+    } else if (upazilaFilterType === "last_month") {
+      filterLabel = "Last_Month";
+    } else if (upazilaFilterType === "by_month") {
+      const monthName = MONTHS.find((m) => m.value === upazilaSelectedMonth)?.name || upazilaSelectedMonth;
+      filterLabel = `${monthName}_${upazilaSelectedYear}`;
+    } else if (upazilaFilterType === "by_year") {
+      filterLabel = upazilaSelectedYear;
+    }
+
+    const filename = `HID_Breakdown_District_Upazila_${filterLabel}.xlsx`;
+    writeFile(workbook, filename, { bookType: "xlsx" });
+  };
+
   return (
     <div className="w-full space-y-24 rounded-12 border border-slate-200 bg-white p-24 shadow-sm dark:border-slate-800 dark:bg-slate-900">
       {/* Top Header & Range Filters */}
@@ -207,6 +251,24 @@ export default function UpazilaRegistrationStats() {
               </select>
             </div>
           )}
+
+          {/* Export Button */}
+          <div className="flex flex-col">
+            <span className="text-11 uppercase tracking-wider font-semibold mb-4 opacity-0 select-none">
+              Export
+            </span>
+            <button
+              onClick={handleExportExcel}
+              disabled={isLoading || isError || !data || data.length === 0}
+              className="flex items-center gap-8 px-16 py-8 text-14 font-semibold text-white bg-green-600 hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed rounded-8 transition-all shadow-sm"
+              title="Export filtered District & Upazila HID counts to Excel"
+            >
+              <svg className="w-16 h-16 fill-current" viewBox="0 0 24 24">
+                <path d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z" />
+              </svg>
+              Export Excel
+            </button>
+          </div>
         </div>
       </div>
 
