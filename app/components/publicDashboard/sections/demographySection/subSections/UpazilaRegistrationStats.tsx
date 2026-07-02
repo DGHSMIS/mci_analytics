@@ -60,6 +60,7 @@ export default function UpazilaRegistrationStats() {
   const [selectedUpazilaCode, setSelectedUpazilaCode] = useState<string | null>(null);
   const [districtSearchQuery, setDistrictSearchQuery] = useState("");
   const [upazilaSearchQuery, setUpazilaSearchQuery] = useState("");
+  const [exportState, setExportState] = useState<"idle" | "exporting" | "success">("idle");
 
   // Query API using React Query and Zustand states
   const { data = [], isLoading, isError } = useQuery<DistrictStat[]>({
@@ -134,45 +135,55 @@ export default function UpazilaRegistrationStats() {
 
   const handleExportExcel = () => {
     if (!data || data.length === 0) return;
+    setExportState("exporting");
 
-    // Map each upazila to a flat row with district, upazila, and count. Exclude union data.
-    const exportRows = data.flatMap((district) =>
-      district.upazilas.map((upazila) => ({
-        District: district.districtName,
-        Upazila: upazila.upazilaName,
-        "Total HID": upazila.count,
-      }))
-    );
+    setTimeout(() => {
+      try {
+        // Map each upazila to a flat row with district, upazila, and count. Exclude union data.
+        const exportRows = data.flatMap((district) =>
+          district.upazilas.map((upazila) => ({
+            District: district.districtName,
+            Upazila: upazila.upazilaName,
+            "Total HID": upazila.count,
+          }))
+        );
 
-    const workbook = utils.book_new();
-    const worksheet = utils.json_to_sheet(exportRows);
+        const workbook = utils.book_new();
+        const worksheet = utils.json_to_sheet(exportRows);
 
-    // Auto-fit column widths for a clean look
-    const maxDistrictLen = Math.max(...exportRows.map((r) => r.District.length), 10);
-    const maxUpazilaLen = Math.max(...exportRows.map((r) => r.Upazila.length), 10);
-    worksheet["!cols"] = [
-      { wch: maxDistrictLen + 5 },
-      { wch: maxUpazilaLen + 5 },
-      { wch: 15 },
-    ];
+        // Auto-fit column widths for a clean look
+        const maxDistrictLen = Math.max(...exportRows.map((r) => r.District.length), 10);
+        const maxUpazilaLen = Math.max(...exportRows.map((r) => r.Upazila.length), 10);
+        worksheet["!cols"] = [
+          { wch: maxDistrictLen + 5 },
+          { wch: maxUpazilaLen + 5 },
+          { wch: 15 },
+        ];
 
-    utils.book_append_sheet(workbook, worksheet, "HID Breakdown");
+        utils.book_append_sheet(workbook, worksheet, "HID Breakdown");
 
-    // Format the filename using current time range filter
-    let filterLabel = "All_Time";
-    if (upazilaFilterType === "last_7_days") {
-      filterLabel = "Last_7_Days";
-    } else if (upazilaFilterType === "last_month") {
-      filterLabel = "Last_Month";
-    } else if (upazilaFilterType === "by_month") {
-      const monthName = MONTHS.find((m) => m.value === upazilaSelectedMonth)?.name || upazilaSelectedMonth;
-      filterLabel = `${monthName}_${upazilaSelectedYear}`;
-    } else if (upazilaFilterType === "by_year") {
-      filterLabel = upazilaSelectedYear;
-    }
+        // Format the filename using current time range filter
+        let filterLabel = "All_Time";
+        if (upazilaFilterType === "last_7_days") {
+          filterLabel = "Last_7_Days";
+        } else if (upazilaFilterType === "last_month") {
+          filterLabel = "Last_Month";
+        } else if (upazilaFilterType === "by_month") {
+          const monthName = MONTHS.find((m) => m.value === upazilaSelectedMonth)?.name || upazilaSelectedMonth;
+          filterLabel = `${monthName}_${upazilaSelectedYear}`;
+        } else if (upazilaFilterType === "by_year") {
+          filterLabel = upazilaSelectedYear;
+        }
 
-    const filename = `HID_Breakdown_District_Upazila_${filterLabel}.xlsx`;
-    writeFile(workbook, filename, { bookType: "xlsx" });
+        const filename = `HID_Breakdown_District_Upazila_${filterLabel}.xlsx`;
+        writeFile(workbook, filename, { bookType: "xlsx" });
+        setExportState("success");
+        setTimeout(() => setExportState("idle"), 2000);
+      } catch (err) {
+        console.error(err);
+        setExportState("idle");
+      }
+    }, 600);
   };
 
   return (
@@ -259,14 +270,39 @@ export default function UpazilaRegistrationStats() {
             </span>
             <button
               onClick={handleExportExcel}
-              disabled={isLoading || isError || !data || data.length === 0}
-              className="flex items-center gap-8 px-16 py-8 text-14 font-semibold text-white bg-green-600 hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed rounded-8 transition-all shadow-sm"
+              disabled={isLoading || isError || !data || data.length === 0 || exportState !== "idle"}
+              className={`flex items-center gap-8 px-16 py-8 text-14 font-semibold text-white rounded-8 transition-all duration-300 transform hover:scale-105 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none shadow-md ${
+                exportState === "success"
+                  ? "bg-gradient-to-r from-emerald-500 to-green-500 shadow-green-200 dark:shadow-none"
+                  : "bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 shadow-teal-100 dark:shadow-none"
+              }`}
               title="Export filtered District & Upazila HID counts to Excel"
             >
-              <svg className="w-16 h-16 fill-current" viewBox="0 0 24 24">
-                <path d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z" />
-              </svg>
-              Export Excel
+              {exportState === "idle" && (
+                <>
+                  <svg className="w-16 h-16 fill-current animate-pulse" viewBox="0 0 24 24">
+                    <path d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z" />
+                  </svg>
+                  Export Excel
+                </>
+              )}
+              {exportState === "exporting" && (
+                <>
+                  <svg className="w-16 h-16 animate-spin text-white" fill="none" viewBox="0 0 24 24">
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+                  </svg>
+                  Exporting...
+                </>
+              )}
+              {exportState === "success" && (
+                <>
+                  <svg className="w-16 h-16 fill-current" viewBox="0 0 24 24">
+                    <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z" />
+                  </svg>
+                  Exported!
+                </>
+              )}
             </button>
           </div>
         </div>
@@ -299,12 +335,12 @@ export default function UpazilaRegistrationStats() {
                   placeholder="Search District..."
                   value={districtSearchQuery}
                   onChange={(e) => setDistrictSearchQuery(e.target.value)}
-                  className="w-full px-16 py-8 text-14 rounded-8 border border-slate-200 bg-slate-50 focus:border-primary focus:bg-white focus:outline-none dark:border-slate-700 dark:bg-slate-800 dark:focus:border-primary text-slate-800 dark:text-slate-100"
+                  className="w-full px-16 py-8 text-14 rounded-8 border border-slate-200 bg-slate-50 focus:border-primary focus:bg-white focus:outline-none dark:border-slate-700 dark:bg-slate-800 dark:focus:border-primary text-slate-800 dark:text-slate-100 transition-all duration-300 focus:ring-2 focus:ring-primary/10"
                 />
                 {districtSearchQuery && (
                   <button
                     onClick={() => setDistrictSearchQuery("")}
-                    className="absolute right-12 top-10 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200"
+                    className="absolute right-12 top-10 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-all hover:scale-110 active:scale-90"
                   >
                     &times;
                   </button>
@@ -316,7 +352,7 @@ export default function UpazilaRegistrationStats() {
                     setSelectedDistrictCodes([]);
                     setSelectedUpazilaCode(null);
                   }}
-                  className="px-12 py-8 text-12 font-semibold text-danger hover:bg-red-50 dark:hover:bg-red-950/20 rounded-8 transition-all border border-red-200 dark:border-red-900"
+                  className="px-12 py-8 text-12 font-semibold text-danger hover:bg-red-50 dark:hover:bg-red-950/20 rounded-8 transition-all duration-300 transform hover:scale-105 active:scale-95 border border-red-200 dark:border-red-900 shadow-sm"
                 >
                   Clear ({selectedDistrictCodes.length})
                 </button>
@@ -338,10 +374,10 @@ export default function UpazilaRegistrationStats() {
                       onClick={() => {
                         toggleDistrictCode(district.districtCode);
                       }}
-                      className={`w-full flex items-center justify-between p-12 rounded-8 text-left transition-all ${
+                      className={`w-full flex items-center justify-between p-12 rounded-8 text-left transition-all duration-300 transform hover:-translate-x-0.5 hover:shadow-sm ${
                         isSelected
-                          ? "bg-slate-100 dark:bg-slate-800 border-l-4 border-l-primary text-slate-900 dark:text-slate-100 font-semibold"
-                          : "hover:bg-slate-50 dark:hover:bg-slate-800/50 text-slate-700 dark:text-slate-300"
+                          ? "bg-gradient-to-r from-slate-100 to-white dark:from-slate-800 dark:to-slate-900 border-l-4 border-l-primary text-slate-900 dark:text-slate-100 font-semibold shadow-sm"
+                          : "hover:bg-slate-50 dark:hover:bg-slate-800/30 text-slate-700 dark:text-slate-300 border-l-4 border-l-transparent"
                       }`}
                     >
                       <div className="flex items-center gap-8">
@@ -349,7 +385,7 @@ export default function UpazilaRegistrationStats() {
                           type="checkbox"
                           checked={isSelected}
                           readOnly
-                          className="w-14 h-14 accent-primary rounded border-slate-300 focus:ring-0 focus:ring-offset-0 cursor-pointer"
+                          className="w-14 h-14 accent-primary rounded border-slate-300 focus:ring-0 focus:ring-offset-0 cursor-pointer transition-all duration-300 transform scale-100 hover:scale-110 checked:scale-105"
                         />
                         <div>
                           <div className="text-14">{district.districtName}</div>
@@ -358,7 +394,7 @@ export default function UpazilaRegistrationStats() {
                           </div>
                         </div>
                       </div>
-                      <div className="px-8 py-4 bg-slate-200 dark:bg-slate-700 rounded-full text-12 font-medium text-slate-700 dark:text-slate-300">
+                      <div className="px-8 py-4 bg-slate-200 dark:bg-slate-700 rounded-full text-12 font-medium text-slate-700 dark:text-slate-300 transition-all duration-300 hover:bg-primary hover:text-white">
                         {district.totalCount.toLocaleString()}
                       </div>
                     </button>
@@ -369,9 +405,9 @@ export default function UpazilaRegistrationStats() {
           </div>
 
           {/* Upazila & Union breakdown panel */}
-          <div className="lg:col-span-2 flex flex-col space-y-16">
+          <div className="lg:col-span-2 flex flex-col space-y-16 animate-fade-in">
             {selectedDistricts.length > 0 ? (
-              <div className="flex flex-col h-full space-y-16">
+              <div className="flex flex-col h-full space-y-16 animate-fade-in">
                 {/* Header info */}
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-12 border-b border-slate-100 dark:border-slate-800">
                   <div>
@@ -394,12 +430,12 @@ export default function UpazilaRegistrationStats() {
                     placeholder="Search Upazilas..."
                     value={upazilaSearchQuery}
                     onChange={(e) => setUpazilaSearchQuery(e.target.value)}
-                    className="w-full px-16 py-8 text-14 rounded-8 border border-slate-200 bg-slate-50 focus:border-primary focus:bg-white focus:outline-none dark:border-slate-700 dark:bg-slate-800 dark:focus:border-primary text-slate-800 dark:text-slate-100"
+                    className="w-full px-16 py-8 text-14 rounded-8 border border-slate-200 bg-slate-50 focus:border-primary focus:bg-white focus:outline-none dark:border-slate-700 dark:bg-slate-800 dark:focus:border-primary text-slate-800 dark:text-slate-100 transition-all duration-300 focus:ring-2 focus:ring-primary/10"
                   />
                   {upazilaSearchQuery && (
                     <button
                       onClick={() => setUpazilaSearchQuery("")}
-                      className="absolute right-12 top-10 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200"
+                      className="absolute right-12 top-10 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-all hover:scale-110 active:scale-90"
                     >
                       &times;
                     </button>
@@ -434,21 +470,21 @@ export default function UpazilaRegistrationStats() {
                             const isUpazilaExpanded = selectedUpazilaCode === upazila.upazilaCode;
 
                             return (
-                              <div key={upazila.upazilaCode} className="space-y-8 rounded-8 border border-slate-100 dark:border-slate-800/60 p-8">
+                              <div key={upazila.upazilaCode} className="space-y-8 rounded-8 border border-slate-100 dark:border-slate-800/60 p-8 transition-all duration-300 hover:shadow-sm hover:border-slate-200 dark:hover:border-slate-700">
                                 {/* Upazila Row Button */}
                                 <button
                                   onClick={() => setSelectedUpazilaCode(isUpazilaExpanded ? null : upazila.upazilaCode)}
-                                  className="w-full flex justify-between items-center text-14 text-left p-8 hover:bg-slate-50 dark:hover:bg-slate-800/60 rounded-6 transition-all"
+                                  className="w-full flex justify-between items-center text-14 text-left p-8 hover:bg-slate-50 dark:hover:bg-slate-800/60 rounded-6 transition-all duration-300 transform active:scale-[0.99]"
                                 >
                                   <span className="font-semibold text-slate-800 dark:text-slate-200 flex items-center gap-8">
-                                    {isUpazilaExpanded ? "📂" : "📁"} {upazila.upazilaName}
+                                    <span className="transition-transform duration-300 transform hover:scale-110">{isUpazilaExpanded ? "📂" : "📁"}</span> {upazila.upazilaName}
                                   </span>
                                   <span className="text-slate-600 dark:text-slate-300 font-semibold flex items-center gap-6">
                                     {upazila.count.toLocaleString()}{" "}
                                     <span className="text-12 font-normal text-slate-400 dark:text-slate-500">
                                       ({percentage.toFixed(1)}%)
                                     </span>
-                                    <span className="text-12 ml-4 text-slate-300 dark:text-slate-600">
+                                    <span className="text-12 ml-4 text-slate-300 dark:text-slate-600 transition-transform duration-300 transform">
                                       {isUpazilaExpanded ? "▲" : "▼"}
                                     </span>
                                   </span>
@@ -458,7 +494,7 @@ export default function UpazilaRegistrationStats() {
                                 <div className="px-8">
                                   <div className="w-full h-8 bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden">
                                     <div
-                                      className="h-full bg-primary rounded-full transition-all duration-500"
+                                      className="h-full bg-gradient-to-r from-primary-400 to-primary rounded-full transition-all duration-1000 ease-out"
                                       style={{ width: `${percentage}%` }}
                                     />
                                   </div>
@@ -466,7 +502,7 @@ export default function UpazilaRegistrationStats() {
 
                                 {/* Nested Level 3: Unions list under this Upazila */}
                                 {isUpazilaExpanded && (
-                                  <div className="mt-8 ml-16 pl-16 pr-8 py-12 bg-slate-50/50 dark:bg-slate-800/30 rounded-8 border-l-2 border-l-secondary space-y-12 transition-all">
+                                  <div className="mt-8 ml-16 pl-16 pr-8 py-12 bg-slate-50/50 dark:bg-slate-800/30 rounded-8 border-l-2 border-l-secondary space-y-12 transition-all duration-300 animate-fade-in">
                                     <h5 className="text-11 font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider">
                                       Unions under {upazila.upazilaName}
                                     </h5>
@@ -494,7 +530,7 @@ export default function UpazilaRegistrationStats() {
                                             {/* Union Progress Bar */}
                                             <div className="w-full h-6 bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden">
                                               <div
-                                                className="h-full bg-secondary rounded-full transition-all duration-500"
+                                                className="h-full bg-gradient-to-r from-secondary-400 to-secondary rounded-full transition-all duration-1000 ease-out"
                                                 style={{ width: `${unionPercentage}%` }}
                                               />
                                             </div>
@@ -514,7 +550,7 @@ export default function UpazilaRegistrationStats() {
                 </div>
               </div>
             ) : (
-              <div className="flex flex-col items-center justify-center h-full min-h-[300px] border-2 border-dashed border-slate-200 dark:border-slate-800 rounded-12 p-24 text-center">
+              <div className="flex flex-col items-center justify-center h-full min-h-[300px] border-2 border-dashed border-slate-200 dark:border-slate-800 rounded-12 p-24 text-center animate-fade-in">
                 <span className="text-32 mb-12">📍</span>
                 <h4 className="text-15 font-semibold text-slate-600 dark:text-slate-400">
                   No Districts Selected
@@ -527,6 +563,15 @@ export default function UpazilaRegistrationStats() {
           </div>
         </div>
       )}
+      <style dangerouslySetInnerHTML={{ __html: `
+        @keyframes fadeIn {
+          from { opacity: 0; transform: translateY(8px); }
+          to { opacity: 1; transform: translateY(0); }
+        }
+        .animate-fade-in {
+          animation: fadeIn 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+      `}} />
     </div>
   );
 }

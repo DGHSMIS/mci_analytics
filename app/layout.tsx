@@ -26,9 +26,12 @@ function JSXChildItems({
 }: {
   children: React.ReactNode;
 }) {
-  return <><Navbar />
-    <div className="app-wrapper">{children}</div>
-  </>;
+  return (
+    <>
+      <Navbar />
+      <div className="app-wrapper animate-fade-in-up">{children}</div>
+    </>
+  );
 }
 export default async function RootLayout({
   children,
