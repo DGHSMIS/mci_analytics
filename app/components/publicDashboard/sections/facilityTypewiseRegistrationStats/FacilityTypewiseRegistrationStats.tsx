@@ -57,7 +57,7 @@ const FacilityTypewiseRegistrationStats = memo(function FacilityTypewiseRegistra
           {...commonCardProps}
           key={0}
           title={card1Title}
-          iconName="bar-chart-square-plus"
+          iconName={card1Title.toLowerCase().includes("clinical") ? "activity-heart" : "activity"}
           className='col-span-2 lg:col-span-1'
           subTitle={
             countStats !== null
@@ -69,7 +69,7 @@ const FacilityTypewiseRegistrationStats = memo(function FacilityTypewiseRegistra
           {...commonCardProps}
           key={1}
           title={card2Title}
-          iconName="bar-chart-square-plus"
+          iconName="clipboard-check"
           className='col-span-1 lg:col-span-1'
 
           subTitle={
@@ -84,7 +84,7 @@ const FacilityTypewiseRegistrationStats = memo(function FacilityTypewiseRegistra
           {...commonCardProps}
           key={2}
           title={card3Title}
-          iconName="bar-chart-square-plus"
+          iconName="shield-tick"
           className='col-span-1 lg:col-span-1'
 
           subTitle={
@@ -98,7 +98,7 @@ const FacilityTypewiseRegistrationStats = memo(function FacilityTypewiseRegistra
         <CardIndicators
           {...commonCardProps}
           key={3}
-          iconName="bar-chart-square-plus"
+          iconName="building-01"
           title={card4Title}
           className='col-span-1 lg:col-span-1'
 
@@ -111,7 +111,7 @@ const FacilityTypewiseRegistrationStats = memo(function FacilityTypewiseRegistra
         <CardIndicators
           {...commonCardProps}
           key={4}
-          iconName="bar-chart-square-plus"
+          iconName="database-01"
           title={card5Title}
           className='col-span-1 lg:col-span-1'
           subTitle={
@@ -124,7 +124,7 @@ const FacilityTypewiseRegistrationStats = memo(function FacilityTypewiseRegistra
           <CardIndicators
             {...commonCardProps}
             key={5}
-            iconName="bar-chart-square-plus"
+            iconName="calendar"
             title={card6Title}
             className='col-span-1 lg:col-span-1'
             subTitle={

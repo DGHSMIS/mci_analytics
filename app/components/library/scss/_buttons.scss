@@ -1,23 +1,11 @@
-$btn-focus-scale: 0.95;
+$btn-focus-scale: 0.97;
 
 @keyframes button-pop {
   0% {
     transform: scale($btn-focus-scale);
   }
   40% {
-    transform: scale(1.03);
-  }
-  to {
-    transform: scale(1);
-  }
-}
-
-@keyframes button-text-pop {
-  0% {
-    transform: scale(1.03);
-  }
-  40% {
-    transform: scale($btn-focus-scale);
+    transform: scale(1.01);
   }
   to {
     transform: scale(1);
@@ -25,20 +13,17 @@ $btn-focus-scale: 0.95;
 }
 
 .btn {
-  @apply font-medium;
-  // font-size: 0.875rem;
-  // font-size: 1rem;
+  @apply font-semibold rounded-lg transition-all duration-300 transform shadow-sm;
   animation: button-pop 0.25s ease-out;
-  transition: all 0.2s cubic-bezier(0.35, 0, 0.15, 1);
-  &:active:hover,
-  &:active:focus,
-  &:active {
+  
+  &:hover:not(:disabled):not(.btn-disabled) {
+    transform: translateY(-1.5px);
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.08);
+  }
+  
+  &:active:not(:disabled):not(.btn-disabled) {
     animation: none;
-    transform: scale($btn-focus-scale);
-    // .btn-text {
-    //   animation: button-text-pop 0.25s ease-out;
-    //   transition: all 0.2s cubic-bezier(0.35, 0, 0.15, 1);
-    // }
+    transform: translateY(0) scale($btn-focus-scale);
   }
 }
 
@@ -48,29 +33,20 @@ $btn-focus-scale: 0.95;
     transition: 150ms all ease;
     position: absolute;
     content: "";
-    background-color: hsl(210, 40%, 90%);
+    background-color: hsl(210, 40%, 95%);
     display: block;
     height: 20px;
     width: 20px;
     transform: scale(0);
     border-radius: 100%;
     opacity: 0;
-    /*
-    ! z index has been removed because it overlaps other component
-    */
-    // z-index: 2;
   }
   &:hover::before {
     transform: scale(1.75);
-    // transform-origin: center center;
     opacity: 0.7;
   }
   svg {
     position: relative;
-    /*
-    ! z index has been removed because it overlaps other component
-    */
-    // z-index: 10;
   }
 }
 
@@ -78,66 +54,89 @@ $btn-focus-scale: 0.95;
 // - Fill BUTTONS //
 // -
 .btn-primary {
-  @apply btn bg-primary-500 text-white hover:bg-primary-600 active:bg-primary-700;
+  @apply btn bg-gradient-to-r from-primary-600 to-primary text-white border-0;
+  &:hover {
+    @apply from-primary-700 to-primary-600;
+  }
 }
 .btn-secondary {
-  @apply btn bg-secondary-500 text-white hover:bg-secondary-600 active:bg-secondary-700;
+  @apply btn bg-gradient-to-r from-secondary-600 to-secondary text-white border-0;
+  &:hover {
+    @apply from-secondary-700 to-secondary-600;
+  }
 }
 .btn-success {
-  @apply btn bg-teal-500 text-white hover:bg-teal-600 active:bg-teal-700;
+  @apply btn bg-gradient-to-r from-emerald-600 to-teal-600 text-white border-0;
+  &:hover {
+    @apply from-emerald-700 to-teal-700;
+  }
 }
 .btn-info {
-  @apply btn bg-sky-500 text-white hover:bg-sky-600 active:bg-sky-700;
+  @apply btn bg-gradient-to-r from-sky-500 to-blue-500 text-white border-0;
+  &:hover {
+    @apply from-sky-600 to-blue-600;
+  }
 }
 .btn-warning {
-  @apply btn bg-amber-500 text-white hover:bg-amber-600 active:bg-amber-700;
+  @apply btn bg-gradient-to-r from-amber-500 to-orange-500 text-white border-0;
+  &:hover {
+    @apply from-amber-600 to-orange-600;
+  }
 }
 .btn-danger {
-  @apply btn bg-rose-500 text-white hover:bg-rose-600 active:bg-rose-700;
+  @apply btn bg-gradient-to-r from-rose-500 to-red-600 text-white border-0;
+  &:hover {
+    @apply from-rose-600 to-red-700;
+  }
 }
 .btn-neutral {
-  @apply btn bg-slate-100 text-slate-500 hover:bg-slate-200 hover:text-slate-500 active:bg-slate-700 active:text-white;
+  @apply btn bg-slate-100 border border-slate-200 text-slate-700 hover:bg-slate-200/80 hover:text-slate-800 active:bg-slate-200;
 }
 
 // -
 // - Outline BUTTONS //
 // -
 .btn-primary-outline {
-  @apply btn border border-primary-500 bg-transparent  text-primary-500 hover:bg-primary-500 hover:text-slate-50 active:bg-primary-700 active:text-slate-50;
+  @apply btn border border-primary-500 bg-transparent text-primary-500 hover:bg-primary-50/50 hover:border-primary-600 active:bg-primary-100;
 }
 
 .btn-secondary-outline {
-  @apply btn border border-secondary-500 bg-transparent text-secondary-500 hover:bg-secondary-500 hover:text-slate-100 active:bg-secondary-700 active:text-slate-50;
+  @apply btn border border-secondary-500 bg-transparent text-secondary-500 hover:bg-secondary-50/50 hover:border-secondary-600 active:bg-secondary-100;
 }
 
 .btn-success-outline {
-  @apply btn border border-teal-500 bg-transparent text-teal-500 hover:bg-teal-500 hover:text-slate-100 active:bg-teal-700 active:text-slate-50;
+  @apply btn border border-emerald-500 bg-transparent text-emerald-500 hover:bg-emerald-50/50 hover:border-emerald-600 active:bg-emerald-100;
 }
 
 .btn-info-outline {
-  @apply btn border border-sky-500 bg-transparent text-sky-500 hover:bg-sky-500 hover:text-slate-100 active:bg-sky-700 active:text-slate-50;
+  @apply btn border border-sky-500 bg-transparent text-sky-500 hover:bg-sky-50/50 hover:border-sky-600 active:bg-sky-100;
 }
 
 .btn-warning-outline {
-  @apply btn border border-amber-500 bg-transparent text-amber-500 hover:bg-amber-500 hover:text-slate-100 active:bg-amber-700 active:text-slate-50;
+  @apply btn border border-amber-500 bg-transparent text-amber-500 hover:bg-amber-50/50 hover:border-amber-600 active:bg-amber-100;
 }
 
 .btn-danger-outline {
-  @apply btn border border-rose-500 bg-transparent text-rose-500 hover:bg-rose-500 hover:text-slate-100 active:bg-rose-700 active:text-slate-50;
+  @apply btn border border-rose-500 bg-transparent text-rose-500 hover:bg-rose-50/50 hover:border-rose-600 active:bg-rose-100;
 }
 
 .btn-neutral-outline {
-  @apply btn border border-slate-200 bg-transparent text-slate-500 hover:border-slate-200 hover:bg-slate-200 hover:text-slate-500 active:border-slate-700 active:bg-slate-700 active:text-white;
+  @apply btn border border-slate-300 bg-transparent text-slate-600 hover:bg-slate-50 hover:border-slate-400 active:bg-slate-100;
 }
 
 .btn-link {
-  @apply text-primary-500 hover:text-primary-600 hover:shadow-none;
+  @apply text-primary-500 hover:text-primary-600 hover:shadow-none transition-colors;
 }
 
 .btn-disabled {
-  @apply cursor-not-allowed border-primary-500/50 bg-primary-500/50 text-white;
+  @apply cursor-not-allowed opacity-60 bg-slate-200 border border-slate-200 text-slate-400 shadow-none transform-none;
+  &:hover {
+    transform: none !important;
+    box-shadow: none !important;
+  }
 }
 
 .btn-disabled-outline {
-  @apply cursor-not-allowed border border-gray-200 bg-transparent text-gray-200;
+  @apply cursor-not-allowed border border-slate-200 bg-transparent text-slate-300;
 }
+

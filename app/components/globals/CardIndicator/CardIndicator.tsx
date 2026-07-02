@@ -66,84 +66,81 @@ const CardIndicator = memo(function CardIndicator({
   subTitle = "Registered farmers",
 }: CardIndicatorsProps) {
   return (
-    <div className={cn(className)}>
+    <div className={cn("transition-all duration-300", className)}>
       {hasCategoryTitle && (
-        <div className="mb-4 text-sm font-medium uppercase text-slate-500">
+        <div className="mb-8 text-12 font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500">
           {categoryTitle}
         </div>
       )}
       <div
-        className={cn(
-          "group/card cursor-pointer rounded-lg border border-slate-200 bg-white dark:border-neutral-700 dark:bg-gray-800 p-16 hover:border-primary-400",
-          className
-        )}
+        className="group/card cursor-pointer rounded-12 border border-slate-100 bg-white dark:border-neutral-800 dark:bg-gray-900 p-20 shadow-sm transition-all duration-300 transform hover:-translate-y-1 hover:shadow-md hover:border-primary-300"
       >
-        <div className={cn(hasIcon || (hasTitle && "space-y-16"))}>
+        <div className="flex flex-col gap-12">
           {hasTitle && (
             <div
               className={cn(
-                "flex w-full flex-col pb-8 justify-center text-sm font-medium !leading-tight tracking-tight text-slate-500 transition dark:text-white md:text-base",
+                "flex w-full flex-col justify-center text-13 font-semibold uppercase tracking-wider text-slate-400 dark:text-slate-500 transition duration-300 group-hover/card:text-primary-500",
                 {
-                  "items-center": titleAlign == "center",
-                  "items-end": titleAlign == "right",
-                  "items-start": !(titleAlign == "left"),
+                  "items-center text-center": titleAlign == "center",
+                  "items-end text-right": titleAlign == "right",
+                  "items-start text-left": titleAlign == "left" || !(titleAlign == "center" || titleAlign == "right"),
                 }
               )}
             >
               {title}
             </div>
           )}
-          <div className="flex flex-row items-center justify-between space-x-20">
-            <div className="flex w-full flex-row items-center justify-center space-x-20">
-              {/*icon start  */}
-              {hasIcon &&
-                (iconBgVariant == "light" ? (
-                  <span
-                    className={cn(
-                      "inline-flex h-40 items-center rounded-md px-12 py-10",
-                      {
-                        "bg-green-100 text-green-600 dark:bg-green-200 dark:text-green-600":
-                          variant == "success",
-                        "bg-rose-100 text-rose-600 dark:bg-rose-200 dark:text-rose-600":
-                          variant == "danger",
-                      }
-                    )}
-                  >
-                    <Icon iconSize="20px" iconName={iconName} />
-                  </span>
-                ) : (
-                  <span
-                    className={cn(
-                      "inline-flex h-40 items-center rounded-md px-12 py-10",
-                      {
-                        "bg-green-500": variant == "success",
-                        "bg-rose-500": variant == "danger",
-                      }
-                    )}
-                  >
-                    <Icon
-                      iconSize="20px"
-                      iconName={iconName}
-                      iconColor="white"
-                    />
-                  </span>
-                ))}
-
-              {/*icon end  */}
-              <div className={"flex w-full flex-col space-y-8"}>
-                <Suspense
-                  fallback={
-                    <div className="font-normal leading-3 tracking-tight text-warning-500 transition hover:text-primary-600 dark:text-white">
-                      Network Error
-                    </div>
-                  }
+          <div className={cn("flex flex-row items-center gap-16", {
+            "justify-center": titleAlign === "center",
+            "justify-end": titleAlign === "right",
+          })}>
+            {hasIcon &&
+              (iconBgVariant == "light" ? (
+                <span
+                  className={cn(
+                    "inline-flex h-40 w-40 items-center justify-center rounded-8 p-10 transition-transform duration-300 transform group-hover/card:scale-110",
+                    {
+                      "bg-emerald-50 text-emerald-600 dark:bg-emerald-950/20 dark:text-emerald-400":
+                        variant == "success",
+                      "bg-rose-50 text-rose-600 dark:bg-rose-950/20 dark:text-rose-400":
+                        variant == "danger",
+                    }
+                  )}
                 >
-                  <h4 className="leading-6 tracking-tight text-primary-500 group-hover/card:text-primary-400 dark:text-white">
-                    {subTitle}
-                  </h4>
-                </Suspense>
-              </div>
-              {/* title & subTitle end */}
+                  <Icon iconSize="20px" iconName={iconName} />
+                </span>
+              ) : (
+                <span
+                  className={cn(
+                    "inline-flex h-40 w-40 items-center justify-center rounded-8 p-10 transition-transform duration-300 transform group-hover/card:scale-110",
+                    {
+                      "bg-gradient-to-br from-emerald-500 to-teal-600 text-white shadow-sm":
+                        variant == "success",
+                      "bg-gradient-to-br from-rose-500 to-red-600 text-white shadow-sm":
+                        variant == "danger",
+                    }
+                  )}
+                >
+                  <Icon
+                    iconSize="20px"
+                    iconName={iconName}
+                    iconColor="white"
+                  />
+                </span>
+              ))}
+
+            <div className="flex flex-col">
+              <Suspense
+                fallback={
+                  <div className="text-14 font-medium text-warning-500 transition dark:text-white">
+                    Loading...
+                  </div>
+                }
+              >
+                <h4 className="text-20 font-bold leading-tight text-slate-800 group-hover/card:text-primary dark:text-slate-100 transition-colors duration-300">
+                  {subTitle}
+                </h4>
+              </Suspense>
             </div>
           </div>
         </div>
