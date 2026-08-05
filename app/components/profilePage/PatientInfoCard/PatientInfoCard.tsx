@@ -66,27 +66,31 @@ export default memo(function PatientTopBlock(props: PatientTopBlockProps) {
               iconName={iconName}
               variant="secondary"
               clicked={async () => {
-                console.log("Hello")
-                const cardResults = await getAPIResponse(
-                  getBaseUrl(),
-                  getUrlFromName("get-patient-health-card") + `?hid=${props.patient.health_id}`,
-                  session.accessToken ?? "",
-                  "GET",
-                  null,
-                  false,
-                  getRevalidationTime()
-                )
-                console.log("Health Card Results are: ", cardResults);
-                if(!cardResults.imageURI){
-                  setDisableImageDownload(true);
-                } else{
-                  if(cardResults.imageURI.length === 0){
+                try {
+                  const cardResults = await getAPIResponse(
+                    getBaseUrl(),
+                    getUrlFromName("get-patient-health-card") + `?hid=${props.patient.health_id}`,
+                    session?.accessToken ?? "",
+                    "GET",
+                    null,
+                    false,
+                    getRevalidationTime()
+                  );
+                  console.log("Health Card Results are: ", cardResults);
+                  const imgUri = cardResults?.imageURI || cardResults?.image_uri || cardResults?.cardURI || cardResults?.data || cardResults?.imgURI || "";
+                  
+                  if (!imgUri || imgUri.length === 0) {
+                    const errorMsg = cardResults?.error || cardResults?.message || "Health Card unavailable for this patient";
+                    alert(errorMsg);
+                  } else {
+                    downloadDataURIAsPNG(imgUri, `${props.patient.health_id}.png`);
+                    setHidCardDownloadBtnText("Health Card Downloaded");
+                    setIconName("");
                     setDisableImageDownload(true);
                   }
-                  downloadDataURIAsPNG(cardResults.imageURI, `${props.patient.health_id}.png`);
-                  setHidCardDownloadBtnText("Health Card Downloaded");
-                  setIconName("");
-                  setDisableImageDownload(true);
+                } catch (err: any) {
+                  console.error("Failed to download health card:", err);
+                  alert("Failed to download health card");
                 }
               }}
               />

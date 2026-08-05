@@ -158,16 +158,25 @@ export const fileDownloader = async (
  * @returns A Blob representing the image.
  */
 function dataURIToBlob(dataURI: string): Blob {
-  // Split the data URI into base64 and mime type parts
-  const byteString = atob(dataURI.split(',')[1]);
-  const mimeString = dataURI.split(',')[0].split(':')[1].split(';')[0];
+  let byteString: string;
+  let mimeString = "image/png";
 
-  // Write the bytes of the string to an ArrayBuffer
+  if (dataURI.includes(",")) {
+    const parts = dataURI.split(",");
+    byteString = atob(parts[1]);
+    const mimeMatch = parts[0].match(/:(.*?);/);
+    if (mimeMatch && mimeMatch[1]) {
+      mimeString = mimeMatch[1];
+    }
+  } else {
+    byteString = atob(dataURI);
+  }
+
   const arrayBuffer = new ArrayBuffer(byteString.length);
   const uint8Array = new Uint8Array(arrayBuffer);
 
   for (let i = 0; i < byteString.length; i++) {
-      uint8Array[i] = byteString.charCodeAt(i);
+    uint8Array[i] = byteString.charCodeAt(i);
   }
 
   return new Blob([uint8Array], { type: mimeString });
