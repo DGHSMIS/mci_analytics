@@ -19,7 +19,7 @@ export interface BaseDashboardStatsProps {
 }
 
 const DashboardCardCommonProps: CardIndicatorsProps = {
-  className: "h-fit hover:shadow-lg hover:cursor-pointer",
+  className: "h-full hover:shadow-lg hover:cursor-pointer",
   iconBgVariant: "light",
   variant: "success",
   hasIcon: true,

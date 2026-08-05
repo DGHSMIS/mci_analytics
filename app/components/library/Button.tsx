@@ -337,14 +337,14 @@ const Button = memo(function Button({
       cn(
         //=> Variants
         {
-          "btn-primary": variant === "primary",
-          "btn-secondary": variant === "secondary",
-          "btn-success": variant === "success",
-          "btn-danger": variant === "danger",
-          "btn-warning": variant === "warning",
-          "btn-info": variant === "info",
-          "btn-neutral": variant === "neutral",
-          "btn-link": variant === "link",
+          "btn-primary": variant === "primary" && !outline,
+          "btn-secondary": variant === "secondary" && !outline,
+          "btn-success": variant === "success" && !outline,
+          "btn-danger": variant === "danger" && !outline,
+          "btn-warning": variant === "warning" && !outline,
+          "btn-info": variant === "info" && !outline,
+          "btn-neutral": variant === "neutral" && !outline,
+          "btn-link": variant === "link" && !outline,
           disabledClass: disabledClass.length,
         },
 

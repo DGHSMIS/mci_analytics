@@ -19,7 +19,7 @@ const CardIndicators = dynamic(() => import("@components/globals/CardIndicator/C
 });
 
 const NCDashboardCardCommonProps: CardIndicatorsProps = {
-    className: "h-fit hover:shadow-lg hover:cursor-pointer",
+    className: "h-full hover:shadow-lg hover:cursor-pointer",
     iconBgVariant: "light",
     variant: "success",
     hasIcon: true,

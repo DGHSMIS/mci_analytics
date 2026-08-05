@@ -66,16 +66,16 @@ const CardIndicator = memo(function CardIndicator({
   subTitle = "Registered farmers",
 }: CardIndicatorsProps) {
   return (
-    <div className={cn("transition-all duration-300", className)}>
+    <div className={cn("transition-all duration-300 h-full", className)}>
       {hasCategoryTitle && (
         <div className="mb-8 text-12 font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500">
           {categoryTitle}
         </div>
       )}
       <div
-        className="group/card cursor-pointer rounded-12 border border-slate-100 bg-white dark:border-neutral-800 dark:bg-gray-900 p-20 shadow-sm transition-all duration-300 transform hover:-translate-y-1 hover:shadow-md hover:border-primary-300"
+        className="group/card cursor-pointer rounded-12 border border-slate-100 bg-white dark:border-neutral-800 dark:bg-gray-900 p-20 shadow-sm transition-all duration-300 transform hover:-translate-y-1 hover:shadow-md hover:border-primary-300 h-full flex flex-col justify-between gap-12"
       >
-        <div className="flex flex-col gap-12">
+        <div className="flex flex-col gap-12 h-full justify-between">
           {hasTitle && (
             <div
               className={cn(

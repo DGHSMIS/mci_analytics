@@ -225,6 +225,7 @@ export async function checkIfMCIAdminOrApprover(
     if (isUserVerfied.group_names_formatted != null) {
       let isMCIAdmin = false;
       let isMCIUser = false;
+      let isMCIApprover = false;
       isUserVerfied.group_names_formatted.forEach((group) => {
         console.log("The group item is");
         console.log(group);
@@ -234,8 +235,11 @@ export async function checkIfMCIAdminOrApprover(
         if (group == "mci-user") {
           isMCIUser = true;
         }
+        if (group == "mci-approver") {
+          isMCIApprover = true;
+        }
       });
-      if (isMCIAdmin && isMCIUser) {
+      if (isMCIAdmin || isMCIUser || isMCIApprover) {
         console.log("Returning Null");
 
         return null;
