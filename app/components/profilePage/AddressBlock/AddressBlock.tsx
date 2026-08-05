@@ -6,7 +6,6 @@
  */
 import Icon from "@library/Icon";
 import { Address } from "@utils/interfaces/DataModels/MCIPatientInterface";
-import { selectDistrictFromCode, selectDivisionFromCode, selectUpazilaFromCode } from "@utils/utilityFunctions";
 import { memo } from "react";
 
 export interface AddressProps {
@@ -39,37 +38,33 @@ function AddressBlock({ items }: AddressBlockProps) {
                         </span>
                       )}
 
-                      {item.address?.upazila_id &&
-                        item.address?.district_id && (
+                      {item.address?.upazila_id && (
                         <span className={'info flex justify-start items-start space-x-4'}>
                           <p className={'text-sm h-46 font-semibold'}>Upazlia: </p>
-                          <p className='text-sm  h-46'>{selectUpazilaFromCode(
-                            item.address?.district_id +
-                            " " +
-                            item.address?.upazila_id
-                          )}</p>
+                          <p className='text-sm  h-46'>{item.address?.upazila_id}</p>
                         </span>
-                        )}
+                      )}
 
-                      {item.address?.district_id &&
-                          <span className={'info flex justify-start items-start space-x-4'}>
+                      {item.address?.district_id && (
+                        <span className={'info flex justify-start items-start space-x-4'}>
                           <p className={'text-sm h-46 font-semibold'}>District: </p>
-                          <p className='text-sm  h-46'>{selectDistrictFromCode(item.address?.district_id)}</p>
+                          <p className='text-sm  h-46'>{item.address?.district_id}</p>
                         </span>
-                        }
+                      )}
 
-                      {item.address?.division_id &&
+                      {item.address?.division_id && (
                         <span className={'info flex justify-start items-start space-x-4'}>
                           <p className={'text-sm h-46 font-semibold'}>Division: </p>
-                          <p className='text-sm  h-46'>{selectDivisionFromCode(item.address?.division_id)}</p>
+                          <p className='text-sm  h-46'>{item.address?.division_id}</p>
                         </span>
-                      }
-                      {item.address?.country_code &&
+                      )}
+
+                      {item.address?.country_code && (
                         <span className={'info flex justify-start items-start space-x-4'}>
                           <p className={'text-sm h-46 font-semibold'}>Country: </p>
-                          <p className='text-sm  h-46'>{selectDivisionFromCode(item.address?.country_code)}</p>
+                          <p className='text-sm  h-46'>{item.address?.country_code}</p>
                         </span>
-                      }
+                      )}
                     </span>
                   </div>
                 </div>

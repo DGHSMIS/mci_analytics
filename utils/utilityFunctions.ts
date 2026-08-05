@@ -190,42 +190,43 @@ export function selectUpazilaFromCode(code: string): string {
  */
 export function getUserAddressesFromInstance(patientInfo: ESPatientInterface): AddressProps[] {
   const allAddress: AddressProps[] = [];
+  const divisionCode = (division_id: string) => division_id ? String(division_id).length == 1 ? "0" + String(division_id) : String(division_id) : "";
+  const districtCode = (district_id: string) => district_id ? String(district_id).length == 1 ? "0" + String(district_id) : String(district_id) : "";
+  const upazilaCode = (upazila_id: string) => upazila_id ? String(upazila_id).length == 1 ? "0" + String(upazila_id) : String(upazila_id) : "";
+
   if (patientInfo.permanent_address_line != null) {
     const permanentAddress: AddressProps = {
       address: {
         address_line: patientInfo.permanent_address_line,
-        district_id: patientInfo.permanent_district_id
-          ? String(patientInfo.permanent_district_id)
-          : "",
+        district_id: patientInfo.permanent_district_id && patientInfo.permanent_division_id
+          ? selectDistrictFromCode(divisionCode(String(patientInfo.permanent_division_id)) + districtCode(String(patientInfo.permanent_district_id)))
+          : patientInfo.permanent_district_id ? String(patientInfo.permanent_district_id) : "",
         division_id: patientInfo.permanent_division_id
-          ? String(patientInfo.permanent_division_id)
+          ? selectDivisionFromCode(divisionCode(String(patientInfo.permanent_division_id)))
           : "",
-        upazila_id: patientInfo.permanent_upazila_id
-          ? String(patientInfo.permanent_upazila_id)
-          : "",
+        upazila_id: patientInfo.permanent_upazila_id && patientInfo.permanent_district_id && patientInfo.permanent_division_id
+          ? selectUpazilaFromCode(divisionCode(String(patientInfo.permanent_division_id)) + districtCode(String(patientInfo.permanent_district_id)) + upazilaCode(String(patientInfo.permanent_upazila_id)))
+          : patientInfo.permanent_upazila_id ? String(patientInfo.permanent_upazila_id) : "",
         country_code: patientInfo.permanent_country_code
-          ? String(patientInfo.permanent_country_code)
+          ? selectCountryNameFromCode(String(patientInfo.permanent_country_code))
           : "",
       },
       addressHeader: "Permanent Address",
     };
     allAddress.push(permanentAddress);
   }
-  const divisionCode = (division_id: string) => division_id ? String(division_id).length == 1 ? "0" + String(division_id) : String(division_id) : "";
-  const districtCode = (district_id: string) => district_id ? String(district_id).length == 1 ? "0" + String(district_id) : String(district_id) : "";
-  const upazilaCode = (upazila_id: string) => upazila_id ? String(upazila_id).length == 1 ? "0" + String(upazila_id) : String(upazila_id) : "";
 
   if (patientInfo.address_line) {
     const currentAddress: AddressProps = {
       address: {
         address_line: patientInfo.address_line,
         district_id: patientInfo.district_id && patientInfo.division_id
-          ? selectDistrictFromCode(divisionCode(String(patientInfo.division_id)) + districtCode((String(patientInfo.district_id)))) : "",
+          ? selectDistrictFromCode(divisionCode(String(patientInfo.division_id)) + districtCode(String(patientInfo.district_id))) : "",
         division_id: patientInfo.division_id
           ? selectDivisionFromCode(divisionCode(String(patientInfo.division_id)))
           : "",
         upazila_id: patientInfo.upazila_id && patientInfo.district_id && patientInfo.division_id
-          ? selectUpazilaFromCode(selectDistrictFromCode(divisionCode(String(patientInfo.division_id)) + districtCode((String(patientInfo.district_id))) + upazilaCode(String(patientInfo.upazila_id))))
+          ? selectUpazilaFromCode(divisionCode(String(patientInfo.division_id)) + districtCode(String(patientInfo.district_id)) + upazilaCode(String(patientInfo.upazila_id)))
           : "",
         country_code: patientInfo.country_code
           ? selectCountryNameFromCode(String(patientInfo.country_code))
