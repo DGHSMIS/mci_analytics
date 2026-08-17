@@ -73,13 +73,13 @@ const CardIndicator = memo(function CardIndicator({
         </div>
       )}
       <div
-        className="group/card cursor-pointer rounded-12 border border-slate-100 bg-white dark:border-neutral-800 dark:bg-gray-900 p-14 xl:p-16 2xl:p-20 shadow-sm transition-all duration-300 transform hover:-translate-y-1 hover:shadow-md hover:border-primary-300 h-full flex flex-col justify-between gap-8 sm:gap-12"
+        className="group/card cursor-pointer rounded-10 border border-slate-100 bg-white dark:border-neutral-800 dark:bg-gray-900 p-10 sm:p-12 xl:p-14 shadow-sm transition-all duration-300 transform hover:-translate-y-0.5 hover:shadow-md hover:border-primary-300 h-full flex flex-col justify-between gap-6 sm:gap-8"
       >
-        <div className="flex flex-col gap-8 sm:gap-12 h-full justify-between">
+        <div className="flex flex-col gap-6 sm:gap-8 h-full justify-between">
           {hasTitle && (
             <div
               className={cn(
-                "flex w-full flex-col justify-center text-11 sm:text-12 xl:text-13 font-semibold uppercase tracking-wider text-slate-400 dark:text-slate-500 transition duration-300 group-hover/card:text-primary-500 min-h-[2.2rem] leading-tight",
+                "flex w-full flex-col justify-center text-10 sm:text-11 xl:text-12 font-medium uppercase tracking-wide text-slate-500 dark:text-slate-400 transition duration-300 group-hover/card:text-primary-600 min-h-[1.9rem] leading-tight",
                 {
                   "items-center text-center": titleAlign == "center",
                   "items-end text-right": titleAlign == "right",
@@ -91,7 +91,7 @@ const CardIndicator = memo(function CardIndicator({
               {title}
             </div>
           )}
-          <div className={cn("flex flex-row items-center gap-8 xl:gap-12 min-w-0", {
+          <div className={cn("flex flex-row items-center gap-6 sm:gap-8 min-w-0", {
             "justify-center": titleAlign === "center",
             "justify-end": titleAlign === "right",
           })}>
@@ -99,7 +99,7 @@ const CardIndicator = memo(function CardIndicator({
               (iconBgVariant == "light" ? (
                 <span
                   className={cn(
-                    "inline-flex h-36 w-36 xl:h-40 xl:w-40 flex-shrink-0 items-center justify-center rounded-8 p-8 xl:p-10 transition-transform duration-300 transform group-hover/card:scale-110",
+                    "inline-flex h-28 w-28 sm:h-32 sm:w-32 flex-shrink-0 items-center justify-center rounded-6 p-6 transition-transform duration-300 transform group-hover/card:scale-105",
                     {
                       "bg-emerald-50 text-emerald-600 dark:bg-emerald-950/20 dark:text-emerald-400":
                         variant == "success",
@@ -108,12 +108,12 @@ const CardIndicator = memo(function CardIndicator({
                     }
                   )}
                 >
-                  <Icon iconSize="20px" iconName={iconName} />
+                  <Icon iconSize="16px" iconName={iconName} />
                 </span>
               ) : (
                 <span
                   className={cn(
-                    "inline-flex h-36 w-36 xl:h-40 xl:w-40 flex-shrink-0 items-center justify-center rounded-8 p-8 xl:p-10 transition-transform duration-300 transform group-hover/card:scale-110",
+                    "inline-flex h-28 w-28 sm:h-32 sm:w-32 flex-shrink-0 items-center justify-center rounded-6 p-6 transition-transform duration-300 transform group-hover/card:scale-105",
                     {
                       "bg-gradient-to-br from-emerald-500 to-teal-600 text-white shadow-sm":
                         variant == "success",
@@ -123,23 +123,23 @@ const CardIndicator = memo(function CardIndicator({
                   )}
                 >
                   <Icon
-                    iconSize="20px"
+                    iconSize="16px"
                     iconName={iconName}
                     iconColor="white"
                   />
                 </span>
               ))}
 
-            <div className="flex flex-col min-w-0 overflow-hidden">
+            <div className="flex flex-col min-w-0 flex-1 overflow-hidden">
               <Suspense
                 fallback={
-                  <div className="text-12 font-medium text-warning-500 transition dark:text-white">
+                  <div className="text-11 font-medium text-warning-500 transition dark:text-white">
                     Loading...
                   </div>
                 }
               >
                 <h4
-                  className="text-15 sm:text-16 md:text-17 lg:text-18 xl:text-19 2xl:text-20 font-bold leading-tight text-slate-800 group-hover/card:text-primary dark:text-slate-100 transition-colors duration-300 tracking-tight whitespace-nowrap truncate"
+                  className="text-13 sm:text-14 md:text-15 xl:text-16 2xl:text-17 font-bold leading-tight text-slate-800 group-hover/card:text-primary dark:text-slate-100 transition-colors duration-300 tracking-tight whitespace-nowrap"
                   title={subTitle}
                 >
                   {subTitle}

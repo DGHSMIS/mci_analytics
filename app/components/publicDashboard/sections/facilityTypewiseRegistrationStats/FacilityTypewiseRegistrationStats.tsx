@@ -56,7 +56,7 @@ const FacilityTypewiseRegistrationStats = memo(function FacilityTypewiseRegistra
           {sectionHeader}
         </h3>
       )}
-      <div className={`grid gap-12 xl:gap-16 lg:space-x-0 lg:space-y-0 ${card7Title ? "grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-7" : card6Title ? "grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 xl:grid-cols-6" : "grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5"}`}>
+      <div className={`grid gap-8 sm:gap-10 xl:gap-12 lg:space-x-0 lg:space-y-0 ${card7Title ? "grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-7" : card6Title ? "grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 xl:grid-cols-6" : "grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5"}`}>
         <CardIndicators
           {...commonCardProps}
           key={0}
