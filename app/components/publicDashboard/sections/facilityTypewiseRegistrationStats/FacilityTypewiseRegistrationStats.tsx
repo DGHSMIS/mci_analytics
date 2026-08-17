@@ -56,13 +56,13 @@ const FacilityTypewiseRegistrationStats = memo(function FacilityTypewiseRegistra
           {sectionHeader}
         </h3>
       )}
-      <div className={`grid grid-cols-2 gap-16 lg:space-x-0 lg:space-y-0 ${card7Title ? "lg:grid-cols-7" : card6Title ? "lg:grid-cols-6" : "lg:grid-cols-5"}`}>
+      <div className={`grid gap-12 xl:gap-16 lg:space-x-0 lg:space-y-0 ${card7Title ? "grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-7" : card6Title ? "grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 xl:grid-cols-6" : "grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5"}`}>
         <CardIndicators
           {...commonCardProps}
           key={0}
           title={card1Title}
           iconName={card1Title.toLowerCase().includes("clinical") ? "activity-heart" : "activity"}
-          className='col-span-2 lg:col-span-1'
+          className='col-span-2 sm:col-span-1 xl:col-span-1'
           subTitle={
             countStats !== null
               ? countStats?.totalCount?.toLocaleString("en-IN")

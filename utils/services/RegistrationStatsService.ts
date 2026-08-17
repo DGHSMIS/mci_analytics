@@ -27,10 +27,14 @@ export class RegistrationStatsService {
   private async getEAppointmentCount(): Promise<number> {
     try {
       const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 5000);
+      const timeoutId = setTimeout(() => controller.abort(), 15000);
       const response = await fetch("https://eappointment.dghs.gov.bd/api/v1/stats", {
         signal: controller.signal,
         cache: "no-store",
+        headers: {
+          "Accept": "application/json",
+          "User-Agent": "Mozilla/5.0 (compatible; DGHS-Analytics/1.0)",
+        },
       });
       clearTimeout(timeoutId);
       if (response.ok) {
@@ -53,10 +57,14 @@ export class RegistrationStatsService {
       // Get today's date in YYYY-MM-DD format (Asia/Dhaka timezone)
       const today = new Date().toLocaleDateString("en-CA", { timeZone: "Asia/Dhaka" });
       const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 5000);
+      const timeoutId = setTimeout(() => controller.abort(), 15000);
       const response = await fetch(`https://god-central.cmedhealth.com/openmrs/ws/dghs/api/hid/total-count?startDate=2026-01-01&endDate=${today}`, {
         signal: controller.signal,
         cache: "no-store",
+        headers: {
+          "Accept": "application/json",
+          "User-Agent": "Mozilla/5.0 (compatible; DGHS-Analytics/1.0)",
+        },
       });
       clearTimeout(timeoutId);
       if (response.ok) {

@@ -4,9 +4,9 @@ import { RegistrationStatsService } from "@utils/services/RegistrationStatsServi
 import { NextResponse } from "next/server";
 import "server-only";
 
-// export const dynamic = "force-dynamic";
-export const revalidate = process.env.NODE_ENV === "development" ? 0 : getRevalidationTime(true);
-export const fetchCache = "auto";
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
+export const fetchCache = "force-no-store";
 export const dynamicParams = false;
 
 
