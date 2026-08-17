@@ -9,10 +9,7 @@ import {
 import { FacilityCategorizationService } from "./FacilityCategorizationService";
 import { FacilityStatsLogger } from "./FacilityStatsLogger";
 import { ValidationMetricsService, ValidationResult } from "./ValidationMetricsService";
-
-// In-memory fallback caches for external third-party services
-let lastKnownEAppointmentCount: number = 0;
-let lastKnownGovernmentOutdoorDispensaryCount: number = 0;
+import { PlatformStatsSyncService } from "./PlatformStatsSyncService";
 
 export class RegistrationStatsService {
   private categorizationService: FacilityCategorizationService;
@@ -26,88 +23,12 @@ export class RegistrationStatsService {
   }
 
   /**
-   * Fetch total patient registrations from eAppointment API with retry and cached fallback
-   */
-  private async getEAppointmentCount(): Promise<number> {
-    for (let attempt = 1; attempt <= 2; attempt++) {
-      try {
-        const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), 20000);
-        const response = await fetch("https://eappointment.dghs.gov.bd/api/v1/stats", {
-          signal: controller.signal,
-          cache: "no-store",
-          headers: {
-            "Accept": "application/json",
-            "User-Agent": "Mozilla/5.0 (compatible; DGHS-Analytics/1.0)",
-          },
-        });
-        clearTimeout(timeoutId);
-        if (response.ok) {
-          const json = await response.json();
-          if (json && typeof json.patients_all === "number") {
-            lastKnownEAppointmentCount = json.patients_all;
-            return json.patients_all;
-          }
-        }
-      } catch (error) {
-        console.warn(`[RegistrationStats] Attempt ${attempt} failed to fetch eAppointment stats:`, error instanceof Error ? error.message : error);
-        if (attempt === 2) {
-          if (lastKnownEAppointmentCount > 0) {
-            console.info(`[RegistrationStats] Using last known eAppointment count: ${lastKnownEAppointmentCount}`);
-            return lastKnownEAppointmentCount;
-          }
-        }
-      }
-    }
-    return lastKnownEAppointmentCount;
-  }
-
-  /**
-   * Fetch total patient registrations from Government Outdoor Dispensary (GOD) API with retry and cached fallback
-   */
-  private async getGovernmentOutdoorDispensaryCount(): Promise<number> {
-    for (let attempt = 1; attempt <= 2; attempt++) {
-      try {
-        // Get today's date in YYYY-MM-DD format (Asia/Dhaka timezone)
-        const today = new Date().toLocaleDateString("en-CA", { timeZone: "Asia/Dhaka" });
-        const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), 20000);
-        const response = await fetch(`https://god-central.cmedhealth.com/openmrs/ws/dghs/api/hid/total-count?startDate=2026-01-01&endDate=${today}`, {
-          signal: controller.signal,
-          cache: "no-store",
-          headers: {
-            "Accept": "application/json",
-            "User-Agent": "Mozilla/5.0 (compatible; DGHS-Analytics/1.0)",
-          },
-        });
-        clearTimeout(timeoutId);
-        if (response.ok) {
-          const json = await response.json();
-          if (json && json.data && typeof json.data.totalCount === "number") {
-            lastKnownGovernmentOutdoorDispensaryCount = json.data.totalCount;
-            return json.data.totalCount;
-          }
-        }
-      } catch (error) {
-        console.warn(`[RegistrationStats] Attempt ${attempt} failed to fetch Government Outdoor Dispensary stats:`, error instanceof Error ? error.message : error);
-        if (attempt === 2) {
-          if (lastKnownGovernmentOutdoorDispensaryCount > 0) {
-            console.info(`[RegistrationStats] Using last known Government Outdoor Dispensary count: ${lastKnownGovernmentOutdoorDispensaryCount}`);
-            return lastKnownGovernmentOutdoorDispensaryCount;
-          }
-        }
-      }
-    }
-    return lastKnownGovernmentOutdoorDispensaryCount;
-  }
-
-  /**
    * Get facility type registration statistics using single aggregation approach
    */
   async getTotalRegistrationStats(): Promise<FacilityTypeWiseStatsInterface> {
     try {
-      // Fetch ES count, ES aggregation, eAppointment count, and Government Outdoor Dispensary count concurrently
-      const [totalCountResponse, facilityAggregation, eAppointmentCount, governmentOutdoorDispensaryCount] = await Promise.all([
+      // Fetch ES count, ES aggregation, and stored platform stats concurrently
+      const [totalCountResponse, facilityAggregation, platformStats] = await Promise.all([
         esBaseClient.count({
           index: healthRecordESIndexName
         }),
@@ -126,8 +47,7 @@ export class RegistrationStatsService {
             }
           }
         }),
-        this.getEAppointmentCount(),
-        this.getGovernmentOutdoorDispensaryCount()
+        PlatformStatsSyncService.getStats()
       ]);
 
       const actualTotalCount = totalCountResponse.body.count;
@@ -144,8 +64,8 @@ export class RegistrationStatsService {
       
       // Calculate counts and validate using the actual total count
       const stats = this.calculateStatsFromCategorization(categorizedFacilities, actualTotalCount);
-      stats.eAppointmentCount = eAppointmentCount;
-      stats.governmentOutdoorDispensaryCount = governmentOutdoorDispensaryCount;
+      stats.eAppointmentCount = platformStats.eAppointmentCount;
+      stats.governmentOutdoorDispensaryCount = platformStats.governmentOutdoorDispensaryCount;
       
       return stats;
     } catch (error) {
