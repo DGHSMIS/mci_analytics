@@ -36,6 +36,8 @@ export async function GET() {
       aaloClincCount: 0,
       eMISCount: 0,
       uncategorizedCount: 0,
+      eAppointmentCount: 0,
+      governmentOutdoorDispensaryCount: 0,
       validationPassed: false,
       message: 'API error occurred',
       errors: [error instanceof Error ? error.message : 'Unknown API error']

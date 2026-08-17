@@ -22,33 +22,85 @@ export class RegistrationStatsService {
   }
 
   /**
+   * Fetch total patient registrations from eAppointment API
+   */
+  private async getEAppointmentCount(): Promise<number> {
+    try {
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 5000);
+      const response = await fetch("https://eappointment.dghs.gov.bd/api/v1/stats", {
+        signal: controller.signal,
+        cache: "no-store",
+      });
+      clearTimeout(timeoutId);
+      if (response.ok) {
+        const json = await response.json();
+        if (json && typeof json.patients_all === "number") {
+          return json.patients_all;
+        }
+      }
+    } catch (error) {
+      console.error('[RegistrationStats] Failed to fetch eAppointment stats:', error);
+    }
+    return 0;
+  }
+
+  /**
+   * Fetch total patient registrations from Government Outdoor Dispensary (GOD) API
+   */
+  private async getGovernmentOutdoorDispensaryCount(): Promise<number> {
+    try {
+      // Get today's date in YYYY-MM-DD format (Asia/Dhaka timezone)
+      const today = new Date().toLocaleDateString("en-CA", { timeZone: "Asia/Dhaka" });
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 5000);
+      const response = await fetch(`https://god-central.cmedhealth.com/openmrs/ws/dghs/api/hid/total-count?startDate=2026-01-01&endDate=${today}`, {
+        signal: controller.signal,
+        cache: "no-store",
+      });
+      clearTimeout(timeoutId);
+      if (response.ok) {
+        const json = await response.json();
+        if (json && json.data && typeof json.data.totalCount === "number") {
+          return json.data.totalCount;
+        }
+      }
+    } catch (error) {
+      console.error('[RegistrationStats] Failed to fetch Government Outdoor Dispensary stats:', error);
+    }
+    return 0;
+  }
+
+  /**
    * Get facility type registration statistics using single aggregation approach
    */
   async getTotalRegistrationStats(): Promise<FacilityTypeWiseStatsInterface> {
     try {
-      // Get the true total count from the index
-      const totalCountResponse = await esBaseClient.count({
-        index: healthRecordESIndexName
-      });
-      const actualTotalCount = totalCountResponse.body.count;
-
-      // Single aggregation query with larger size to capture all facilities
-      const facilityAggregation = await esBaseClient.search({
-        index: healthRecordESIndexName,
-        body: {
-          size: 0, // Only return aggregations
-          aggs: {
-            facility_stats: {
-              terms: {
-                field: "created_facility_id",
-                size: 50000 // Increased size to capture all facilities
-                // Removed 'missing' parameter as it causes number format exception for numeric fields
+      // Fetch ES count, ES aggregation, eAppointment count, and Government Outdoor Dispensary count concurrently
+      const [totalCountResponse, facilityAggregation, eAppointmentCount, governmentOutdoorDispensaryCount] = await Promise.all([
+        esBaseClient.count({
+          index: healthRecordESIndexName
+        }),
+        esBaseClient.search({
+          index: healthRecordESIndexName,
+          body: {
+            size: 0, // Only return aggregations
+            aggs: {
+              facility_stats: {
+                terms: {
+                  field: "created_facility_id",
+                  size: 50000 // Increased size to capture all facilities
+                  // Removed 'missing' parameter as it causes number format exception for numeric fields
+                }
               }
             }
           }
-        }
-      });
+        }),
+        this.getEAppointmentCount(),
+        this.getGovernmentOutdoorDispensaryCount()
+      ]);
 
+      const actualTotalCount = totalCountResponse.body.count;
       const buckets: FacilityBucket[] = facilityAggregation.body.aggregations.facility_stats.buckets;
       const totalFromAggregation = buckets.reduce((sum, bucket) => sum + bucket.doc_count, 0);
       
@@ -62,6 +114,8 @@ export class RegistrationStatsService {
       
       // Calculate counts and validate using the actual total count
       const stats = this.calculateStatsFromCategorization(categorizedFacilities, actualTotalCount);
+      stats.eAppointmentCount = eAppointmentCount;
+      stats.governmentOutdoorDispensaryCount = governmentOutdoorDispensaryCount;
       
       return stats;
     } catch (error) {
@@ -75,6 +129,8 @@ export class RegistrationStatsService {
         aaloClincCount: 0,
         eMISCount: 0,
         uncategorizedCount: 0,
+        eAppointmentCount: 0,
+        governmentOutdoorDispensaryCount: 0,
         validationPassed: false,
         message: 'Error retrieving registration statistics',
         errors: [error instanceof Error ? error.message : 'Unknown error']

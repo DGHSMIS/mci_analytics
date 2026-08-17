@@ -63,6 +63,8 @@ function useRegistrationStatsAPI(props: {
           aaloClincCount: 0,
           eMISCount: 0,
           uncategorizedCount: 0,
+          eAppointmentCount: 0,
+          governmentOutdoorDispensaryCount: 0,
           validationPassed: true,
         };
         return empty;
@@ -171,8 +173,6 @@ export default memo(function PublicDbClientWrapper({
   const {
     demographyMinDate,
     demographyMaxDate,
-    eAppointmentCount,
-    setEAppointmentCount,
   } = useStore();
 
 
@@ -186,22 +186,6 @@ export default memo(function PublicDbClientWrapper({
       refetchOnReconnect: true,
     },
   });
-
-  useEffect(() => {
-    async function getEAppointmentStats() {
-      try {
-        const response = await fetch("https://eappointment.dghs.gov.bd/api/v1/stats");
-        const json = await response.json();
-        if (json && typeof json.patients_all === "number") {
-          setEAppointmentCount(json.patients_all);
-        }
-      } catch (err) {
-        console.error("Failed to fetch eAppointment stats:", err);
-      }
-    }
-    getEAppointmentStats();
-  }, [setEAppointmentCount]);
-
 
   // Step 1 - Getting the data for the Dashboard page, directly on the server site
   const { data: regStatsData, isError: regStatIsError, isLoading: regStatIsLoading } = useRegistrationStatsAPI({ queryClient });
@@ -233,7 +217,9 @@ export default memo(function PublicDbClientWrapper({
         card4Title={"Aalo Clinic"}
         card5Title={"eMIS"}
         card6Title={"eAppointment"}
-        card6Value={eAppointmentCount}
+        card6Value={regStatsData?.eAppointmentCount}
+        card7Title={"Government Outdoor Dispensary"}
+        card7Value={regStatsData?.governmentOutdoorDispensaryCount}
       />
 
       {/*Section 2 - Lifetime Clinical Data Collection Stats*/}

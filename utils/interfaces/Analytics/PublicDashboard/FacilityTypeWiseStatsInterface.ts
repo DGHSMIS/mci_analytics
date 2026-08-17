@@ -6,6 +6,8 @@ export interface FacilityTypeWiseStatsInterface {
   eMISCount: number;
   uncategorizedCount: number; // New field for facilities that couldn't be categorized
   validationPassed: boolean;   // New field to indicate if counts sum correctly
+  eAppointmentCount?: number;
+  governmentOutdoorDispensaryCount?: number;
   message?: string;
   errors?: string[];          // New field for tracking categorization errors
 }

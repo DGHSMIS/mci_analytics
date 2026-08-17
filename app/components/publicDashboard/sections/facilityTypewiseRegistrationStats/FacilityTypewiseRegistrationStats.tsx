@@ -15,6 +15,8 @@ export interface BaseDashboardStatsProps {
   card5Title: string;
   card6Title?: string;
   card6Value?: number | string | null;
+  card7Title?: string;
+  card7Value?: number | string | null;
   commonCardProps?: CardIndicatorsProps;
 }
 
@@ -43,6 +45,8 @@ const FacilityTypewiseRegistrationStats = memo(function FacilityTypewiseRegistra
   card5Title,
   card6Title,
   card6Value,
+  card7Title,
+  card7Value,
   commonCardProps = DashboardCardCommonProps,
 }: BaseDashboardStatsProps) {
   return (
@@ -52,7 +56,7 @@ const FacilityTypewiseRegistrationStats = memo(function FacilityTypewiseRegistra
           {sectionHeader}
         </h3>
       )}
-      <div className={`grid grid-cols-2 gap-16 lg:space-x-0 lg:space-y-0 ${card6Title ? "lg:grid-cols-6" : "lg:grid-cols-5"}`}>
+      <div className={`grid grid-cols-2 gap-16 lg:space-x-0 lg:space-y-0 ${card7Title ? "lg:grid-cols-7" : card6Title ? "lg:grid-cols-6" : "lg:grid-cols-5"}`}>
         <CardIndicators
           {...commonCardProps}
           key={0}
@@ -120,7 +124,7 @@ const FacilityTypewiseRegistrationStats = memo(function FacilityTypewiseRegistra
               : ""
           }
         />
-        {card6Title && card6Value !== undefined && (
+        {card6Title && (card6Value !== undefined || countStats?.eAppointmentCount !== undefined) && (
           <CardIndicators
             {...commonCardProps}
             key={5}
@@ -128,8 +132,22 @@ const FacilityTypewiseRegistrationStats = memo(function FacilityTypewiseRegistra
             title={card6Title}
             className='col-span-1 lg:col-span-1'
             subTitle={
-              card6Value !== null
-                ? Number(card6Value).toLocaleString("en-IN")
+              (card6Value ?? countStats?.eAppointmentCount) !== null && (card6Value ?? countStats?.eAppointmentCount) !== undefined
+                ? Number(card6Value ?? countStats?.eAppointmentCount).toLocaleString("en-IN")
+                : ""
+            }
+          />
+        )}
+        {card7Title && (card7Value !== undefined || countStats?.governmentOutdoorDispensaryCount !== undefined) && (
+          <CardIndicators
+            {...commonCardProps}
+            key={6}
+            iconName="medical-cross"
+            title={card7Title}
+            className='col-span-1 lg:col-span-1'
+            subTitle={
+              (card7Value ?? countStats?.governmentOutdoorDispensaryCount) !== null && (card7Value ?? countStats?.governmentOutdoorDispensaryCount) !== undefined
+                ? Number(card7Value ?? countStats?.governmentOutdoorDispensaryCount).toLocaleString("en-IN")
                 : ""
             }
           />
